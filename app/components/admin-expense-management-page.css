@@ -1,0 +1,796 @@
+.admin-expense-page {
+  min-height: 0;
+  overflow: visible;
+  padding: 16px 0 0;
+  position: relative;
+  z-index: 1;
+}
+
+.admin-payment-panel .panel-head span {
+  color: var(--muted);
+  display: block;
+  font-size: 11px;
+  margin-top: 5px;
+}
+
+.admin-expense-filters {
+  align-items: end;
+  display: grid;
+  gap: 12px;
+  grid-template-columns: 170px 180px minmax(190px, 1fr) auto auto;
+  margin-bottom: 14px;
+  padding: 16px;
+}
+
+.admin-expense-filters label,
+.admin-payment-form label {
+  color: #4d6660;
+  display: grid;
+  font-size: 12px;
+  font-weight: 800;
+  gap: 6px;
+}
+
+.admin-expense-filters input,
+.admin-expense-filters select,
+.admin-payment-form input,
+.admin-payment-form textarea {
+  background: #fff;
+  border: 1px solid #cddcd6;
+  border-radius: 9px;
+  color: var(--ink);
+  font: inherit;
+  min-height: 42px;
+  padding: 4px 6px;
+  width: 100%;
+}
+
+.admin-expense-filters strong {
+  color: var(--green);
+  font-size: 12px;
+  padding-bottom: 11px;
+}
+
+.admin-expense-message {
+  background: var(--green-soft);
+  border: 1px solid rgba(15, 107, 85, .14);
+  border-radius: 10px;
+  color: var(--green);
+  font-size: 12px;
+  font-weight: 800;
+  margin: 0 0 14px;
+  padding: 10px 12px;
+}
+
+.admin-expense-metrics {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin-bottom: 16px;
+}
+
+.admin-expense-metrics article {
+  align-items: center;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 15px;
+  display: grid;
+  gap: 7px 12px;
+  grid-template-columns: 42px minmax(0, 1fr);
+  padding: 17px;
+}
+
+.admin-expense-metrics svg {
+  background: var(--green-soft);
+  border-radius: 11px;
+  color: var(--green);
+  height: 42px;
+  padding: 10px;
+  width: 42px;
+}
+
+.admin-expense-metrics small,
+.admin-expense-metrics strong {
+  display: block;
+  grid-column: 2;
+}
+
+.admin-expense-metrics small {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.admin-expense-metrics strong {
+  font-size: 26px;
+}
+
+.admin-expense-grid {
+  align-items: start;
+  display: grid;
+  gap: 16px;
+  grid-template-columns: minmax(0, 1.35fr) minmax(320px, .65fr);
+}
+
+.admin-expense-report,
+.admin-payment-panel,
+.admin-expense-details {
+  padding: 20px;
+}
+
+.admin-expense-selected-row td {
+  background: #eff8f4;
+}
+
+.admin-expense-report td strong,
+.admin-expense-report td small {
+  display: block;
+}
+
+.admin-expense-report td small {
+  color: var(--muted);
+  font-size: 10px;
+  margin-top: 3px;
+}
+
+.admin-expense-empty {
+  color: var(--muted);
+  font-size: 12px;
+  padding: 26px 12px !important;
+  text-align: center;
+}
+
+.admin-payment-due {
+  background: linear-gradient(135deg, var(--green-soft), #fff);
+  border: 1px solid rgba(15, 107, 85, .16);
+  border-radius: 13px;
+  margin-top: 16px;
+  padding: 15px;
+}
+
+.admin-payment-due small,
+.admin-payment-due strong {
+  display: block;
+}
+
+.admin-payment-due small {
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.admin-payment-due strong {
+  font-size: 30px;
+  margin-top: 6px;
+}
+
+.admin-payment-form {
+  display: grid;
+  gap: 11px;
+  margin-top: 16px;
+}
+
+.admin-payment-form textarea {
+  resize: vertical;
+}
+
+.admin-ledger-list {
+  border-top: 1px solid var(--line);
+  display: grid;
+  gap: 9px;
+  margin-top: 18px;
+  padding-top: 16px;
+}
+
+.admin-ledger-list h3 {
+  font-size: 15px;
+  margin: 0;
+}
+
+.admin-ledger-list article {
+  align-items: center;
+  background: #f8faf9;
+  border: 1px solid #e2ebe7;
+  border-radius: 11px;
+  display: grid;
+  gap: 9px;
+  grid-template-columns: 50px minmax(0, 1fr) auto;
+  padding: 10px;
+}
+
+.admin-ledger-list article > span {
+  border-radius: 8px;
+  font-size: 10px;
+  font-weight: 850;
+  padding: 7px 8px;
+  text-align: center;
+}
+
+.admin-ledger-expense {
+  background: var(--amber-soft);
+  color: #805200;
+}
+
+.admin-ledger-paid {
+  background: var(--green-soft);
+  color: var(--green);
+}
+
+.admin-ledger-list strong,
+.admin-ledger-list small {
+  display: block;
+}
+
+.admin-ledger-list strong {
+  font-size: 12px;
+}
+
+.admin-ledger-list small {
+  color: var(--muted);
+  font-size: 10px;
+  margin-top: 2px;
+}
+
+.admin-ledger-list b {
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.admin-expense-details {
+  margin-top: 16px;
+}
+
+@media print {
+  .admin-expense-page {
+    left: 0;
+    padding: 0;
+    position: static;
+  }
+}
+
+@media (max-width: 1100px) {
+  .admin-expense-grid,
+  .admin-expense-filters {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-expense-filters strong {
+    padding-bottom: 0;
+  }
+}
+
+@media (max-width: 800px) {
+  .admin-expense-page {
+    padding: 14px 0 0;
+  }
+
+  .admin-expense-metrics {
+    grid-template-columns: 1fr;
+  }
+}
+
+.admin-expense-page {
+  background:
+    radial-gradient(circle at 88% 0%, rgba(15, 107, 85, .13), transparent 30%),
+    linear-gradient(180deg, #f3f8f6 0%, #f8fbf9 38%, #eef5f2 100%);
+}
+
+.admin-expense-filters {
+  background: rgba(255, 255, 255, .9);
+  border: 1px solid rgba(15, 107, 85, .14);
+  border-radius: 18px;
+  box-shadow: 0 12px 32px rgba(16, 65, 54, .07);
+  margin-bottom: 16px;
+  padding: 14px;
+}
+
+.admin-expense-filters input,
+.admin-expense-filters select,
+.admin-payment-form input,
+.admin-payment-form textarea {
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .9);
+  transition: border-color .16s ease, box-shadow .16s ease;
+}
+
+.admin-expense-filters input:focus,
+.admin-expense-filters select:focus,
+.admin-payment-form input:focus,
+.admin-payment-form textarea:focus {
+  border-color: rgba(15, 107, 85, .58);
+  box-shadow: 0 0 0 3px rgba(15, 107, 85, .12);
+  outline: none;
+}
+
+.admin-expense-filters strong {
+  background: var(--green-soft);
+  border: 1px solid rgba(15, 107, 85, .12);
+  border-radius: 999px;
+  justify-self: end;
+  padding: 8px 11px;
+  white-space: nowrap;
+}
+
+.admin-expense-metrics {
+  gap: 14px;
+}
+
+.admin-expense-metrics article {
+  background:
+    radial-gradient(circle at 100% 0%, rgba(15, 107, 85, .1), transparent 32%),
+    #fff;
+  border-color: rgba(15, 107, 85, .14);
+  box-shadow: 0 14px 32px rgba(16, 65, 54, .07);
+  min-height: 118px;
+  position: relative;
+  overflow: hidden;
+}
+
+.admin-expense-metrics article::after {
+  background: linear-gradient(180deg, rgba(15, 107, 85, .18), transparent);
+  content: "";
+  height: 72px;
+  position: absolute;
+  right: -20px;
+  top: -20px;
+  transform: rotate(28deg);
+  width: 72px;
+}
+
+.admin-expense-metrics strong {
+  letter-spacing: -.03em;
+}
+
+.admin-expense-grid {
+  gap: 18px;
+}
+
+.admin-expense-report,
+.admin-payment-panel,
+.admin-expense-details {
+  border: 1px solid rgba(15, 107, 85, .13);
+  border-radius: 20px;
+  box-shadow: 0 16px 38px rgba(16, 65, 54, .08);
+  overflow: hidden;
+}
+
+.admin-expense-report .panel-head,
+.admin-payment-panel .panel-head,
+.admin-expense-details .panel-head {
+  border-bottom: 1px solid rgba(15, 107, 85, .1);
+  margin: -20px -20px 16px;
+  padding: 18px 20px 15px;
+}
+
+.admin-expense-report table,
+.admin-expense-details table {
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.admin-expense-report th,
+.admin-expense-details th {
+  background: #edf6f2;
+  color: #31564b;
+}
+
+.admin-expense-report tbody tr:hover td,
+.admin-expense-details tbody tr:hover td {
+  background: #f6fbf8;
+}
+
+.admin-payment-due {
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .45);
+}
+
+.admin-payment-form .button-primary {
+  justify-content: center;
+  width: 100%;
+}
+
+.admin-ledger-list article {
+  background: #fff;
+  transition: border-color .16s ease, transform .16s ease;
+}
+
+.admin-ledger-list article:hover {
+  border-color: rgba(15, 107, 85, .24);
+  transform: translateY(-1px);
+}
+
+.admin-ledger-panel {
+  background: rgba(255, 255, 255, .94);
+  border: 1px solid rgba(15, 107, 85, .15);
+  border-radius: 20px;
+  box-shadow: 0 16px 38px rgba(16, 65, 54, .08);
+  margin-top: 18px;
+  overflow: hidden;
+  padding: 0;
+}
+
+.admin-ledger-panel-head {
+  align-items: center;
+  background:
+    radial-gradient(circle at 100% 0%, rgba(230, 166, 42, .1), transparent 34%),
+    linear-gradient(135deg, #f8fcfa 0%, #edf7f3 100%);
+  border-bottom: 1px solid rgba(15, 107, 85, .12);
+  display: grid;
+  gap: 16px;
+  grid-template-columns: minmax(230px, .75fr) minmax(520px, 1.45fr);
+  margin: 0;
+  padding: 16px 18px;
+}
+
+.admin-ledger-panel-title {
+  align-items: center;
+  display: flex;
+  gap: 11px;
+  min-width: 0;
+}
+
+.admin-ledger-panel-title h2 {
+  color: var(--ink);
+  font-size: clamp(17px, 1.7vw, 21px);
+  line-height: 1.2;
+  margin: 0;
+}
+
+.admin-ledger-panel-icon {
+  align-items: center;
+  background: #e0f2ea;
+  border: 1px solid rgba(15, 107, 85, .14);
+  border-radius: 12px;
+  color: var(--green);
+  display: inline-flex;
+  flex: 0 0 auto;
+  height: 42px;
+  justify-content: center;
+  width: 42px;
+}
+
+.admin-ledger-panel-icon svg {
+  height: 20px;
+  width: 20px;
+}
+
+.admin-ledger-payment-form {
+  align-items: end;
+  background: rgba(255, 255, 255, .8);
+  border: 1px solid rgba(15, 107, 85, .13);
+  border-radius: 13px;
+  display: grid;
+  gap: 8px;
+  grid-template-columns: 145px 120px minmax(135px, 1fr) auto;
+  padding: 9px;
+}
+
+.admin-ledger-payment-form label {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.admin-ledger-payment-form label > span {
+  color: #567069;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: .03em;
+}
+
+.admin-ledger-payment-form input {
+  background: #fff;
+  border: 1px solid #cbdcd6;
+  border-radius: 9px;
+  color: var(--ink);
+  font: inherit;
+  font-size: 12px;
+  min-height: 38px;
+  min-width: 0;
+  padding: 7px 9px;
+  width: 100%;
+}
+
+.admin-ledger-payment-form input:focus {
+  border-color: var(--green);
+  box-shadow: 0 0 0 3px rgba(15, 107, 85, .11);
+  outline: none;
+}
+
+.admin-ledger-payment-form .button-primary {
+  justify-content: center;
+  min-height: 38px;
+  padding: 7px 15px;
+  white-space: nowrap;
+}
+
+.admin-ledger-table-wrap {
+  padding: 16px 18px 18px;
+}
+
+.admin-ledger-panel .ledger-book-table tbody tr:hover td {
+  background: #f7fbf9;
+}
+
+.admin-ledger-panel .ledger-book-table tfoot td {
+  background: #edf7f3;
+}
+
+@media (max-width: 1100px) {
+  .admin-expense-filters strong {
+    justify-self: stretch;
+    text-align: center;
+    white-space: normal;
+  }
+
+  .admin-ledger-panel-head {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 800px) {
+  .admin-expense-report,
+  .admin-payment-panel,
+  .admin-expense-details {
+    border-radius: 17px;
+    padding: 16px;
+  }
+
+  .admin-expense-report .panel-head,
+  .admin-payment-panel .panel-head,
+  .admin-expense-details .panel-head {
+    margin: -16px -16px 14px;
+    padding: 16px;
+  }
+
+  .admin-ledger-panel {
+    border-radius: 17px;
+  }
+
+  .admin-ledger-panel-head {
+    gap: 13px;
+    padding: 14px;
+  }
+
+  .admin-ledger-payment-form {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .admin-ledger-payment-form label:nth-child(3),
+  .admin-ledger-payment-form .button-primary {
+    grid-column: 1 / -1;
+  }
+
+  .admin-ledger-table-wrap {
+    padding: 14px;
+  }
+}
+
+@media (max-width: 520px) {
+  .admin-ledger-payment-form {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-ledger-payment-form label:nth-child(3),
+  .admin-ledger-payment-form .button-primary {
+    grid-column: auto;
+  }
+}
+
+.ledger-book-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 11px;
+  background: #fff;
+  border-radius: 6px;
+  overflow: hidden;
+  border: 1px solid #e2ebe7;
+}
+.ledger-book-table th, .ledger-book-table td {
+  border: 1px solid #e2ebe7;
+  padding: 4px 6px;
+  text-align: left;
+}
+.ledger-book-table th {
+  background: #f8faf9;
+  font-weight: 600;
+  color: #4b5563;
+}
+.ledger-book-table td {
+  vertical-align: middle;
+}
+.ledger-action-btn {
+  background: none;
+  border: none;
+  padding: 4px;
+  cursor: pointer;
+  border-radius: 4px;
+  color: #6b7280;
+}
+.ledger-action-btn:hover {
+  background: #f3f4f6;
+  color: #111827;
+}
+.ledger-action-btn.danger:hover {
+  background: #fef2f2;
+  color: #dc2626;
+}
+
+
+@media print {
+  body.printing-ledger-only .admin-expense-page > *:not(.admin-expense-grid) {
+    display: none !important;
+  }
+  body.printing-ledger-only .admin-expense-grid > *:not(.admin-payment-panel) { display: none !important; }
+  body.printing-ledger-only .admin-expense-grid { display: block !important; }
+  body.printing-ledger-only .admin-payment-panel {
+    display: block !important;
+    position: static !important;
+    width: 100% !important;
+    height: auto !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    overflow: visible !important;
+  }
+  body.printing-ledger-only aside,
+  body.printing-ledger-only .admin-payment-panel > div {
+    display: block !important;
+    overflow: visible !important;
+  }
+  body.printing-ledger-only .admin-payment-panel form,
+  body.printing-ledger-only .admin-payment-panel button,
+  body.printing-ledger-only .ledger-action-btn,
+  body.printing-ledger-only .admin-payment-due,
+  body.printing-ledger-only .panel-head button {
+    display: none !important;
+  }
+  body.printing-ledger-only .ledger-book-table th:last-child,
+  body.printing-ledger-only .ledger-book-table td:last-child {
+    display: none !important;
+  }
+  body.printing-ledger-only .admin-ledger-list {
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+    border-top: none !important;
+  }
+}
+
+@media print {
+  body.printing-ledger-only .print-only-header {
+    display: block !important;
+  }
+  body.printing-ledger-only .sidebar,
+  body.printing-ledger-only .app-header {
+    display: none !important;
+  }
+}
+
+.print-only-footer { display: none; }
+@media print {
+  body.printing-ledger-only .print-only-footer { display: table-row !important; }
+}
+
+@media print {
+  @page {
+    size: A4;
+    margin: 20mm;
+  }
+  body.printing-ledger-only .panel-head,
+  body.printing-ledger-only .admin-ledger-list h3 {
+    display: none !important;
+  }
+  body.printing-ledger-only .admin-ledger-list {
+    width: 100% !important;
+    max-width: 800px !important;
+    margin: 0 auto !important;
+  }
+  body.printing-ledger-only .ledger-book-table {
+    margin: 0 auto !important;
+    width: 100% !important;
+  }
+  body.printing-ledger-only .ledger-book-table th,
+  body.printing-ledger-only .ledger-book-table td {
+    text-align: center !important;
+  }
+  body.printing-ledger-only .print-only-header {
+    width: 100% !important;
+    text-align: center !important;
+    margin-bottom: 30px !important;
+  }
+}
+@media print {
+  body.printing-ledger-only .admin-payment-panel {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+  }
+  body.printing-ledger-only .admin-payment-panel > .panel-head,
+  body.printing-ledger-only .admin-payment-panel > .admin-payment-due,
+  body.printing-ledger-only .admin-payment-panel > form {
+    display: none !important;
+  }
+}
+@media print {
+  body.printing-ledger-only .admin-expense-page {
+    position: static !important;
+    left: 0 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    width: 100% !important;
+  }
+}
+@media print {
+  body.printing-ledger-only .app-main {
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+  }
+  body.printing-ledger-only .admin-expense-grid {
+    grid-template-columns: 1fr !important;
+    width: 100% !important;
+    margin: 0 !important;
+  }
+}
+@media print {
+  body.printing-ledger-only .admin-payment-panel {
+    margin: 0 !important;
+  }
+}
+
+.admin-expense-print-report {
+  display: none;
+}
+
+@media print {
+  body.printing-report-only * {
+    visibility: hidden;
+  }
+  body.printing-report-only .admin-expense-print-report,
+  body.printing-report-only .admin-expense-print-report * {
+    visibility: visible;
+  }
+  body.printing-report-only .admin-expense-print-report {
+    display: block;
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    padding: 30px 40px;
+    box-sizing: border-box;
+  }
+  body.printing-report-only .admin-expense-print-report table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+  }
+  body.printing-report-only .admin-expense-print-report th,
+  body.printing-report-only .admin-expense-print-report td {
+    border: 1px solid #ccc;
+    padding: 8px 12px;
+    font-size: 13px;
+  }
+  body.printing-report-only .admin-expense-print-report th {
+    background: #f5f5f5;
+    font-weight: bold;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  body.printing-report-only .admin-expense-print-report tfoot td {
+    border-top: 2px solid #333;
+    font-weight: bold;
+  }
+  body.printing-report-only .sidebar,
+  body.printing-report-only .app-header {
+    display: none !important;
+  }
+}
+
+.admin-ledger-panel .ledger-book-table tbody tr.admin-ledger-notification-target td {
+  background: #fff7df;
+  border-bottom-color: #e6b44f;
+  border-top: 1px solid #e6b44f;
+  animation: admin-ledger-notification-pulse 1.4s ease-out 2;
+}
+
+@keyframes admin-ledger-notification-pulse {
+  0% { box-shadow: inset 4px 0 0 #e6a62a; }
+  100% { box-shadow: inset 4px 0 0 transparent; }
+}

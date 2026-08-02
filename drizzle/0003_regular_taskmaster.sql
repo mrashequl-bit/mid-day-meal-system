@@ -1,0 +1,1 @@
+ALTER TABLE `suppliers` ADD `default_unit_price_poisha` integer DEFAULT 0 NOT NULL;

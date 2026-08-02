@@ -1,0 +1,97 @@
+.topbar {
+  margin-left: -32px;
+  margin-right: -32px;
+  padding-left: 32px;
+  padding-right: 32px;
+}
+
+.top-actions {
+  justify-content: flex-end;
+  margin-right: -14px;
+  min-width: 38px;
+}
+
+.top-actions .user-card {
+  display: none !important;
+}
+
+.page-head {
+  align-items: center;
+  padding-bottom: 18px;
+}
+
+.page-head h1 {
+  margin-bottom: 0;
+}
+
+.page-head > div:first-child {
+  min-width: 0;
+}
+
+.page-head > div:first-child > p:last-child {
+  display: none !important;
+}
+
+.global-filters {
+  align-self: center;
+}
+
+@media (min-width: 801px) {
+  .topbar .top-actions {
+    margin-right: 0;
+    position: absolute;
+    right: 24px;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+}
+
+@media (max-width: 800px) {
+  .topbar {
+    margin-left: -16px;
+    margin-right: -16px;
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  .topbar > div:first-child {
+    align-items: center;
+    column-gap: 9px;
+    display: grid;
+    grid-template-columns: 40px minmax(0, 1fr);
+    grid-template-rows: auto auto;
+    row-gap: 1px;
+  }
+
+  .topbar .mobile-menu {
+    grid-column: 1;
+    grid-row: 1 / span 2;
+  }
+
+  .topbar > div:first-child > p,
+  .topbar > div:first-child > small {
+    grid-column: 2;
+    line-height: 1.25;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .top-actions {
+    margin-right: 0;
+  }
+
+  .page-head {
+    gap: 14px;
+    padding-bottom: 18px;
+  }
+}
+
+@media (min-width: 401px) and (max-width: 460px) {
+  .topbar {
+    margin-left: -12px;
+    margin-right: -12px;
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+}

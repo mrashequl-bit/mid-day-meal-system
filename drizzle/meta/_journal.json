@@ -1,0 +1,48 @@
+{
+  "version": "7",
+  "dialect": "sqlite",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "6",
+      "when": 1784871630096,
+      "tag": "0000_old_demogoblin",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1784872644403,
+      "tag": "0001_curvy_shriek",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1784873621456,
+      "tag": "0002_daily_trish_tilby",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "6",
+      "when": 1784874103793,
+      "tag": "0003_regular_taskmaster",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "6",
+      "when": 1785004037640,
+      "tag": "0004_aromatic_lightspeed",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "6",
+      "when": 1785397771646,
+      "tag": "0005_secure-sessions",
+      "breakpoints": true
+    }
+  ]
+}

@@ -1,0 +1,358 @@
+.area-account-page {
+  background: var(--canvas);
+  overflow: auto;
+  padding: 28px 0 42px;
+  position: relative;
+  z-index: 1;
+}
+
+.app-main.area-account-open > :not(.topbar):not(.notice):not(.area-account-page) {
+  display: none !important;
+}
+
+.area-account-header {
+  align-items: flex-end;
+  display: flex;
+  gap: 18px;
+  justify-content: space-between;
+  margin-bottom: 18px;
+}
+
+.area-account-header h1,
+.area-account-header p {
+  margin: 0;
+}
+
+.area-account-header h1 {
+  font-size: 36px;
+  margin-top: 4px;
+}
+
+.area-account-header span {
+  color: var(--muted);
+  display: block;
+  font-size: 13px;
+}
+
+.area-account-metrics {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin-bottom: 16px;
+}
+
+.area-account-metrics article {
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 18px;
+}
+
+.area-account-metrics small,
+.area-account-metrics strong {
+  display: block;
+}
+
+.area-account-metrics small {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 750;
+}
+
+.area-account-metrics strong {
+  font-size: 28px;
+  margin-top: 7px;
+}
+
+.area-account-loading strong,
+.area-account-loading small {
+  background: linear-gradient(90deg, #eef5f2, #f8fbf9, #eef5f2);
+  background-size: 180% 100%;
+  border-radius: 999px;
+  color: transparent;
+  display: block;
+  width: fit-content;
+  animation: area-account-pulse 1.1s ease-in-out infinite;
+}
+
+.area-account-loading strong {
+  min-width: 92px;
+}
+
+.area-account-loading small {
+  min-width: 72px;
+}
+
+.area-account-grid {
+  align-items: start;
+  display: grid;
+  gap: 16px;
+  grid-template-columns: minmax(300px, .85fr) minmax(0, 1.15fr);
+}
+
+.area-expense-form,
+.area-account-ledger {
+  padding: 22px;
+}
+
+.area-expense-form {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.area-expense-form .panel-head,
+.area-account-wide,
+.area-expense-form button,
+.area-account-message {
+  grid-column: 1 / -1;
+}
+
+.area-expense-form label {
+  color: #4d6660;
+  display: grid;
+  font-size: 13px;
+  font-weight: 750;
+  gap: 6px;
+}
+
+.area-expense-form input,
+.area-expense-form select,
+.area-expense-form textarea {
+  background: #fff;
+  border: 1px solid #cddcd6;
+  border-radius: 9px;
+  color: var(--ink);
+  font: inherit;
+  min-height: 43px;
+  padding: 9px 11px;
+  width: 100%;
+}
+
+.area-expense-form textarea {
+  resize: vertical;
+}
+
+.area-account-message {
+  background: var(--green-soft);
+  border-radius: 9px;
+  color: var(--green);
+  font-size: 12px;
+  font-weight: 750;
+  margin: 0;
+  padding: 9px 11px;
+}
+
+.area-ledger-list {
+  display: grid;
+  gap: 9px;
+  margin-top: 16px;
+}
+
+.area-ledger-list article {
+  align-items: center;
+  background: #f8faf9;
+  border: 1px solid #e2ebe7;
+  border-radius: 11px;
+  display: grid;
+  gap: 10px;
+  grid-template-columns: 52px minmax(0, 1fr) auto;
+  padding: 11px;
+}
+
+.area-ledger-list span {
+  border-radius: 8px;
+  font-size: 10px;
+  font-weight: 850;
+  padding: 7px 8px;
+  text-align: center;
+}
+
+.ledger-request {
+  background: var(--amber-soft);
+  color: #805200;
+}
+
+.ledger-paid {
+  background: var(--green-soft);
+  color: var(--green);
+}
+
+.area-ledger-list strong,
+.area-ledger-list small {
+  display: block;
+}
+
+.area-ledger-list strong {
+  font-size: 13px;
+}
+
+.area-ledger-list small {
+  color: var(--muted);
+  font-size: 11px;
+  margin-top: 2px;
+}
+
+.area-ledger-list b {
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+.area-ledger-empty {
+  color: var(--muted);
+  margin: 0;
+  padding: 28px 12px;
+  text-align: center;
+}
+
+.area-ledger-skeleton {
+  display: grid;
+  gap: 9px;
+}
+
+.area-ledger-skeleton span {
+  background: linear-gradient(90deg, #eef5f2, #f8fbf9, #eef5f2);
+  background-size: 180% 100%;
+  border-radius: 11px;
+  height: 58px;
+  animation: area-account-pulse 1.1s ease-in-out infinite;
+}
+
+@keyframes area-account-pulse {
+  0% {
+    background-position: 100% 0;
+  }
+
+  100% {
+    background-position: -100% 0;
+  }
+}
+
+.area-account-nav .nav-icon svg {
+  height: 17px;
+  stroke-width: 2.1;
+  width: 17px;
+}
+
+.sidebar nav button:nth-child(1) {
+  order: 1;
+}
+
+.sidebar nav button:nth-child(2) {
+  order: 2;
+}
+
+.area-account-nav {
+  order: 3;
+}
+
+.sidebar nav button:nth-child(3) {
+  order: 4;
+}
+
+.sidebar nav button:nth-child(4) {
+  order: 5;
+}
+
+.sidebar nav button:nth-child(5) {
+  order: 6;
+}
+
+.sidebar nav button:nth-child(6) {
+  order: 7;
+}
+
+.area-account-nav-active,
+.sidebar nav .area-account-nav-active {
+  background: rgba(255, 255, 255, .11);
+  color: #fff;
+}
+
+.area-account-nav-active .nav-icon {
+  background: var(--amber) !important;
+  color: #21362f;
+}
+
+@media (max-width: 1100px) {
+  .area-account-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 800px) {
+  .area-account-page {
+    padding: 18px 0 0;
+  }
+
+  .area-account-header {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .area-account-metrics,
+  .area-expense-form {
+    grid-template-columns: 1fr;
+  }
+
+  .area-account-header h1 {
+    font-size: 30px;
+  }
+
+  .area-account-nav .nav-icon svg {
+    height: 22px;
+    width: 22px;
+  }
+}
+
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  .area-account-ledger, .area-account-ledger * {
+    visibility: visible;
+  }
+  .area-account-ledger {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    margin: 0;
+    padding: 20px 40px;
+    box-sizing: border-box;
+    border: none;
+    box-shadow: none;
+  }
+  .print-hide {
+    display: none !important;
+  }
+  .area-ledger-list {
+    display: none !important;
+  }
+}
+
+.area-ledger-print-only {
+  display: none;
+}
+
+@media print {
+  .area-ledger-print-only {
+    display: block;
+  }
+  table.area-ledger-print-only {
+    display: table;
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+  }
+  .area-ledger-print-table th,
+  .area-ledger-print-table td {
+    border: 1px solid #ccc;
+    padding: 8px 12px;
+  }
+  .area-ledger-print-table th {
+    background: #f5f5f5;
+    font-weight: bold;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+}

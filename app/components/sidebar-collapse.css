@@ -1,0 +1,95 @@
+.desktop-sidebar-toggle {
+  align-items: center;
+  background: rgba(255, 255, 255, .12);
+  border: 1px solid rgba(255, 255, 255, .16);
+  border-radius: 10px;
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  font-size: 22px;
+  font-weight: 850;
+  height: 34px;
+  justify-content: center;
+  margin: 14px 8px 0 auto;
+  transition: background .16s ease, transform .16s ease;
+  width: 34px;
+}
+
+.desktop-sidebar-toggle:hover {
+  background: rgba(255, 255, 255, .2);
+  transform: translateX(-1px);
+}
+
+.sidebar,
+.app-main {
+  transition: width .18s ease, margin-left .18s ease, padding .18s ease;
+}
+
+.sidebar-collapsed {
+  align-items: center;
+  width: 84px;
+  padding-left: 10px;
+  padding-right: 10px;
+}
+
+.sidebar-collapsed .brand {
+  justify-content: center;
+  padding-left: 0;
+  padding-right: 0;
+  width: 100%;
+}
+
+.sidebar-collapsed .brand > div,
+.sidebar-collapsed .nav-label,
+.sidebar-collapsed .sidebar-foot p {
+  display: none !important;
+}
+
+.sidebar-collapsed .desktop-sidebar-toggle {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.sidebar-collapsed nav {
+  width: 100%;
+}
+
+.sidebar-collapsed nav button {
+  justify-content: center;
+  padding-left: 8px;
+  padding-right: 8px;
+}
+
+.sidebar-collapsed nav button .nav-icon {
+  width: 38px;
+  height: 38px;
+}
+
+.sidebar-collapsed .sidebar-foot {
+  justify-content: center;
+  padding: 12px 8px;
+}
+
+.sidebar-is-collapsed .app-main {
+  margin-left: 84px;
+}
+
+@media (max-width: 800px) {
+  .desktop-sidebar-toggle {
+    display: none;
+  }
+
+  .sidebar-is-collapsed .app-main {
+    margin-left: 0;
+  }
+
+  .sidebar-collapsed {
+    align-items: initial;
+    width: 100%;
+    padding: 7px 9px calc(7px + env(safe-area-inset-bottom));
+  }
+
+  .sidebar-collapsed .nav-label {
+    display: block !important;
+  }
+}

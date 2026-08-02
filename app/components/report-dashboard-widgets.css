@@ -1,0 +1,123 @@
+.report-widget-host > article {
+  display: none !important;
+}
+
+.report-dashboard-panel .eyebrow {
+  display: none;
+}
+
+.sidebar nav button[title="রিপোর্ট"] {
+  display: none !important;
+}
+
+.print-report > p:first-child,
+.print-report > h2:first-of-type,
+.print-report > span:first-of-type,
+.print-report > table:first-of-type {
+  display: none !important;
+}
+
+.report-widget-grid {
+  display: grid;
+  gap: 9px;
+  grid-column: 1 / -1;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  width: 100%;
+}
+
+.report-widget-grid button {
+  align-items: center;
+  background: #f8faf9;
+  border: 1px solid #e0ebe6;
+  border-radius: 12px;
+  color: var(--ink);
+  cursor: pointer;
+  display: grid;
+  gap: 10px;
+  grid-template-columns: 36px minmax(0, 1fr) auto;
+  min-height: 68px;
+  padding: 10px 12px;
+  text-align: left;
+  transition: border-color .16s ease, box-shadow .16s ease, transform .16s ease;
+}
+
+.report-widget-grid button:hover {
+  border-color: rgba(15, 107, 85, .38);
+  box-shadow: 0 8px 20px rgba(23, 53, 47, .08);
+  transform: translateY(-1px);
+}
+
+.report-widget-grid button:focus-visible {
+  outline: 3px solid rgba(216, 144, 24, .3);
+  outline-offset: 2px;
+}
+
+.report-widget-grid button:disabled {
+  cursor: not-allowed;
+  opacity: .68;
+}
+
+.report-widget-grid button:disabled:hover {
+  border-color: #e0ebe6;
+  box-shadow: none;
+  transform: none;
+}
+
+.area-manager-action-grid small {
+  color: #49665f;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}
+
+.area-manager-action-grid button:first-child > span:first-child {
+  background: #fff4dc;
+  color: #b46d00;
+}
+
+.report-widget-grid button > span:first-child {
+  align-items: center;
+  background: var(--green-soft);
+  border-radius: 9px;
+  color: var(--green);
+  display: flex;
+  height: 36px;
+  justify-content: center;
+  width: 36px;
+}
+
+.report-widget-grid svg {
+  height: 18px;
+  width: 18px;
+}
+
+.report-widget-grid strong,
+.report-widget-grid small {
+  display: block;
+}
+
+.report-widget-grid strong {
+  font-size: 12px;
+}
+
+.report-widget-grid small {
+  color: var(--muted);
+  font-size: 10px;
+  line-height: 1.45;
+  margin-top: 3px;
+}
+
+.report-widget-grid b {
+  color: var(--green);
+  font-size: 20px;
+  font-weight: 500;
+}
+
+@media (max-width: 800px) {
+  .app-shell .sidebar nav {
+    grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+  }
+
+  .report-widget-grid {
+    grid-template-columns: 1fr;
+  }
+}

@@ -1,0 +1,358 @@
+﻿@import "tailwindcss";
+
+:root {
+  --font-bengali: "Anek Bangla", "Nirmala UI", "Hind Siliguri", "SolaimanLipi", Arial, sans-serif;
+  --ink: #17352f;
+  --muted: #687a75;
+  --line: #dce7e2;
+  --surface: #ffffff;
+  --canvas: #f4f8f6;
+  --green: #0f6b55;
+  --green-2: #168267;
+  --green-soft: #e8f4ef;
+  --amber: #d89018;
+  --amber-soft: #fff4dc;
+  --red: #bd4d4d;
+  --red-soft: #fff0ee;
+  --navy: #1d3d4c;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  background: var(--canvas);
+  font-family: var(--font-bengali) !important;
+}
+
+body {
+  margin: 0;
+  background:
+    radial-gradient(circle at 95% 0%, rgba(15, 107, 85, 0.08), transparent 25rem),
+    var(--canvas);
+  color: var(--ink);
+  font-family: var(--font-bengali) !important;
+  font-size: 16px;
+  font-weight: 450;
+  letter-spacing: 0.005em;
+  line-height: 1.55;
+  min-height: 100vh;
+  text-rendering: optimizeLegibility;
+}
+
+button,
+input,
+select,
+textarea {
+  font-family: var(--font-bengali) !important;
+}
+
+button,
+a {
+  -webkit-tap-highlight-color: transparent;
+}
+
+button:focus-visible,
+input:focus-visible,
+select:focus-visible {
+  outline: 3px solid rgba(216, 144, 24, 0.35);
+  outline-offset: 2px;
+}
+
+@media print {
+  .no-print {
+    display: none !important;
+  }
+
+  body {
+    background: #fff;
+  }
+
+  .app-main {
+    padding: 0 !important;
+  }
+
+  .panel {
+    box-shadow: none !important;
+    border-color: #aaa !important;
+  }
+}
+
+/* Desktop alert button redesign and positioning fix */
+@media (min-width: 801px) {
+  .topbar .alert-button {
+    align-items: center !important;
+    background: #ffffff !important;
+    border: 1px solid #e2e8f0 !important;
+    border-radius: 12px !important;
+    color: transparent !important;
+    cursor: pointer !important;
+    display: flex !important;
+    font-size: 0 !important;
+    height: 42px !important;
+    justify-content: center !important;
+    position: relative !important;
+    transition: all 0.2s ease !important;
+    width: 42px !important;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.02) !important;
+    margin-right: 0 !important;
+  }
+
+  .topbar .alert-button:hover {
+    background: #f8fafc !important;
+    border-color: #cbd5e1 !important;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.04) !important;
+  }
+
+  .topbar .alert-button::before {
+    content: "" !important;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%23475569' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9'/%3E%3Cpath d='M10.3 21a1.94 1.94 0 0 0 3.4 0'/%3E%3C/svg%3E") !important;
+    background-position: center !important;
+    background-repeat: no-repeat !important;
+    display: block !important;
+    height: 20px !important;
+    width: 20px !important;
+    transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+  }
+
+  .topbar .alert-button:hover::before {
+    transform: rotate(15deg) scale(1.1) !important;
+  }
+
+  .topbar .alert-button::after {
+    align-items: center !important;
+    background: #ef4444 !important;
+    border: 2px solid #ffffff !important;
+    border-radius: 50% !important;
+    color: #ffffff !important;
+    content: attr(data-count) !important;
+    display: flex !important;
+    font-size: 10px !important;
+    font-weight: 700 !important;
+    height: 20px !important;
+    justify-content: center !important;
+    position: absolute !important;
+    right: -6px !important;
+    top: -6px !important;
+    min-width: 20px !important;
+    padding: 0 4px !important;
+    box-sizing: border-box !important;
+  }
+
+  .topbar .alert-button[data-count="?"]::after,
+  .topbar .alert-button[data-count="0"]::after {
+    display: none !important;
+  }
+}
+
+/* Hide global filters on Dashboard */
+.app-main:has(.dashboard-columns) .global-filters { display: none !important; }
+
+/* Display area widgets in 4 columns on desktop */
+@media (min-width: 1024px) {
+  .area-grid {
+    grid-template-columns: repeat(4, 1fr) !important;
+  }
+}
+
+/* --- Global Filters Redesign --- */
+.global-filters {
+  background: #ffffff !important;
+  border-radius: 20px !important;
+  padding: 18px 28px !important;
+  box-shadow: 0 8px 30px rgba(15, 107, 85, 0.06), 0 2px 8px rgba(15, 107, 85, 0.04) !important;
+  border: 1px solid rgba(15, 107, 85, 0.08) !important;
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 24px !important;
+  align-items: flex-end !important;
+}
+
+.global-filters label {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 8px !important;
+  font-size: 13px !important;
+  font-weight: 700 !important;
+  color: #687a75 !important;
+}
+
+.global-filters input,
+.global-filters select {
+  background: #f4f8f6 !important;
+  border: 1.5px solid #dce7e2 !important;
+  border-radius: 12px !important;
+  padding: 12px 16px !important;
+  font-size: 15px !important;
+  font-weight: 700 !important;
+  color: #17352f !important;
+  min-width: 180px !important;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  height: auto !important;
+}
+
+.global-filters select {
+  appearance: none !important;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%230f6b55' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") !important;
+  background-repeat: no-repeat !important;
+  background-position: right 16px center !important;
+  padding-right: 44px !important;
+  cursor: pointer !important;
+}
+
+.global-filters input:hover,
+.global-filters select:hover {
+  background: #ffffff !important;
+  border-color: #0f6b55 !important;
+  box-shadow: 0 4px 12px rgba(15, 107, 85, 0.08) !important;
+  transform: translateY(-1px) !important;
+}
+
+.global-filters input:focus,
+.global-filters select:focus {
+  outline: none !important;
+  background: #ffffff !important;
+  border-color: #0f6b55 !important;
+  box-shadow: 0 0 0 4px rgba(15, 107, 85, 0.15) !important;
+  transform: translateY(-1px) !important;
+}
+
+.global-filters input[type="date"]::-webkit-calendar-picker-indicator {
+  cursor: pointer !important;
+  opacity: 0.6 !important;
+  transition: opacity 0.2s !important;
+}
+
+.global-filters input[type="date"]::-webkit-calendar-picker-indicator:hover {
+  opacity: 1 !important;
+}
+
+/* --- Stock Cards Icon Redesign --- */
+.procurement-card .procurement-title > span {
+  color: transparent !important;
+  font-size: 0 !important;
+  background-size: 24px 24px !important;
+  background-position: center !important;
+  background-repeat: no-repeat !important;
+}
+
+.procurement-card.item-bun .procurement-title > span {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%230f6b55' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 4c-4.5 0-8 3.5-8 8v3c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2v-3c0-4.5-3.5-8-8-8z'/%3E%3Cpath d='M4 14h16'/%3E%3C/svg%3E") !important;
+}
+
+.procurement-card.item-egg .procurement-title > span {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%231d3d4c' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 22c6.23-.05 7.87-5.57 7.5-10-.36-4.34-3.95-9.96-7.5-10-3.55.04-7.14 5.66-7.5 10-.37 4.43 1.27 9.95 7.5 10z'/%3E%3C/svg%3E") !important;
+}
+
+.procurement-card.item-banana .procurement-title > span {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%238a5b09' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 13c3.5-2 8-2 10 2a9.7 9.7 0 0 1 0 8 8 8 0 0 0-10-10Z'/%3E%3Cpath d='M4 13a9.7 9.7 0 0 1 0-8 8 8 0 0 0 10 10c0-3.5-4.5-5-10-2Z'/%3E%3C/svg%3E") !important;
+}
+
+/* Hide user card (S icon) on mobile */
+@media (max-width: 800px) {
+  .top-actions .user-card { display: none !important; }
+}
+
+/* --- Replace Text Logo with BD Govt Logo --- */
+.brand-seal,
+.mobile-menu {
+  background-image: url('/bd-logo.svg') !important;
+  background-size: contain !important;
+  background-position: center !important;
+  background-repeat: no-repeat !important;
+  background-color: transparent !important;
+  color: transparent !important;
+  font-size: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  border: none !important;
+}
+.brand-seal {
+  width: 48px !important;
+  height: 48px !important;
+}
+.mobile-menu {
+  width: 36px !important;
+  height: 36px !important;
+}
+
+/* Mobile Optimization for Global Filters */
+@media (max-width: 768px) {
+  .global-filters {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    padding: 20px 20px !important;
+    gap: 20px !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+  
+  .global-filters label {
+    width: 100% !important;
+  }
+
+  .global-filters input,
+  .global-filters select {
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+}
+
+/* Hide Product filter on all pages except Distribution Plan */
+.app-main:not(:has(.distribution-layout)) .global-filters label:nth-child(3) { display: none !important; }
+
+/* Compact dashboard filters */
+.page-head .global-filters {
+  border-radius: 14px !important;
+  box-shadow: 0 6px 18px rgba(15, 107, 85, .06) !important;
+  flex-wrap: nowrap !important;
+  gap: 10px !important;
+  padding: 10px 12px !important;
+}
+
+.page-head .global-filters label {
+  flex: 0 1 150px;
+  gap: 4px !important;
+  min-width: 0;
+  font-size: 11px !important;
+}
+
+.page-head .global-filters input,
+.page-head .global-filters select {
+  border-radius: 9px !important;
+  font-size: 12px !important;
+  min-height: 36px !important;
+  min-width: 150px !important;
+  padding: 6px 10px !important;
+  width: 150px !important;
+}
+
+@media (max-width: 800px) {
+  .page-head .global-filters {
+    display: grid !important;
+    flex-direction: initial !important;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    width: 100% !important;
+  }
+
+  .page-head .global-filters label {
+    flex: none;
+    min-width: 0;
+    width: auto !important;
+  }
+
+  .page-head .global-filters input,
+  .page-head .global-filters select {
+    max-width: 100%;
+    min-width: 0 !important;
+    width: 100% !important;
+  }
+}
+
+
+
+
+
+
+

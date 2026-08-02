@@ -1,0 +1,497 @@
+import { access, readFile } from "node:fs/promises";
+import { test } from "node:test";
+import assert from "node:assert/strict";
+
+const read = (path) => readFile(new URL(`../${path}`, import.meta.url), "utf8");
+
+test("the government seal is the site favicon and installable app icon", async () => {
+  const layout = await read("app/layout.tsx");
+  const manifest = await read("public/manifest.webmanifest");
+
+  assert.match(layout, /manifest: "\/manifest\.webmanifest"/);
+  assert.match(layout, /url: "\/bd-logo\.svg", type: "image\/svg\+xml"/);
+  assert.match(layout, /url: "\/apple-touch-icon\.png"/);
+  assert.match(manifest, /"src": "\/app-icon-192\.png"/);
+  assert.match(manifest, /"src": "\/app-icon-512\.png"/);
+  await access(new URL("../public/bd-logo.svg", import.meta.url));
+  await access(new URL("../public/apple-touch-icon.png", import.meta.url));
+  await access(new URL("../public/app-icon-192.png", import.meta.url));
+  await access(new URL("../public/app-icon-512.png", import.meta.url));
+});
+
+test("stock page keeps its Bengali headings without English section labels", async () => {
+  const dashboard = await read("app/components/DashboardApp.tsx");
+  const styles = await read("app/components/DashboardApp.css");
+  const stockRoute = await read("app/api/stock/route.ts");
+
+  assert.doesNotMatch(dashboard, /Procurement Planner|Stock Transaction|Recent Ledger/);
+  assert.match(dashboard, /কত দিনের পণ্য একসাথে কিনবেন/);
+  assert.match(dashboard, /সাম্প্রতিক লেনদেন/);
+  assert.doesNotMatch(dashboard, /ডিফল্ট পরিকল্পনা|চাহিদাভিত্তিক/);
+  assert.match(dashboard, /নষ্ট বা ইস্যুকৃত পণ্য স্টক লেনদেন/);
+  assert.doesNotMatch(dashboard, /stock transaction দেওয়ার সঙ্গে সঙ্গে balance/);
+  assert.match(styles, /\/\* Compact procurement planner \*\//);
+  assert.match(styles, /\.stock-planner \{[\s\S]*?padding: 16px 18px;/);
+  assert.match(styles, /\.stock-planner > \.panel-head h2 \{[\s\S]*?font-size: 20px;/);
+  assert.match(styles, /\.stock-planner \.coverage-controls label \{[\s\S]*?font-size: 13px;/);
+  assert.match(styles, /\.stock-planner \.procurement-card dt \{[\s\S]*?font-size: 12px;/);
+  assert.match(styles, /@media \(max-width: 520px\)[\s\S]*?grid-template-columns: repeat\(2, minmax\(0, 1fr\)\)/);
+  assert.match(dashboard, /\[stockLedgerItem, setStockLedgerItem\]/);
+  assert.match(dashboard, /filteredStockLedger = a\.filter/);
+  assert.match(dashboard, /Math\.ceil\(filteredStockLedger\.length \/ 10\)/);
+  assert.match(dashboard, /currentStockLedgerPage \* 10/);
+  assert.match(dashboard, /className: `stock-ledger-toolbar no-print`/);
+  assert.match(dashboard, /className: `stock-ledger-pagination no-print`/);
+  assert.match(dashboard, /className: `stock-ledger-print print-only`/);
+  assert.match(dashboard, /printClass = `printing-stock-ledger`/);
+  assert.match(styles, /body\.printing-stock-ledger \.stock-ledger-print/);
+  assert.doesNotMatch(stockRoute, /ORDER BY st\.id DESC LIMIT 20/);
+});
+
+test("supplier page keeps the Bengali account heading without the English label", async () => {
+  const dashboard = await read("app/components/DashboardApp.tsx");
+  const styles = await read("app/components/DashboardApp.css");
+
+  assert.doesNotMatch(dashboard, /Supplier Accounts/);
+  assert.match(dashboard, /পণ্যভিত্তিক সরবরাহকারী ও আলাদা হিসাব/);
+  assert.match(dashboard, /children: `নগদ প্রদান`/);
+  assert.doesNotMatch(dashboard, /children: `ন নগদ প্রদান`/);
+  assert.match(styles, /\/\* Professional stacked supplier accounts \*\//);
+  assert.match(styles, /\.supplier-account-grid \{[\s\S]*?grid-template-columns: minmax\(0, 1fr\)/);
+  assert.match(styles, /\.supplier-account \{[\s\S]*?grid-template-columns: minmax\(210px, \.7fr\) minmax\(0, 1\.3fr\)/);
+  assert.match(styles, /\.supplier-account \.supplier-list > div \{[\s\S]*?grid-template-columns: minmax\(210px, 1fr\) auto auto minmax\(125px, auto\)/);
+});
+
+test("mobile notification icon uses the lucide bell without idle background", async () => {
+  const component = await read("app/components/NotificationCenter.tsx");
+  const styles = await read("app/components/notification-center.css");
+  const accountStyles = await read("app/components/account-profile.css");
+
+  assert.match(component, /Bell[\s\S]*from "lucide-react"/);
+  assert.match(component, /className="mobile-notification-launcher"/);
+  assert.doesNotMatch(component, /🔔/);
+  assert.match(
+    styles,
+    /\.mobile-notification-launcher > span:first-child \{[\s\S]*?background: transparent;/,
+  );
+  assert.match(
+    accountStyles,
+    /@media \(max-width: 800px\) \{[\s\S]*?\.topbar \.alert-button \{[\s\S]*?display: none !important;/,
+  );
+  assert.match(
+    accountStyles,
+    /\.topbar \.alert-button::before,\s*\.topbar \.alert-button::after \{[\s\S]*?content: none !important;[\s\S]*?display: none !important;/,
+  );
+  assert.doesNotMatch(styles, /background: rgba\(255, 255, 255, \.08\)/);
+  assert.doesNotMatch(accountStyles, /background: rgba\(255, 255, 255, \.08\)/);
+});
+
+test("expense notifications open the related payment management page", async () => {
+  const notificationCenter = await read("app/components/NotificationCenter.tsx");
+  const notificationStyles = await read("app/components/notification-center.css");
+  const adminExpensePage = await read("app/components/AdminExpenseManagementPage.tsx");
+
+  assert.match(notificationCenter, /area_code\?: string \| null;/);
+  assert.match(notificationCenter, /notification\.type === "expense" && notification\.area_code/);
+  assert.match(notificationCenter, /new CustomEvent\("open-area-expense-workspace"/);
+  assert.match(notificationCenter, /expenseId: notification\.id/);
+  assert.match(notificationCenter, /expenseDate: notification\.date \|\| ""/);
+  assert.doesNotMatch(notificationCenter, /\/area-expenses/);
+  assert.match(notificationCenter, /onClick=\{\(\) => openNotification\(notification\)\}/);
+  assert.match(notificationCenter, /খরচ দেখুন/);
+  assert.match(notificationStyles, /\.notification-card \{[\s\S]*?cursor: pointer;/);
+  assert.match(adminExpensePage, /setSelectedArea\(initialAreaCode \|\| "all"\)/);
+  assert.match(adminExpensePage, /data-ledger-expense-id/);
+  assert.match(adminExpensePage, /selectedArea !== "all"/);
+});
+
+test("distribution notifications open the exact report and keep admin audience separate", async () => {
+  const notificationCenter = await read("app/components/NotificationCenter.tsx");
+  const notificationsRoute = await read("app/api/notifications/route.ts");
+  const distributionRoute = await read("app/api/distribution-reports/route.ts");
+  const distributionItemRoute = await read("app/api/distribution-reports/[id]/route.ts");
+  const distribution = await read("app/components/SchoolDistributionAdjustment.tsx");
+
+  assert.match(notificationCenter, /new CustomEvent\("open-distribution-report"/);
+  assert.match(notificationCenter, /schoolEmis: targetUrl\.searchParams\.get\("school"\)/);
+  assert.match(notificationCenter, /রিপোর্ট দেখুন/);
+  assert.match(notificationsRoute, /WHERE is_read = 0 AND area_code IS NULL/);
+  assert.match(distributionRoute, /status=new&school=\$\{data\.schoolEmisCode\}/);
+  assert.match(distributionItemRoute, /school=\$\{existing\.school_emis_code\}/);
+  assert.doesNotMatch(distributionItemRoute, /\/admin\/distribution/);
+  assert.match(distribution, /window\.addEventListener\('open-distribution-report'/);
+  assert.match(distribution, /data-distribution-school/);
+});
+
+test("profile launcher is rendered inside the sidebar instead of the header", async () => {
+  const dashboard = await read("app/components/DashboardApp.tsx");
+  const profileCard = await read("app/components/AccountProfileCard.tsx");
+  const accountStyles = await read("app/components/account-profile.css");
+  const headerStyles = await read("app/components/header-cleanup.css");
+
+  assert.match(dashboard, /import "\.\/header-cleanup\.css"/);
+  assert.doesNotMatch(dashboard, /className: `user-card`/);
+  assert.match(profileCard, /import \{ createPortal \} from "react-dom"/);
+  assert.match(profileCard, /document\.querySelector\("\.sidebar"\)/);
+  assert.match(profileCard, /launcherTarget && createPortal\(launcher, launcherTarget\)/);
+  assert.match(accountStyles, /\.sidebar > \.account-profile-launcher \{[\s\S]*?position: static;/);
+  assert.match(accountStyles, /\.sidebar-collapsed > \.account-profile-launcher > span:last-child \{[\s\S]*?display: none;/);
+  assert.match(headerStyles, /\.topbar \{[\s\S]*?margin-left: -32px;[\s\S]*?padding-right: 32px;/);
+  assert.match(headerStyles, /\.top-actions \{[\s\S]*?margin-right: -14px;/);
+  assert.match(headerStyles, /@media \(max-width: 800px\) \{[\s\S]*?\.top-actions \{[\s\S]*?margin-right: 0;/);
+  assert.match(headerStyles, /@media \(max-width: 800px\) \{[\s\S]*?\.topbar > div:first-child \{[\s\S]*?display: grid;[\s\S]*?grid-template-columns: 40px minmax\(0, 1fr\);/);
+  assert.match(headerStyles, /\.topbar \.mobile-menu \{[\s\S]*?grid-row: 1 \/ span 2;/);
+  assert.match(headerStyles, /\.topbar > div:first-child > p,[\s\S]*?\.topbar > div:first-child > small \{[\s\S]*?white-space: nowrap;/);
+  assert.match(headerStyles, /\.top-actions \.user-card \{[\s\S]*?display: none !important;/);
+  assert.doesNotMatch(dashboard, /একদিনের এক আইটেমের অনুমোদিত চাহিদাকে ভিত্তি ধরে পরিকল্পনা ও হিসাব/);
+  assert.match(headerStyles, /\.page-head \{[\s\S]*?align-items: center;[\s\S]*?padding-bottom: 18px;/);
+  assert.match(headerStyles, /\.page-head > div:first-child > p:last-child \{[\s\S]*?display: none !important;/);
+});
+
+test("dashboard cleanup widgets replace operational alert residue", async () => {
+  const page = await read("app/page.tsx");
+  const reportWidget = await read("app/components/ReportDashboardWidgets.tsx");
+  const adminExpensePage = await read("app/components/AdminExpenseManagementPage.tsx");
+  const reportStyles = await read("app/components/report-dashboard-widgets.css");
+
+  assert.match(page, /<ReportDashboardWidgets[\s\S]*?accountRole=\{user\.role \|\| ""\}[\s\S]*?userAreaCode=\{user\.areaCode \|\| ""\}/);
+  assert.doesNotMatch(reportWidget, /AdminExpenseManagementPage/);
+  assert.match(reportWidget, /new CustomEvent\("open-area-expense-workspace"\)/);
+  assert.doesNotMatch(reportWidget, /\/area-expenses/);
+  assert.match(adminExpensePage, /অঞ্চলভিত্তিক খরচ/);
+  assert.doesNotMatch(adminExpensePage, /standalone|createPortal/);
+  assert.match(adminExpensePage, /value="all">সকল অঞ্চল/);
+  assert.match(adminExpensePage, /selectedArea === "all"/);
+  assert.match(adminExpensePage, /পেমেন্ট দিতে নির্দিষ্ট একটি অঞ্চল নির্বাচন করুন/);
+  assert.match(adminExpensePage, /পেমেন্ট ম্যানেজ/);
+  assert.match(adminExpensePage, /\/api\/my-account/);
+  assert.match(adminExpensePage, /\/api\/expenses\?\$\{params\.toString\(\)\}/);
+  assert.match(reportWidget, /heading\.textContent = "রিপোর্ট"/);
+  assert.match(reportStyles, /\.report-widget-host > article \{[\s\S]*?display: none !important;/);
+  assert.match(reportStyles, /\.sidebar nav button\[title="রিপোর্ট"\]/);
+  assert.match(reportStyles, /\.print-report > table:first-of-type[\s\S]*?\{\s*display: none !important;/);
+  assert.doesNotMatch(reportWidget, /চাহিদা সারসংক্ষেপ|একদিনের এক আইটেমের চাহিদা/);
+  assert.match(reportWidget, /আজকের বিতরণের রিপোর্ট করুন/);
+  assert.match(reportWidget, /দুপুর ২টার আগে রিপোর্ট করুন · আর বাকি/);
+  assert.match(reportWidget, /new CustomEvent\("open-distribution-report"/);
+  assert.match(reportWidget, /new CustomEvent\("area-account-open", \{ detail: \{ focus: "expense" \} \}\)/);
+  assert.match(reportWidget, /disabled=\{!reportingWindow\.canReport\}/);
+  assert.doesNotMatch(await read("app/components/DashboardApp.tsx"), /স্টক অনুমোদনের আগে প্রাথমিক পরিমাণ দিন|মূল্য ছাড়া আনুমানিক মাসিক বিল তৈরি হবে না/);
+  assert.doesNotMatch(await read("app/components/DashboardApp.tsx"), /Opening stock যোগ করা হয়নি|বিলের unit price অপেক্ষমাণ/);
+});
+
+test("distribution print action renders only the printable report table", async () => {
+  const distribution = await read("app/components/SchoolDistributionAdjustment.tsx");
+  const dashboardStyles = await read("app/components/DashboardApp.css");
+
+  assert.match(distribution, /const printDistributionReport = useCallback/);
+  assert.match(distribution, /document\.body\.classList\.add\(printClass\)/);
+  assert.match(distribution, /onClick=\{printDistributionReport\}/);
+  assert.match(
+    dashboardStyles,
+    /body\.printing-distribution-report #distribution-exceptions,[\s\S]*?visibility: visible !important;/,
+  );
+  assert.match(
+    dashboardStyles,
+    /body\.printing-distribution-report \.responsive-adjustment-table \{[\s\S]*?display: table !important;/,
+  );
+  assert.match(
+    dashboardStyles,
+    /body\.printing-distribution-report \.responsive-adjustment-table tr \{[\s\S]*?position: static !important;/,
+  );
+  assert.match(
+    dashboardStyles,
+    /body\.printing-distribution-report \.responsive-adjustment-table thead \{[\s\S]*?display: table-row-group !important;/,
+  );
+  assert.match(
+    dashboardStyles,
+    /body\.printing-distribution-report \.responsive-adjustment-table th\.no-print,[\s\S]*?display: none !important;/,
+  );
+  assert.match(
+    dashboardStyles,
+    /body\.printing-distribution-report \.responsive-adjustment-table th,[\s\S]*?padding: 2px 4px !important;[\s\S]*?font-size: 8pt !important;[\s\S]*?line-height: 1\.1 !important;/,
+  );
+  assert.match(distribution, /<th className="no-print"[\s\S]*?>অ্যাকশন<\/th>/);
+  assert.match(distribution, /<td className="no-print"/);
+});
+
+test("430px distribution layout stays compact without flattening desktop tables", async () => {
+  const distribution = await read("app/components/SchoolDistributionAdjustment.tsx");
+  const dashboardStyles = await read("app/components/DashboardApp.css");
+
+  assert.match(distribution, /className="distribution-exception-filters no-print"/);
+  assert.match(distribution, /className="distribution-exceptions-body"/);
+  assert.match(
+    dashboardStyles,
+    /@media \(min-width: 401px\) and \(max-width: 460px\) \{[\s\S]*?\.distribution-exception-filters \{[\s\S]*?grid-template-columns: repeat\(3, minmax\(0, 1fr\)\);/,
+  );
+  assert.match(
+    dashboardStyles,
+    /\.responsive-adjustment-table tr \{[\s\S]*?grid-template-columns: 42px minmax\(0, 1\.35fr\) minmax\(0, 1fr\);/,
+  );
+});
+
+test("legacy distribution exceptions widget and its local dead code stay removed", async () => {
+  const dashboard = await read("app/components/DashboardApp.tsx");
+  const dashboardStyles = await read("app/components/DashboardApp.css");
+
+  assert.doesNotMatch(dashboard, /children: `Exceptions`/);
+  assert.doesNotMatch(dashboard, /distribution-anomaly|distribution-exception-grid/);
+  assert.doesNotMatch(dashboard, /anomalies:|setAnomalies/);
+  assert.doesNotMatch(dashboardStyles, /distribution-anomaly|distribution-exception-grid/);
+  assert.match(dashboard, /SchoolDistributionAdjustment/);
+});
+
+test("area manager reporting uses the Dhaka 2 PM cutoff and exact automatic status", async () => {
+  const distribution = await read("app/components/SchoolDistributionAdjustment.tsx");
+  const collectionRoute = await read("app/api/distribution-reports/route.ts");
+  const itemRoute = await read("app/api/distribution-reports/[id]/route.ts");
+  const reportingWindow = await read("app/lib/distribution-reporting-window.ts");
+
+  assert.match(reportingWindow, /DISTRIBUTION_REPORT_CUTOFF_HOUR = 14/);
+  assert.match(reportingWindow, /timeZone: "Asia\/Dhaka"/);
+  assert.match(reportingWindow, /canReport: isReportDay && !isAfterCutoff/);
+  assert.match(distribution, /!report && reportingWindow\.shouldAutoReceive/);
+  assert.match(distribution, /const hasScheduledItems = showBread \|\| showEgg \|\| showBanana/);
+  assert.match(distribution, /const isAutoReceived = hasScheduledItems &&/);
+  assert.match(distribution, /if \(isAutoReceived\) \{[\s\S]*?totalBread \+= planned;[\s\S]*?\} else if \(report\) \{/);
+  assert.match(distribution, /totalBread \+= Number\(report\.received_bread\) \|\| 0/);
+  assert.match(distribution, /totalEgg \+= Number\(report\.received_egg\) \|\| 0/);
+  assert.match(distribution, /totalBanana \+= Number\(report\.received_banana\) \|\| 0/);
+  assert.doesNotMatch(distribution, /else \{\s*totalBread \+= report\.received_bread/);
+  assert.match(distribution, /সঠিক আইটেম পাওয়া গেছে/);
+  assert.match(collectionRoute, /if \(showBread \|\| showEgg \|\| showBanana\)/);
+  assert.match(collectionRoute, /if \(!reportingWindow\.canReport\)/);
+  assert.match(itemRoute, /if \(!getAreaManagerReportingWindow\(existing\.date\)\.canReport\)/);
+});
+
+test("area cards open the complete embedded expense workspace below the area grid", async () => {
+  const page = await read("app/page.tsx");
+  const dashboard = await read("app/components/DashboardApp.tsx");
+  const embeddedWorkspace = await read(
+    "app/components/EmbeddedAreaExpenseWorkspace.tsx",
+  );
+  const embeddedStyles = await read(
+    "app/components/embedded-area-expense-workspace.css",
+  );
+
+  assert.match(page, /<EmbeddedAreaExpenseWorkspace \/>/);
+  assert.match(dashboard, /open-area-expense-workspace/);
+  assert.match(dashboard, /detail: \{ areaCode: t\.code \}/);
+  assert.match(embeddedWorkspace, /document\.querySelector\("\.areas-panel"\)/);
+  assert.match(embeddedWorkspace, /button\.getAttribute\("title"\) === "অঞ্চল"/);
+  assert.match(embeddedWorkspace, /areasNavButton\?\.click\(\)/);
+  assert.match(embeddedWorkspace, /insertAdjacentElement\("afterend", workspaceHost\)/);
+  assert.match(embeddedWorkspace, /new MutationObserver/);
+  assert.match(embeddedWorkspace, /target\.closest<HTMLButtonElement>\("\.sidebar nav button"\)/);
+  assert.match(embeddedWorkspace, /setOpen\(false\)/);
+  assert.doesNotMatch(embeddedWorkspace, /ChevronUp|সংকুচিত করুন/);
+  assert.match(
+    embeddedWorkspace,
+    /<AdminExpenseManagementPage initialAreaCode=\{areaCode\} initialExpenseId=\{expenseId\} initialExpenseDate=\{expenseDate\} \/>/,
+  );
+  assert.match(embeddedStyles, /\.embedded-area-expense-workspace \{/);
+  assert.match(
+    embeddedStyles,
+    /@media \(max-width: 800px\) \{[\s\S]*?\.embedded-expense-toolbar \{/,
+  );
+});
+
+test("embedded expense workspace keeps the polished report layout without a legacy route", async () => {
+  const adminExpensePage = await read("app/components/AdminExpenseManagementPage.tsx");
+  const embeddedWorkspace = await read("app/components/EmbeddedAreaExpenseWorkspace.tsx");
+  const expenseStyles = await read("app/components/admin-expense-management-page.css");
+
+  assert.match(
+    embeddedWorkspace,
+    /<AdminExpenseManagementPage initialAreaCode=\{areaCode\} initialExpenseId=\{expenseId\} initialExpenseDate=\{expenseDate\} \/>/,
+  );
+  assert.match(adminExpensePage, /className="admin-expense-page"/);
+  assert.doesNotMatch(adminExpensePage, /className="admin-expense-header"/);
+  assert.doesNotMatch(adminExpensePage, /standalone|createPortal|window\.location\.search/);
+  assert.doesNotMatch(expenseStyles, /expense-shell-main|admin-expense-standalone|admin-expense-header/);
+  assert.match(expenseStyles, /\.admin-expense-filters \{[\s\S]*?border-radius: 18px;[\s\S]*?box-shadow: 0 12px 32px/);
+  assert.match(expenseStyles, /\.admin-expense-metrics article \{[\s\S]*?min-height: 118px;[\s\S]*?overflow: hidden;/);
+  assert.match(expenseStyles, /\.admin-expense-report,[\s\S]*?\.admin-payment-panel,[\s\S]*?\.admin-expense-details \{[\s\S]*?border-radius: 20px;[\s\S]*?box-shadow: 0 16px 38px/);
+  assert.match(adminExpensePage, /className="panel admin-ledger-panel"/);
+  assert.match(adminExpensePage, /className="no-print admin-ledger-payment-form"/);
+  assert.match(expenseStyles, /\.admin-ledger-panel-head \{[\s\S]*?grid-template-columns:/);
+  assert.match(expenseStyles, /@media \(max-width: 520px\) \{[\s\S]*?\.admin-ledger-payment-form \{[\s\S]*?grid-template-columns: 1fr;/);
+});
+
+test("official area codes stay hidden from user-facing UI and exports", async () => {
+  const dashboard = await read("app/components/DashboardApp.tsx");
+  const profileCard = await read("app/components/AccountProfileCard.tsx");
+  const adminExpensePage = await read("app/components/AdminExpenseManagementPage.tsx");
+
+  assert.doesNotMatch(dashboard, /অঞ্চল কোড|অফিসিয়াল area code|children: e\.areaCode|children: t\.code|children: e\.code|children: \[e\.name, ` \(`/);
+  assert.doesNotMatch(profileCard, /display\.area_code \|\|/);
+  assert.match(profileCard, /display\.area_code \? "নির্ধারিত অঞ্চল" : "উপজেলা পর্যায়ের পূর্ণ অনুমতি"/);
+  assert.doesNotMatch(adminExpensePage, /<small>\{area\.code\}<\/small>/);
+});
+
+test("security cleanup keeps password hashing helpers in place", async () => {
+  const passwordHelper = await read("app/lib/password.ts");
+  const loginRoute = await read("app/api/auth/login/route.ts");
+  const authHelper = await read("app/lib/auth.ts");
+  const profileRoute = await read("app/api/profile/route.ts");
+  const stockRoute = await read("app/api/stock/route.ts");
+  const demandRoute = await read("app/api/schools/[emisCode]/demand/route.ts");
+  const supplierRoute = await read("app/api/suppliers/[id]/ledger/route.ts");
+
+  assert.match(passwordHelper, /PBKDF2_ITERATIONS = 210_000/);
+  assert.match(passwordHelper, /pbkdf2-sha256:/);
+  assert.match(loginRoute, /verifyPassword/);
+  assert.match(loginRoute, /createSession\(user\.id\)/);
+  assert.doesNotMatch(loginRoute, /WHERE username = \? AND password = \?/);
+  assert.match(authHelper, /FROM sessions s/);
+  assert.match(authHelper, /s\.expires_at > CURRENT_TIMESTAMP/);
+  assert.doesNotMatch(authHelper, /JSON\.parse\(Buffer\.from/);
+  assert.match(profileRoute, /\.bind\(authUser\.id\)/);
+  assert.doesNotMatch(profileRoute, /data\.id/);
+  assert.match(stockRoute, /requireSuperAdmin/);
+  assert.match(demandRoute, /requireSuperAdmin/);
+  assert.match(supplierRoute, /requireSuperAdmin/);
+});
+
+test("area manager account page and expense report API are wired", async () => {
+  const page = await read("app/page.tsx");
+  const accountPage = await read("app/components/AreaAccountPage.tsx");
+  const accountStyles = await read("app/components/area-account-page.css");
+  const expensesRoute = await read("app/api/expenses/route.ts");
+  const accountRoute = await read("app/api/my-account/route.ts");
+  const bootstrap = await read("db/bootstrap.ts");
+
+  assert.match(page, /<AreaAccountPage/);
+  assert.match(page, /userRole=\{user\.role \|\| ""\}/);
+  assert.match(page, /button:nth-child\(5\)/);
+  assert.match(page, /button:nth-child\(7\)/);
+  const dashboard = await read("app/components/DashboardApp.tsx");
+  assert.match(dashboard, /id: `account`, label: `হিসাব`/);
+  assert.match(dashboard, /userRole: accountRole/);
+  assert.match(dashboard, /accountRole === `area_manager`/);
+  assert.match(dashboard, /CustomEvent\(`area-account-open`\)/);
+  assert.match(accountPage, /title="হিসাব"/);
+  assert.match(accountPage, /পেমেন্ট রিকোয়েস্ট পাঠান/);
+  assert.doesNotMatch(accountPage, /type="date" required value=\{expenseDate\}/);
+  assert.doesNotMatch(accountPage, /setExpenseDate/);
+  assert.match(accountPage, /expense_date: getDhakaClock\(\)\.date/);
+  assert.equal((accountPage.match(/খরচের পরিমাণ/g) || []).length, 1);
+  assert.match(accountPage, /\/api\/my-account/);
+  assert.match(accountPage, /loadingRef/);
+  assert.match(accountPage, /!open \|\| loaded/);
+  assert.match(accountPage, /area-ledger-skeleton/);
+  assert.match(accountPage, /closeWhenOtherNavOpens/);
+  assert.match(accountPage, /button\.title === "হিসাব"/);
+  assert.match(accountPage, /previousActiveNavRef/);
+  assert.match(accountPage, /closingForNavigationRef/);
+  assert.match(accountPage, /\.sidebar nav button\.nav-active:not\(\.area-account-nav\)/);
+  assert.match(accountPage, /activeNav\?\.classList\.remove\("nav-active"\)/);
+  assert.match(accountPage, /window\.addEventListener\("area-account-open", openAccountPage\)/);
+  assert.match(accountPage, /accountNav\?\.classList\.add\("area-account-nav", "area-account-nav-active"\)/);
+  assert.doesNotMatch(accountPage, /createPortal\(\s*<button[\s\S]*title="হিসাব"/);
+  assert.match(accountPage, /setPageTarget\(main\)/);
+  assert.match(accountPage, /area-account-open/);
+  assert.match(accountPage, /pageTarget/);
+  assert.match(accountStyles, /\.app-main\.area-account-open > :not\(\.topbar\):not\(\.notice\):not\(\.area-account-page\)/);
+  assert.match(accountStyles, /\.area-account-page \{[\s\S]*?position: relative;/);
+  assert.match(accountStyles, /\.area-account-nav \{[\s\S]*?order: 3;/);
+  assert.match(accountStyles, /\.sidebar nav button:nth-child\(3\) \{[\s\S]*?order: 4;/);
+  assert.doesNotMatch(accountStyles, /position: fixed;/);
+  assert.match(accountRoute, /LIMIT 12/);
+  assert.match(accountRoute, /SELECT\s+COALESCE/);
+  assert.match(accountRoute, /Amount must be greater than zero/);
+  assert.match(accountRoute, /Valid area and payment date are required/);
+  assert.match(accountRoute, /const expenseDate = getDhakaClock\(\)\.date/);
+  assert.match(accountRoute, /authUser\.areaCode,[\s\S]*?expenseDate,/);
+  assert.match(expensesRoute, /export async function GET/);
+  assert.match(expensesRoute, /function expenseRange/);
+  assert.match(expensesRoute, /period === "day"/);
+  assert.match(expensesRoute, /period === "week"/);
+  assert.match(expensesRoute, /area_expenses e/);
+  assert.match(expensesRoute, /expenseDate/);
+  assert.match(bootstrap, /expense_date TEXT NOT NULL/);
+  assert.match(bootstrap, /ALTER TABLE area_expenses ADD COLUMN/);
+});
+
+test("desktop sidebar can collapse and expand without mobile injection", async () => {
+  const dashboard = await read("app/components/DashboardApp.tsx");
+  const sidebarStyles = await read("app/components/sidebar-collapse.css");
+
+  assert.match(dashboard, /import "\.\/sidebar-collapse\.css"/);
+  assert.match(dashboard, /sidebarCollapsed/);
+  assert.match(dashboard, /setSidebarCollapsed/);
+  assert.match(dashboard, /desktop-sidebar-toggle/);
+  assert.match(dashboard, /সাইডবার ক্লোজ করুন/);
+  assert.match(dashboard, /সাইডবার ওপেন করুন/);
+  assert.match(sidebarStyles, /\.sidebar-collapsed \{/);
+  assert.match(sidebarStyles, /\.sidebar-is-collapsed \.app-main \{[\s\S]*?margin-left: 84px;/);
+  assert.match(sidebarStyles, /@media \(max-width: 800px\) \{[\s\S]*?\.desktop-sidebar-toggle \{[\s\S]*?display: none;/);
+});
+
+test("super admin user management supports validated Bengali roles, create, update and delete", async () => {
+  const widget = await read("app/components/UserManagementWidget.tsx");
+  const roles = await read("app/lib/user-roles.ts");
+  const usersRoute = await read("app/api/users/route.ts");
+  const userRoute = await read("app/api/users/[id]/route.ts");
+  const bootstrap = await read("db/bootstrap.ts");
+
+  assert.match(roles, /area_manager: "এরিয়া ম্যানেজার"/);
+  assert.match(roles, /tiffin_manager: "টিফিন ম্যানেজার"/);
+  assert.doesNotMatch(roles, /viewer|auditor|accounts/);
+  assert.match(widget, /নতুন ইউজার যোগ করুন/);
+  assert.match(widget, /method: isCreating \? "POST" : "PUT"/);
+  assert.match(widget, /method: "DELETE"/);
+  assert.match(widget, /window\.confirm/);
+  assert.match(usersRoute, /isAssignableUserRole/);
+  assert.match(userRoute, /existing\.role === "super_admin"/);
+  assert.match(bootstrap, /role IN \('accounts', 'viewer', 'auditor'\)/);
+});
+
+test("expense report supports day week and month filters", async () => {
+  const dashboard = await read("app/components/DashboardApp.tsx");
+
+  assert.match(dashboard, /expensePeriod/);
+  assert.match(dashboard, /দিনভিত্তিক/);
+  assert.match(dashboard, /সাপ্তাহিক/);
+  assert.match(dashboard, /মাসিক/);
+  assert.match(dashboard, /expenseRangeLabel/);
+  assert.match(dashboard, /\/api\/expenses\?\$\{e\.toString\(\)\}/);
+});
+
+test("all user-facing dates use the shared day month year format", async () => {
+  const formatter = await read("app/lib/date-format.ts");
+  const dashboard = await read("app/components/DashboardApp.tsx");
+  const expenses = await read("app/components/AdminExpenseManagementPage.tsx");
+  const account = await read("app/components/AreaAccountPage.tsx");
+  const distribution = await read("app/components/SchoolDistributionAdjustment.tsx");
+  const notifications = await read("app/components/NotificationCenter.tsx");
+
+  assert.match(formatter, /day: "2-digit"[\s\S]*month: "2-digit"[\s\S]*year: "numeric"/);
+  for (const source of [dashboard, expenses, account, distribution]) {
+    assert.match(source, /formatDateDMY/);
+  }
+  assert.match(notifications, /formatDateTimeDMY/);
+  assert.doesNotMatch(`${dashboard}\n${expenses}\n${account}\n${distribution}`, /toLocaleDateString/);
+  assert.doesNotMatch(`${expenses}\n${account}\n${distribution}`, /replace\(\/\\\/\/g, ['"]-['"]\)/);
+  assert.doesNotMatch(`${account}\n${distribution}`, />\{(?:row\.date|filterDate)\}</);
+  assert.match(`${dashboard}\n${expenses}\n${distribution}`, /type: ['"]date['"][^}\n]*lang: ['"]en-GB['"]|type="date"[\s\S]{0,60}lang="en-GB"/);
+  assert.equal(
+    [...dashboard.matchAll(/type: `date`,/g)].length,
+    [...dashboard.matchAll(/type: `date`,\s*lang: `en-GB`,/g)].length,
+  );
+});
+
+test("production manifests reference only emitted client chunks", async () => {
+  const manifest = await read("dist/server/__vite_rsc_assets_manifest.js");
+  const assets = [
+    ...manifest.matchAll(/"\/assets\/([^"]+\.js)"/g),
+  ].map((match) => match[1]);
+
+  assert.ok(assets.length > 0);
+  await Promise.all(
+    assets.map((asset) =>
+      access(new URL(`../dist/client/assets/${asset}`, import.meta.url)),
+    ),
+  );
+});
