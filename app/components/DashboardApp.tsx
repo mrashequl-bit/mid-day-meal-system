@@ -1877,8 +1877,8 @@ function B({ userName: e, userEmail: t, userRole: accountRole, userAreaCode: use
                     "aria-label": `ড্যাশবোর্ডে যান`,
                     children: `মি`,
                   }),
-                  (0, E.jsx)(`p`, { children: `দুর্গাপুর উপজেলা, নেত্রকোণা` }),
-                  (0, E.jsx)(`small`, { children: k.format(P) }),
+                  (0, E.jsx)(`p`, { children: `মিড-ডে মিল অপারেশন` }),
+                  (0, E.jsx)(`small`, { children: `দুর্গাপুর উপজেলা, নেত্রকোণা` }),
                 ],
               }),
               (0, E.jsxs)(`div`, {
