@@ -303,13 +303,6 @@ export function SchoolDistributionAdjustment({ accountRole, userAreaCode }: { ac
           </span>
           <div>
             <h2 style={{ marginBottom: '0' }}>স্কুলভিত্তিক বিতরণ সমন্বয়</h2>
-              <p style={{ fontSize: '13px', fontWeight: 600, color: 'var(--ink-dark)', marginTop: '0', marginBottom: 0 }}>
-                {mounted ? currentTime.toLocaleString('bn-BD', {
-                  timeZone: 'Asia/Dhaka',
-                  dateStyle: 'full',
-                  timeStyle: 'medium'
-                }) : 'সময় লোড হচ্ছে...'}
-              </p>
           </div>
         </div>
         <button 
