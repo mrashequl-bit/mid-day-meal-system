@@ -14,6 +14,7 @@ import { SchoolDistributionAdjustment } from "./SchoolDistributionAdjustment";
 import { ErrorBoundary } from "./ErrorBoundary";
 import { formatDateDMY } from "../lib/date-format";
 import { printDesktopLayout } from "../lib/desktop-print";
+import { getDhakaClock } from "../lib/distribution-reporting-window";
 const t = () => React;
 const n = () => JSXRuntime;
 const e = (obj, _) => obj;
@@ -1702,6 +1703,53 @@ function B({ userName: e, userEmail: t, userRole: accountRole, userAreaCode: use
         window.removeEventListener(`school-data-updated`, loadSchoolData);
       };
     }, []),
+    [monthlyPlanCounts, setMonthlyPlanCounts] = (0, l.useState)(null),
+    [monthlyRemainingCounts, setMonthlyRemainingCounts] = (0, l.useState)(null),
+    [monthlyPlanName, setMonthlyPlanName] = (0, l.useState)(``),
+    _monthlyPlanEffect = (0, l.useEffect)(() => {
+      let cancelled = !1;
+      async function loadMonthlyPlan() {
+        try {
+          let month = c.slice(0, 7),
+            response = await fetch(`/api/meal-plan?month=${month}`, { cache: `no-store` });
+          if (!response.ok) throw Error(`monthly plan unavailable`);
+          let payload = await response.json();
+          if (cancelled) return;
+          if (payload.source !== `configured`) {
+            setMonthlyPlanCounts(null);
+            setMonthlyRemainingCounts(null);
+            setMonthlyPlanName(``);
+            return;
+          }
+          let counts = { bun: 0, egg: 0, banana: 0 },
+            remainingCounts = { bun: 0, egg: 0, banana: 0 },
+            today = getDhakaClock().date;
+          for (let day of payload.days ?? []) {
+            for (let code of new Set(day.items ?? [])) {
+              if (Object.prototype.hasOwnProperty.call(counts, code)) {
+                counts[code] += 1;
+                if (day.date > today) remainingCounts[code] += 1;
+              }
+            }
+          }
+          setMonthlyPlanCounts(counts);
+          setMonthlyRemainingCounts(remainingCounts);
+          setMonthlyPlanName(payload.periodName ?? ``);
+        } catch {
+          if (!cancelled) {
+            setMonthlyPlanCounts(null);
+            setMonthlyRemainingCounts(null);
+            setMonthlyPlanName(``);
+          }
+        }
+      }
+      loadMonthlyPlan();
+      window.addEventListener(`meal-plan-updated`, loadMonthlyPlan);
+      return () => {
+        cancelled = !0;
+        window.removeEventListener(`meal-plan-updated`, loadMonthlyPlan);
+      };
+    }, [c]),
     [_, v] = (0, l.useState)(null),
     [y, b] = (0, l.useState)(``),
     [x, S] = (0, l.useState)(``),
@@ -1734,13 +1782,19 @@ function B({ userName: e, userEmail: t, userRole: accountRole, userAreaCode: use
       let e = P.getFullYear(),
         t = P.getMonth(),
         n = { বনরুটি: 0, "সিদ্ধ ডিম": 0, কলা: 0 };
+      if (monthlyPlanCounts) {
+        n.বনরুটি = (monthlyPlanCounts.bun ?? 0) * N;
+        n["সিদ্ধ ডিম"] = (monthlyPlanCounts.egg ?? 0) * N;
+        n.কলা = (monthlyPlanCounts.banana ?? 0) * N;
+        return n;
+      }
       for (let r = 1; r <= 31; r += 1) {
         let i = new Date(e, t, r, 12);
         if (i.getMonth() !== t) break;
         for (let e of A[i.getDay()] ?? []) n[e] += N;
       }
       return n;
-    }, [P, N]),
+    }, [P, N, monthlyPlanCounts]),
     R = Math.max(1, Math.ceil(O.length / 12)),
     z = O.slice((Math.min(p, R) - 1) * 12, Math.min(p, R) * 12);
   function B(e) {
@@ -2005,6 +2059,9 @@ function B({ userName: e, userEmail: t, userRole: accountRole, userAreaCode: use
               dailyDemand: N,
               activeItems: I,
               monthlyTotals: L,
+              monthlyPlanName,
+              monthlyPlanCounts,
+              monthlyRemainingCounts,
               areaFilter: i,
             }),
           n === `areas` &&
@@ -2113,14 +2170,61 @@ function B({ userName: e, userEmail: t, userRole: accountRole, userAreaCode: use
     ],
   });
 }
+const bengaliNumberWords = [
+  `শূন্য`, `এক`, `দুই`, `তিন`, `চার`, `পাঁচ`, `ছয়`, `সাত`, `আট`, `নয়`,
+  `দশ`, `এগারো`, `বারো`, `তেরো`, `চৌদ্দ`, `পনেরো`, `ষোলো`, `সতেরো`, `আঠারো`, `উনিশ`,
+  `বিশ`, `একুশ`, `বাইশ`, `তেইশ`, `চব্বিশ`, `পঁচিশ`, `ছাব্বিশ`, `সাতাশ`, `আটাশ`, `ঊনত্রিশ`,
+  `ত্রিশ`, `একত্রিশ`, `বত্রিশ`, `তেত্রিশ`, `চৌত্রিশ`, `পঁয়ত্রিশ`, `ছত্রিশ`, `সাঁইত্রিশ`, `আটত্রিশ`, `ঊনচল্লিশ`,
+  `চল্লিশ`, `একচল্লিশ`, `বিয়াল্লিশ`, `তেতাল্লিশ`, `চুয়াল্লিশ`, `পঁয়তাল্লিশ`, `ছেচল্লিশ`, `সাতচল্লিশ`, `আটচল্লিশ`, `ঊনপঞ্চাশ`,
+  `পঞ্চাশ`, `একান্ন`, `বাহান্ন`, `তিপ্পান্ন`, `চুয়ান্ন`, `পঞ্চান্ন`, `ছাপ্পান্ন`, `সাতান্ন`, `আটান্ন`, `ঊনষাট`,
+  `ষাট`, `একষট্টি`, `বাষট্টি`, `তেষট্টি`, `চৌষট্টি`, `পঁয়ষট্টি`, `ছেষট্টি`, `সাতষট্টি`, `আটষট্টি`, `ঊনসত্তর`,
+  `সত্তর`, `একাত্তর`, `বাহাত্তর`, `তিয়াত্তর`, `চুয়াত্তর`, `পঁচাত্তর`, `ছিয়াত্তর`, `সাতাত্তর`, `আটাত্তর`, `ঊনআশি`,
+  `আশি`, `একাশি`, `বিরাশি`, `তিরাশি`, `চুরাশি`, `পঁচাশি`, `ছিয়াশি`, `সাতাশি`, `আটাশি`, `ঊননব্বই`,
+  `নব্বই`, `একানব্বই`, `বিরানব্বই`, `তিরানব্বই`, `চুরানব্বই`, `পঁচানব্বই`, `ছিয়ানব্বই`, `সাতানব্বই`, `আটানব্বই`, `নিরানব্বই`,
+];
+
+function integerToBengaliWords(value) {
+  let number = Math.floor(Math.abs(value));
+  if (number < 100) return bengaliNumberWords[number];
+  let parts = [];
+  for (let [divisor, label] of [[10000000, `কোটি`], [100000, `লক্ষ`], [1000, `হাজার`], [100, `শত`]]) {
+    if (number >= divisor) {
+      let amount = Math.floor(number / divisor);
+      parts.push(`${integerToBengaliWords(amount)} ${label}`);
+      number %= divisor;
+    }
+  }
+  if (number) parts.push(bengaliNumberWords[number]);
+  return parts.join(` `);
+}
+
+function moneyToBengaliWords(value) {
+  let totalPaisa = Math.round(Math.max(0, value) * 100),
+    taka = Math.floor(totalPaisa / 100),
+    paisa = totalPaisa % 100,
+    result = `${integerToBengaliWords(taka)} টাকা`;
+  if (paisa) result += ` ${integerToBengaliWords(paisa)} পয়সা`;
+  return `${result} মাত্র`;
+}
+
 function V({
   dailyDemand: e,
   activeItems: t,
   monthlyTotals: n,
+  monthlyPlanName,
+  monthlyPlanCounts,
+  monthlyRemainingCounts,
   areaFilter: r,
 }) {
   let i = t.length > 0 ? t.join(` ও `) : `আজ বিতরণ নেই`,
-    a = Math.max(...w.map((e) => e.dailyDemand));
+    a = Math.max(...w.map((e) => e.dailyDemand)),
+    unitPrices = { bun: 13.5, egg: 10, banana: 6 },
+    remainingItemCosts = {
+      bun: e * (monthlyRemainingCounts?.bun ?? 0) * unitPrices.bun,
+      egg: e * (monthlyRemainingCounts?.egg ?? 0) * unitPrices.egg,
+      banana: e * (monthlyRemainingCounts?.banana ?? 0) * unitPrices.banana,
+    },
+    remainingPurchaseCost = remainingItemCosts.bun + remainingItemCosts.egg + remainingItemCosts.banana;
   return (0, E.jsxs)(E.Fragment, {
     children: [
       (0, E.jsxs)(`div`, {
@@ -2225,7 +2329,7 @@ function V({
                       className: `eyebrow`,
                       children: `মাসিক পরিকল্পনা`,
                     }),
-                    (0, E.jsx)(`h2`, { children: `পণ্যভিত্তিক মোট` }),
+                    (0, E.jsx)(`h2`, { children: monthlyPlanName || `চলমান মাস` }),
                   ],
                 }),
               }),
@@ -2240,11 +2344,15 @@ function V({
                       }),
                       (0, E.jsxs)(`div`, {
                         children: [
-                          (0, E.jsx)(`p`, { children: `বনরুটি` }),
+                          (0, E.jsx)(`p`, { children: `বনরুটি (${D.format(monthlyPlanCounts?.bun ?? 0)} দিন)` }),
                           (0, E.jsx)(`strong`, {
                             children: D.format(n.বনরুটি),
                           }),
                           (0, E.jsx)(`small`, { children: `পিস` }),
+                          (0, E.jsx)(`small`, {
+                            className: `item-purchase-cost`,
+                            children: `ক্রয়মূল্য: ৳${D.format(n.বনরুটি * unitPrices.bun)}`,
+                          }),
                         ],
                       }),
                     ],
@@ -2257,11 +2365,15 @@ function V({
                       }),
                       (0, E.jsxs)(`div`, {
                         children: [
-                          (0, E.jsx)(`p`, { children: `সিদ্ধ ডিম` }),
+                          (0, E.jsx)(`p`, { children: `সিদ্ধ ডিম (${D.format(monthlyPlanCounts?.egg ?? 0)} দিন)` }),
                           (0, E.jsx)(`strong`, {
                             children: D.format(n[`সিদ্ধ ডিম`]),
                           }),
                           (0, E.jsx)(`small`, { children: `পিস` }),
+                          (0, E.jsx)(`small`, {
+                            className: `item-purchase-cost`,
+                            children: `ক্রয়মূল্য: ৳${D.format(n[`সিদ্ধ ডিম`] * unitPrices.egg)}`,
+                          }),
                         ],
                       }),
                     ],
@@ -2274,9 +2386,13 @@ function V({
                       }),
                       (0, E.jsxs)(`div`, {
                         children: [
-                          (0, E.jsx)(`p`, { children: `কলা` }),
+                          (0, E.jsx)(`p`, { children: `কলা (${D.format(monthlyPlanCounts?.banana ?? 0)} দিন)` }),
                           (0, E.jsx)(`strong`, { children: D.format(n.কলা) }),
                           (0, E.jsx)(`small`, { children: `টি` }),
+                          (0, E.jsx)(`small`, {
+                            className: `item-purchase-cost`,
+                            children: `ক্রয়মূল্য: ৳${D.format(n.কলা * unitPrices.banana)}`,
+                          }),
                         ],
                       }),
                     ],
@@ -2286,9 +2402,21 @@ function V({
               (0, E.jsxs)(`div`, {
                 className: `formula-note`,
                 children: [
-                  (0, E.jsx)(`strong`, { children: `হিসাবের ভিত্তি` }),
-                  (0, E.jsx)(`p`, {
-                    children: `শিক্ষার্থী সংখ্যা নয়—প্রতিটি বিদ্যালয়ের “একদিনের এক আইটেমের চাহিদা”।`,
+                  (0, E.jsx)(`strong`, { children: `মাসের বাকি দিনের পণ্য ক্রয় বাবদ খরচ` }),
+                  (0, E.jsxs)(`ul`, {
+                    className: `remaining-purchase-breakdown`,
+                    children: [
+                      (0, E.jsxs)(`li`, { children: [(0, E.jsx)(`span`, { children: `বনরুটি (${D.format(monthlyRemainingCounts?.bun ?? 0)} দিন)` }), (0, E.jsx)(`b`, { children: `৳${D.format(remainingItemCosts.bun)}` })] }),
+                      (0, E.jsxs)(`li`, { children: [(0, E.jsx)(`span`, { children: `সিদ্ধ ডিম (${D.format(monthlyRemainingCounts?.egg ?? 0)} দিন)` }), (0, E.jsx)(`b`, { children: `৳${D.format(remainingItemCosts.egg)}` })] }),
+                      (0, E.jsxs)(`li`, { children: [(0, E.jsx)(`span`, { children: `কলা (${D.format(monthlyRemainingCounts?.banana ?? 0)} দিন)` }), (0, E.jsx)(`b`, { children: `৳${D.format(remainingItemCosts.banana)}` })] }),
+                    ],
+                  }),
+                  (0, E.jsxs)(`p`, {
+                    className: `remaining-purchase-total`,
+                    children: [
+                      (0, E.jsx)(`b`, { children: `মোট প্রয়োজন: ৳${D.format(remainingPurchaseCost)}` }),
+                      (0, E.jsx)(`span`, { children: ` (কথায়: ${moneyToBengaliWords(remainingPurchaseCost)})` }),
+                    ],
                   }),
                 ],
               }),

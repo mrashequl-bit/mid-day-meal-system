@@ -52,6 +52,7 @@ export function SchoolDistributionAdjustment({ accountRole, userAreaCode }: { ac
   const [filterArea, setFilterArea] = useState('');
   const [filterStatus, setFilterStatus] = useState('');
   const [focusedSchoolEmis, setFocusedSchoolEmis] = useState('');
+  const [configuredMealItems, setConfiguredMealItems] = useState<string[] | null>(null);
 
   const printDistributionReport = useCallback(() => {
     printDesktopLayout('printing-distribution-report');
@@ -80,6 +81,24 @@ export function SchoolDistributionAdjustment({ accountRole, userAreaCode }: { ac
   }, [accountRole]);
 
   useEffect(() => {
+    let cancelled = false;
+    const loadMealPlan = async () => {
+      try {
+        const response = await fetch(`/api/meal-plan?date=${encodeURIComponent(filterDate)}`, { cache: 'no-store' });
+        if (!response.ok) throw new Error('Meal plan unavailable');
+        const result = await response.json() as { source?: string; items?: Array<{ code: string }> };
+        if (!cancelled) setConfiguredMealItems(result.source === 'configured' ? (result.items || []).map((item) => item.code) : null);
+      } catch {
+        if (!cancelled) setConfiguredMealItems(null);
+      }
+    };
+    void loadMealPlan();
+    const refresh = () => void loadMealPlan();
+    window.addEventListener('meal-plan-updated', refresh);
+    return () => { cancelled = true; window.removeEventListener('meal-plan-updated', refresh); };
+  }, [filterDate]);
+
+  useEffect(() => {
     if (!focusedSchoolEmis || loading) return;
     const row = document.querySelector<HTMLElement>(`[data-distribution-school="${focusedSchoolEmis}"]`);
     row?.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -88,16 +107,16 @@ export function SchoolDistributionAdjustment({ accountRole, userAreaCode }: { ac
   const d = new Date(filterDate);
   const filterDay = !isNaN(d.getTime()) ? d.getDay() : -1;
   
-  let showBread = false;
-  let showEgg = false;
-  let showBanana = false;
+  let showBread = configuredMealItems?.includes('bun') || false;
+  let showEgg = configuredMealItems?.includes('egg') || false;
+  let showBanana = configuredMealItems?.includes('banana') || false;
   
-  if (filterDay === 0 || filterDay === 3 || filterDay === 4) { // Sun, Wed, Thu
+  if (configuredMealItems === null && (filterDay === 0 || filterDay === 3 || filterDay === 4)) { // Sun, Wed, Thu
     showBread = true;
     showEgg = true;
-  } else if (filterDay === 1) { // Mon
+  } else if (configuredMealItems === null && filterDay === 1) { // Mon
     showBread = true;
-  } else if (filterDay === 2) { // Tue
+  } else if (configuredMealItems === null && filterDay === 2) { // Tue
     showBanana = true;
   }
   const hasScheduledItems = showBread || showEgg || showBanana;

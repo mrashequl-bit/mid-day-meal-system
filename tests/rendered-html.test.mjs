@@ -613,3 +613,46 @@ test("area school list refreshes from the database after a Settings edit", async
   assert.match(settingsUi, /বিদ্যালয়ের ক্রমিক/);
   assert.match(schoolSettingsApi, /duplicateSerial/);
 });
+
+test("monthly meal planning is persisted, protected, audited and used by daily distribution", async () => {
+  const [bootstrap, schema, settingsUi, plannerUi, plannerApi, dailyApi, distribution] = await Promise.all([
+    read("db/bootstrap.ts"), read("db/schema.ts"), read("app/components/SettingsModule.tsx"),
+    read("app/components/MealPlanningSettings.tsx"), read("app/api/settings/meal-plans/route.ts"),
+    read("app/api/meal-plan/route.ts"), read("app/components/SchoolDistributionAdjustment.tsx"),
+  ]);
+  assert.match(bootstrap, /CREATE TABLE IF NOT EXISTS meal_plan_periods/);
+  assert.match(bootstrap, /UNIQUE\(period_id, plan_date\)/);
+  assert.match(schema, /mealPlanPeriodsTable/);
+  assert.match(settingsUi, /মাসিক পরিকল্পনা/);
+  assert.match(plannerUi, /একাধিক খাবার নির্বাচন করা যাবে/);
+  assert.match(plannerUi, /বিদ্যালয় বন্ধ/);
+  assert.match(plannerUi, /foodNames/);
+  assert.match(plannerUi, /foodDayCounts/);
+  assert.match(plannerUi, /খাবারের দিনের সারাংশ/);
+  assert.match(plannerUi, /meal-plan-updated/);
+  assert.match(plannerApi, /requireSuperAdmin/);
+  assert.match(plannerApi, /meal_plan\.day_saved/);
+  assert.match(plannerApi, /status='active'/);
+  assert.match(dailyApi, /getAuthUser/);
+  assert.match(dailyApi, /source: "configured"/);
+  assert.match(dailyApi, /searchParams\.get\("month"\)/);
+  assert.match(dailyApi, /SELECT plan_date,items_json FROM meal_plan_days/);
+  assert.match(distribution, /\/api\/meal-plan\?date=/);
+  assert.match(distribution, /configuredMealItems/);
+  const dashboard = await read("app/components/DashboardApp.tsx");
+  assert.match(dashboard, /\/api\/meal-plan\?month=/);
+  assert.match(dashboard, /monthlyPlanCounts/);
+  assert.match(dashboard, /monthlyPlanCounts\.bun/);
+  assert.match(dashboard, /monthlyRemainingCounts/);
+  assert.match(dashboard, /day\.date > today/);
+  assert.match(dashboard, /bun: 13\.5, egg: 10, banana: 6/);
+  assert.match(dashboard, /item-purchase-cost/);
+  assert.match(dashboard, /বনরুটি \(\$\{D\.format\(monthlyPlanCounts\?\.bun/);
+  assert.match(dashboard, /remainingItemCosts/);
+  assert.match(dashboard, /moneyToBengaliWords/);
+  assert.match(dashboard, /কথায়:/);
+  assert.match(dashboard, /মাসের বাকি দিনের পণ্য ক্রয় বাবদ খরচ/);
+  assert.doesNotMatch(dashboard, /শিক্ষার্থী সংখ্যা নয়/);
+  assert.match(dashboard, /setMonthlyPlanName\(payload\.periodName/);
+  assert.match(dashboard, /monthlyPlanName \|\| `চলমান মাস`/);
+});

@@ -88,6 +88,38 @@ export const auditLogsTable = sqliteTable(
   ],
 );
 
+export const mealPlanPeriodsTable = sqliteTable(
+  "meal_plan_periods",
+  {
+    id: integer("id").primaryKey({ autoIncrement: true }),
+    name: text("name").notNull(),
+    startDate: text("start_date").notNull(),
+    endDate: text("end_date").notNull(),
+    status: text("status", { enum: ["draft", "active"] }).notNull().default("draft"),
+    createdBy: text("created_by").notNull(),
+    createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+    updatedAt: text("updated_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+  },
+  (table) => [index("meal_plan_period_status_idx").on(table.status, table.startDate, table.endDate)],
+);
+
+export const mealPlanDaysTable = sqliteTable(
+  "meal_plan_days",
+  {
+    id: integer("id").primaryKey({ autoIncrement: true }),
+    periodId: integer("period_id").notNull().references(() => mealPlanPeriodsTable.id, { onDelete: "cascade" }),
+    planDate: text("plan_date").notNull(),
+    itemsJson: text("items_json").notNull().default("[]"),
+    updatedBy: text("updated_by").notNull(),
+    createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+    updatedAt: text("updated_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+  },
+  (table) => [
+    uniqueIndex("meal_plan_period_date_unique").on(table.periodId, table.planDate),
+    index("meal_plan_day_date_idx").on(table.planDate, table.periodId),
+  ],
+);
+
 export const stockBalancesTable = sqliteTable("stock_balances", {
   itemCode: text("item_code").primaryKey(),
   itemNameBn: text("item_name_bn").notNull(),

@@ -145,6 +145,48 @@
   }
 }
 
+.item-summary .item-purchase-cost {
+  display: block;
+  margin-top: 3px;
+  color: #14755f;
+  font-size: 0.72rem;
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+.remaining-purchase-breakdown {
+  display: grid;
+  gap: 5px;
+  list-style: none;
+  margin: 8px 0;
+  padding: 0;
+}
+
+.remaining-purchase-breakdown li {
+  align-items: center;
+  border-bottom: 1px solid #0f6b5517;
+  color: #45665d;
+  display: flex;
+  font-size: 0.76rem;
+  justify-content: space-between;
+  padding-bottom: 5px;
+}
+
+.remaining-purchase-breakdown b {
+  color: #0f6b55;
+}
+
+.formula-note .remaining-purchase-total {
+  color: #173f36;
+  font-size: 0.78rem;
+  line-height: 1.5;
+}
+
+.remaining-purchase-total span {
+  display: block;
+  margin-top: 2px;
+}
+
 /* Filtered stock ledger and ten-entry pagination */
 .stock-ledger-toolbar {
   align-items: end;
