@@ -4,6 +4,8 @@ import { AccountProfileCard } from "./components/AccountProfileCard";
 import { UserManagementWidget } from "./components/UserManagementWidget";
 import { ReportDashboardWidgets } from "./components/ReportDashboardWidgets";
 import { NotificationCenter } from "./components/NotificationCenter";
+import { SettingsModule } from "./components/SettingsModule";
+import { SystemBrandSync } from "./components/SystemBrandSync";
 import { AreaAccountPage } from "./components/AreaAccountPage";
 import { EmbeddedAreaExpenseWorkspace } from "./components/EmbeddedAreaExpenseWorkspace";
 import { areas } from "./data/schools";
@@ -40,6 +42,7 @@ export default async function Home() {
         fallbackName={user.name || "User"}
         fallbackEmail={user.mobile || ""}
       />
+      <SystemBrandSync />
       <DashboardApp
         userName={user.name || "User"}
         userEmail={user.mobile || ""}
@@ -56,7 +59,8 @@ export default async function Home() {
         areaName={userArea?.name}
       />
       <NotificationCenter />
-      {user.role !== "area_manager" && <UserManagementWidget />}
+      {user.role === "super_admin" && <UserManagementWidget />}
+      {user.role === "super_admin" && <SettingsModule />}
     </>
   );
 }

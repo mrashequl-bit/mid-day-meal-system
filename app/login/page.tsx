@@ -8,6 +8,8 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [otp, setOtp] = useState("");
+  const [twoFactorRequired, setTwoFactorRequired] = useState(false);
 
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault();
@@ -18,13 +20,14 @@ export default function LoginPage() {
       const res = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, password }),
+        body: JSON.stringify({ username, password, otp }),
       });
       const data = (await res.json()) as any;
 
       if (res.ok) {
         window.location.href = "/";
       } else {
+        if (data.twoFactorRequired) setTwoFactorRequired(true);
         setError(data.error || "লগইন ব্যর্থ হয়েছে");
       }
     } catch {
@@ -60,6 +63,11 @@ export default function LoginPage() {
               placeholder="ইউজারনেম দিন"
             />
           </label>
+
+          {twoFactorRequired && <label className="flex flex-col gap-1.5 text-xs font-bold text-[var(--muted)]">
+            Authenticator code
+            <input inputMode="numeric" autoComplete="one-time-code" required value={otp} onChange={(e)=>setOtp(e.target.value.replace(/\D/g,"").slice(0,6))} className="bg-[var(--canvas)] border border-[var(--line)] rounded-lg px-4 py-3 text-sm text-[var(--ink)]" placeholder="000000" />
+          </label>}
 
           <label className="flex flex-col gap-1.5 text-xs font-bold text-[var(--muted)]">
             পাসওয়ার্ড

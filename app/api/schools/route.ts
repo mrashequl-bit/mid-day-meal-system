@@ -1,24 +1,28 @@
 import { NextResponse } from "next/server";
 import { ensureDatabase } from "../../../db/bootstrap";
-import { getAuthUser } from "../../lib/auth";
+import { requirePermission } from "../../lib/auth";
 
 export async function GET() {
   try {
-    const authUser = await getAuthUser();
+    const authUser = await requirePermission("areas");
     if (!authUser) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const db = await ensureDatabase();
     
-    let query = `SELECT * FROM schools ORDER BY name_bn ASC LIMIT 1000`;
+    let query = `SELECT s.*, a.name_bn AS area_name
+      FROM schools s JOIN areas a ON a.code = s.area_code
+      WHERE s.is_active = 1 ORDER BY COALESCE(s.serial_number, 999999), s.name_bn ASC LIMIT 1000`;
     let params: string[] = [];
     
     if (authUser.role !== 'super_admin') {
        if (!authUser.areaCode) {
          return NextResponse.json({ error: "Forbidden" }, { status: 403 });
        }
-       query = `SELECT * FROM schools WHERE area_code = ? ORDER BY name_bn ASC LIMIT 1000`;
+       query = `SELECT s.*, a.name_bn AS area_name
+         FROM schools s JOIN areas a ON a.code = s.area_code
+         WHERE s.area_code = ? AND s.is_active = 1 ORDER BY COALESCE(s.serial_number, 999999), s.name_bn ASC LIMIT 1000`;
        params = [authUser.areaCode];
     }
 

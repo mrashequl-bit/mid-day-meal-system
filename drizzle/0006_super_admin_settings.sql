@@ -1,0 +1,25 @@
+CREATE TABLE IF NOT EXISTS system_settings (
+  setting_key TEXT PRIMARY KEY,
+  setting_value TEXT NOT NULL,
+  is_secret INTEGER NOT NULL DEFAULT 0,
+  updated_by TEXT,
+  updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+CREATE TABLE IF NOT EXISTS role_permissions (
+  role TEXT NOT NULL,
+  module TEXT NOT NULL,
+  can_view INTEGER NOT NULL DEFAULT 0,
+  can_manage INTEGER NOT NULL DEFAULT 0,
+  updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (role, module)
+);
+CREATE TABLE IF NOT EXISTS backup_runs (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  frequency TEXT NOT NULL,
+  status TEXT NOT NULL,
+  details TEXT,
+  started_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  completed_at TEXT
+);
+ALTER TABLE users ADD COLUMN two_factor_secret TEXT DEFAULT '';
+ALTER TABLE users ADD COLUMN two_factor_enabled INTEGER NOT NULL DEFAULT 0;

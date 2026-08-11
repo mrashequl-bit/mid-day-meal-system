@@ -295,22 +295,30 @@ export function SchoolDistributionAdjustment({ accountRole, userAreaCode }: { ac
   ].filter(Boolean).join(', ');
 
   return (
-    <section id="distribution-exceptions" className="panel distribution-exceptions" style={{ gridColumn: "1 / -1", marginBottom: '16px' }}>
+    <section id="distribution-exceptions" className="panel distribution-exceptions" style={{ gridColumn: "1 / -1", marginBottom: '24px' }}>
       <div className="panel-head distribution-panel-head distribution-exceptions-head no-print" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <span className="distribution-section-icon distribution-section-icon-alert" aria-hidden="true" style={{ width: '36px', height: '36px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <span className="distribution-section-icon distribution-section-icon-alert" aria-hidden="true">
             <AlertIcon />
           </span>
           <div>
-            <h2 style={{ marginBottom: '0' }}>স্কুলভিত্তিক বিতরণ সমন্বয়</h2>
+            <h2 style={{ marginBottom: '4px' }}>স্কুলভিত্তিক বিতরণ সমন্বয়</h2>
+              <p style={{ fontSize: '14px', fontWeight: 600, color: 'var(--ink-dark)', marginTop: '4px', marginBottom: 0 }}>
+                {mounted ? currentTime.toLocaleString('bn-BD', {
+                  timeZone: 'Asia/Dhaka',
+                  dateStyle: 'full',
+                  timeStyle: 'medium'
+                }) : 'সময় লোড হচ্ছে...'}
+              </p>
           </div>
         </div>
         <button 
-          className="button-primary no-print distribution-print-btn" 
+          className="button-primary no-print" 
           onClick={printDistributionReport}
+          style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
         >
-          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
-          <span>প্রিন্ট করুন</span>
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
+          প্রিন্ট করুন
         </button>
       </div>
 
@@ -335,29 +343,30 @@ export function SchoolDistributionAdjustment({ accountRole, userAreaCode }: { ac
           </div>
         )}
 
-        <div className="distribution-exception-filters no-print">
-          <label>
+        <div className="distribution-exception-filters no-print" style={{ marginBottom: '16px', display: 'flex', gap: '16px', alignItems: 'center', flexWrap: 'wrap' }}>
+          <label style={{ display: 'flex', flexDirection: 'column', gap: '4px', fontSize: '13px' }}>
             তারিখ:
             <input 
               type="date" 
               lang="en-GB"
               value={filterDate} 
               onChange={e => setFilterDate(e.target.value)} 
+              style={{ padding: '8px', borderRadius: '6px', border: '1px solid var(--line)' }}
             />
           </label>
           
           {accountRole === 'super_admin' && (
             <>
-              <label>
+              <label style={{ display: 'flex', flexDirection: 'column', gap: '4px', fontSize: '13px' }}>
                 অঞ্চল:
-                <select value={filterArea} onChange={e => setFilterArea(e.target.value)}>
+                <select value={filterArea} onChange={e => setFilterArea(e.target.value)} style={{ padding: '8px', borderRadius: '6px', border: '1px solid var(--line)' }}>
                   <option value="">সকল অঞ্চল</option>
                   {areas.map(a => <option key={a.code} value={a.code}>{a.name_bn || a.name}</option>)}
                 </select>
               </label>
-              <label>
+              <label style={{ display: 'flex', flexDirection: 'column', gap: '4px', fontSize: '13px' }}>
                 স্ট্যাটাস:
-                <select value={filterStatus} onChange={e => setFilterStatus(e.target.value)}>
+                <select value={filterStatus} onChange={e => setFilterStatus(e.target.value)} style={{ padding: '8px', borderRadius: '6px', border: '1px solid var(--line)' }}>
                   <option value="">সকল</option>
                   <option value="new">রিপোর্ট করা সমস্যা</option>
                   <option value="resolved">সমন্বয় সম্পন্ন</option>

@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { getDhakaClock } from "../lib/distribution-reporting-window";
 import { formatDateDMY } from "../lib/date-format";
+import { printDesktopLayout } from "../lib/desktop-print";
 import "./area-account-page.css";
 
 type LedgerRow = {
@@ -269,7 +270,7 @@ export function AreaAccountPage({ enabled, areaName = "" }: Props) {
                   <div>
                     <h2>সাম্প্রতিক হিসাব</h2>
                   </div>
-                  <button className="button-secondary print-hide" type="button" onClick={() => window.print()}>
+                  <button className="button-secondary print-hide" type="button" onClick={() => printDesktopLayout()}>
                     প্রিন্ট করুন
                   </button>
                 </div>

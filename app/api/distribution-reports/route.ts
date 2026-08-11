@@ -43,35 +43,34 @@ export async function GET(request: Request) {
         const schools = schoolParams.length > 0 ? await db.prepare(schoolQuery).bind(...schoolParams).all() : await db.prepare(schoolQuery).all();
 
         for (const school of schools.results) {
-         const existing = await db.prepare(`SELECT id FROM distribution_reports WHERE date = ? AND school_emis_code = ?`).bind(date, school.emis_code).first();
-         if (!existing) {
             const planned = school.current_daily_demand || 0;
             const plannedBread = showBread ? planned : 0;
             const plannedEgg = showEgg ? planned : 0;
             const plannedBanana = showBanana ? planned : 0;
             
             await db.prepare(`
-              INSERT INTO distribution_reports (
+              INSERT OR IGNORE INTO distribution_reports (
                 date, school_emis_code, area_code, 
                 planned_bread, planned_egg, planned_banana,
                 received_bread, received_egg, received_banana,
                 shortage_bread, shortage_egg, shortage_banana,
                 excess_bread, excess_egg, excess_banana,
-                status, problem_type, comments
+                status, problem_type, reason, comments, reported_by
               ) VALUES (
                 ?, ?, ?,
                 ?, ?, ?,
                 ?, ?, ?,
                 0, 0, 0,
                 0, 0, 0,
-                'resolved', 'none', 'অটো-রিসিভড (২ টার পর)'
+                'resolved', 'none',
+                'দুপুর ২টার মধ্যে কোনো সমস্যা রিপোর্ট করা হয়নি',
+                'অটো-রিসিভড (২ টার পর)', 'System'
               )
             `).bind(
               date, school.emis_code, school.area_code,
               plannedBread, plannedEgg, plannedBanana,
               plannedBread, plannedEgg, plannedBanana
             ).run();
-          }
         }
       }
     }

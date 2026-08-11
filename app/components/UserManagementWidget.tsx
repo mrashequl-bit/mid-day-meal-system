@@ -54,7 +54,9 @@ export function UserManagementWidget() {
     const observer = new MutationObserver(locate);
     observer.observe(document.body, { childList: true, subtree: true });
     loadUsers().catch(() => undefined);
-    return () => observer.disconnect();
+    const openFromSettings = () => { setOpen(true); loadUsers().catch(() => undefined); };
+    window.addEventListener("open-user-management", openFromSettings);
+    return () => { observer.disconnect(); window.removeEventListener("open-user-management", openFromSettings); };
   }, [loadUsers]);
 
   const filteredUsers = useMemo(() => {

@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Banknote, CalendarDays, ReceiptText, Edit2, Trash2, Check, X } from "lucide-react";
 import { formatDateDMY } from "../lib/date-format";
+import { printDesktopLayout } from "../lib/desktop-print";
 import "./admin-expense-management-page.css";
 
 type AreaSummary = {
@@ -86,23 +87,13 @@ export function AdminExpenseManagementPage({ initialAreaCode, initialExpenseId, 
 
   useEffect(() => {
     if (isPrintingLedger) {
-      document.body.classList.add("printing-ledger-only");
-      setTimeout(() => {
-        window.print();
-        document.body.classList.remove("printing-ledger-only");
-        setIsPrintingLedger(false);
-      }, 50);
+      return printDesktopLayout("printing-ledger-only", () => setIsPrintingLedger(false));
     }
   }, [isPrintingLedger]);
 
   useEffect(() => {
     if (isPrintingReport) {
-      document.body.classList.add("printing-report-only");
-      setTimeout(() => {
-        window.print();
-        document.body.classList.remove("printing-report-only");
-        setIsPrintingReport(false);
-      }, 50);
+      return printDesktopLayout("printing-report-only", () => setIsPrintingReport(false));
     }
   }, [isPrintingReport]);
 

@@ -31,6 +31,7 @@ export const schoolsTable = sqliteTable(
       .references(() => areasTable.code),
     headTeacher: text("head_teacher"),
     legacyMobile: text("legacy_mobile"),
+    serialNumber: integer("serial_number"),
     currentDailyDemand: integer("current_daily_demand").notNull(),
     isActive: integer("is_active", { mode: "boolean" }).notNull().default(true),
     createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
@@ -232,8 +233,35 @@ export const usersTable = sqliteTable("users", {
   role: text("role").notNull(),
   areaCode: text("area_code").references(() => areasTable.code),
   isActive: integer("is_active", { mode: "boolean" }).notNull().default(true),
+  twoFactorSecret: text("two_factor_secret").default(""),
+  twoFactorEnabled: integer("two_factor_enabled", { mode: "boolean" }).notNull().default(false),
   createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
   updatedAt: text("updated_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+});
+
+export const systemSettingsTable = sqliteTable("system_settings", {
+  settingKey: text("setting_key").primaryKey(),
+  settingValue: text("setting_value").notNull(),
+  isSecret: integer("is_secret", { mode: "boolean" }).notNull().default(false),
+  updatedBy: text("updated_by"),
+  updatedAt: text("updated_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+});
+
+export const rolePermissionsTable = sqliteTable("role_permissions", {
+  role: text("role").notNull(),
+  module: text("module").notNull(),
+  canView: integer("can_view", { mode: "boolean" }).notNull().default(false),
+  canManage: integer("can_manage", { mode: "boolean" }).notNull().default(false),
+  updatedAt: text("updated_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+}, (table) => [uniqueIndex("role_permissions_role_module_unique").on(table.role, table.module)]);
+
+export const backupRunsTable = sqliteTable("backup_runs", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  frequency: text("frequency").notNull(),
+  status: text("status").notNull(),
+  details: text("details"),
+  startedAt: text("started_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+  completedAt: text("completed_at"),
 });
 
 export const sessionsTable = sqliteTable(

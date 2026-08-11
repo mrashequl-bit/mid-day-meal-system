@@ -1,8 +1,9 @@
 # Mid Day Meal System Backup
 
-This backup contains the editable application source, package lockfile,
-database migrations, Sites/Cloudflare configuration, public assets, and a
-snapshot of the current local D1 database.
+Each backup folder contains the editable application source, package lockfile,
+database migrations, Sites/Cloudflare configuration, public assets, build
+support files, and a snapshot of the current local D1 database. The folder also
+contains `instructions.rtf` with the complete restore and agent handoff guide.
 
 ## Run on another computer
 
@@ -14,7 +15,8 @@ snapshot of the current local D1 database.
 6. Open the local URL printed by the development server.
 
 The `.wrangler/state` folder contains the backed-up local database. Keep that
-folder with the project if the existing local records are needed.
+folder with the project if the existing local records are needed. The `build`
+folder is also included because `vite.config.ts` depends on its plugin file.
 
 ## Production-style local check
 

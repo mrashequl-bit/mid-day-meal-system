@@ -107,6 +107,7 @@ export async function ensureDatabase() {
           area_code TEXT NOT NULL REFERENCES areas(code),
           head_teacher TEXT,
           legacy_mobile TEXT,
+          serial_number INTEGER,
           current_daily_demand INTEGER NOT NULL CHECK(current_daily_demand > 0),
           is_active INTEGER NOT NULL DEFAULT 1,
           created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -218,6 +219,35 @@ export async function ensureDatabase() {
           created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
         )`,
       ),
+    db.prepare(
+      `CREATE TABLE IF NOT EXISTS system_settings (
+        setting_key TEXT PRIMARY KEY,
+        setting_value TEXT NOT NULL,
+        is_secret INTEGER NOT NULL DEFAULT 0,
+        updated_by TEXT,
+        updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+      )`,
+    ),
+    db.prepare(
+      `CREATE TABLE IF NOT EXISTS role_permissions (
+        role TEXT NOT NULL,
+        module TEXT NOT NULL,
+        can_view INTEGER NOT NULL DEFAULT 0,
+        can_manage INTEGER NOT NULL DEFAULT 0,
+        updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        PRIMARY KEY (role, module)
+      )`,
+    ),
+    db.prepare(
+      `CREATE TABLE IF NOT EXISTS backup_runs (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        frequency TEXT NOT NULL,
+        status TEXT NOT NULL,
+        details TEXT,
+        started_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        completed_at TEXT
+      )`,
+    ),
     db.prepare(
       "CREATE INDEX IF NOT EXISTS schools_area_code_idx ON schools(area_code)",
     ),
@@ -331,13 +361,18 @@ export async function ensureDatabase() {
       ),
   ]);
 
+  const schoolColumns = await db.prepare("PRAGMA table_info(schools)").all<{ name: string }>();
+  if (!schoolColumns.results.some((column) => column.name === "serial_number")) {
+    await db.prepare("ALTER TABLE schools ADD COLUMN serial_number INTEGER").run();
+  }
+
   await db.batch(
     schools.map((school) =>
       db
         .prepare(
           `INSERT OR IGNORE INTO schools
-          (emis_code, name_bn, area_code, head_teacher, legacy_mobile, current_daily_demand)
-          VALUES (?, ?, ?, ?, ?, ?)`,
+          (emis_code, name_bn, area_code, head_teacher, legacy_mobile, serial_number, current_daily_demand)
+          VALUES (?, ?, ?, ?, ?, ?, ?)`,
         )
         .bind(
           school.emisCode,
@@ -345,10 +380,16 @@ export async function ensureDatabase() {
           school.areaCode,
           school.headTeacher,
           school.legacyMobile,
+          school.serial,
           school.dailyDemand,
         ),
     ),
   );
+  await db.batch(schools.map((school) =>
+    db.prepare("UPDATE schools SET serial_number=? WHERE emis_code=? AND serial_number IS NULL")
+      .bind(school.serial, school.emisCode)
+  ));
+  await db.prepare("CREATE UNIQUE INDEX IF NOT EXISTS schools_serial_number_unique ON schools(serial_number) WHERE serial_number IS NOT NULL").run();
 
   const initialAdminPassword = env.INITIAL_ADMIN_PASSWORD?.trim();
   const existingAdmin = await db
@@ -396,6 +437,8 @@ export async function ensureDatabase() {
     ["address", "TEXT DEFAULT ''"],
     ["photo_base64", "TEXT DEFAULT ''"],
     ["designation", "TEXT DEFAULT ''"],
+    ["two_factor_secret", "TEXT DEFAULT ''"],
+    ["two_factor_enabled", "INTEGER NOT NULL DEFAULT 0"],
   ];
   for (const [col, def] of profileColumns) {
     if (!existingUserCols.has(col)) {
@@ -405,6 +448,47 @@ export async function ensureDatabase() {
 
   // Retire legacy account/auditor roles without deleting their user profiles.
   await db.prepare("UPDATE users SET role = 'tiffin_manager', area_code = NULL WHERE role IN ('accounts', 'viewer', 'auditor')").run();
+
+  const defaultSettings: Record<string, string> = {
+    institution_name: "মিড-ডে মিল অপারেশন",
+    project_name: "মিড-ডে মিল ব্যবস্থাপনা",
+    address: "দুর্গাপুর উপজেলা, নেত্রকোণা",
+    support_email: "",
+    support_phone: "",
+    logo_data_url: "",
+    language: "bn",
+    timezone: "Asia/Dhaka",
+    date_format: "DD/MM/YYYY",
+    password_min_length: "8",
+    password_require_uppercase: "0",
+    password_require_lowercase: "1",
+    password_require_number: "1",
+    backup_enabled: "0",
+    backup_frequency: "daily",
+    backup_day: "0",
+    backup_time: "02:00",
+    sms_enabled: "0",
+    sms_provider: "",
+    email_enabled: "0",
+    email_provider: "",
+  };
+  await db.batch(Object.entries(defaultSettings).map(([key, value]) =>
+    db.prepare("INSERT OR IGNORE INTO system_settings (setting_key, setting_value) VALUES (?, ?)").bind(key, value)
+  ));
+
+  const permissionDefaults: Record<string, string[]> = {
+    area_manager: ["dashboard", "areas", "distribution", "expenses"],
+    project_manager: ["dashboard", "areas", "distribution", "reports"],
+    store_manager: ["dashboard", "stock", "suppliers"],
+    tiffin_manager: ["dashboard", "distribution"],
+    school_headmaster: ["dashboard", "distribution"],
+    supplier: ["dashboard", "suppliers"],
+  };
+  const modules = ["dashboard", "areas", "distribution", "expenses", "stock", "suppliers", "reports", "users"];
+  await db.batch(Object.entries(permissionDefaults).flatMap(([role, enabled]) => modules.map((module) =>
+    db.prepare(`INSERT OR IGNORE INTO role_permissions (role, module, can_view, can_manage) VALUES (?, ?, ?, ?)`)
+      .bind(role, module, enabled.includes(module) ? 1 : 0, enabled.includes(module) ? 1 : 0)
+  )));
 
   // Add area_payments table
   await db.prepare(

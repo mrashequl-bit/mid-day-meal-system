@@ -14,6 +14,7 @@ const eslintConfig = defineConfig([
     "dist/**",
     ".vinext/**",
     ".wrangler/**",
+    "Backup/**",
     "next-env.d.ts",
     "app/components/DashboardApp.tsx",
   ]),

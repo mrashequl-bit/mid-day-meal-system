@@ -1,0 +1,234 @@
+@media print {
+  @page {
+    size: A4 portrait;
+    /* A zero browser margin prevents native mobile print services from
+       reserving space for URL, time and page-number metadata. */
+    margin: 0;
+
+    @top-left {
+      content: none;
+    }
+
+    @top-center {
+      content: none;
+    }
+
+    @top-right {
+      content: none;
+    }
+
+    @bottom-left {
+      content: none;
+    }
+
+    @bottom-center {
+      content: none;
+    }
+
+    @bottom-right {
+      content: none;
+    }
+  }
+
+  html,
+  body.desktop-print-layout {
+    background: #fff !important;
+    height: auto !important;
+    margin: 0 !important;
+    min-width: 0 !important;
+    overflow: visible !important;
+    padding: 0 !important;
+    width: auto !important;
+  }
+
+  body.desktop-print-layout {
+    -webkit-print-color-adjust: exact;
+    box-sizing: border-box !important;
+    margin: 0 auto !important;
+    max-width: 180mm !important;
+    min-width: 180mm !important;
+    position: relative !important;
+    print-color-adjust: exact;
+    width: 180mm !important;
+  }
+
+  body.desktop-print-layout .app-shell,
+  body.desktop-print-layout .app-main,
+  body.desktop-print-layout main,
+  body.desktop-print-layout section,
+  body.desktop-print-layout .panel,
+  body.desktop-print-layout .table-responsive,
+  body.desktop-print-layout .admin-ledger-table-wrap {
+    max-width: none !important;
+    min-width: 0 !important;
+    overflow: visible !important;
+  }
+
+  body.desktop-print-layout .app-main {
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+  }
+
+  /* Printed reports contain content only; screen-only ornamental rails and
+     gradients must never appear at the top or bottom of a printed page. */
+  body.desktop-print-layout .panel::before,
+  body.desktop-print-layout .panel::after,
+  body.desktop-print-layout .distribution-exceptions::before,
+  body.desktop-print-layout .distribution-exceptions::after,
+  body.desktop-print-layout .print-report::before,
+  body.desktop-print-layout .print-report::after,
+  body.desktop-print-layout .admin-expense-print-report::before,
+  body.desktop-print-layout .admin-expense-print-report::after,
+  body.desktop-print-layout .stock-ledger-print::before,
+  body.desktop-print-layout .stock-ledger-print::after,
+  body.desktop-print-layout .area-ledger-print-only::before,
+  body.desktop-print-layout .area-ledger-print-only::after {
+    background: none !important;
+    border: 0 !important;
+    box-shadow: none !important;
+    content: none !important;
+    display: none !important;
+  }
+
+  /*
+   * Mobile print engines otherwise resolve percentage widths against the
+   * narrow screen viewport. 180mm is the printable width of portrait A4 after
+   * the 15mm page margins, so wrapping and pagination stay device-independent.
+   */
+  body.desktop-print-layout .app-shell,
+  body.desktop-print-layout .app-main {
+    box-sizing: border-box !important;
+    max-width: 180mm !important;
+    min-width: 180mm !important;
+    width: 180mm !important;
+  }
+
+  body.desktop-print-layout.printing-distribution-report #distribution-exceptions,
+  body.desktop-print-layout.printing-distribution-report #distribution-exceptions .distribution-exceptions-body,
+  body.desktop-print-layout.printing-distribution-report #distribution-exceptions .table-responsive,
+  body.desktop-print-layout.printing-distribution-report #distribution-exceptions .table-responsive > div {
+    box-sizing: border-box !important;
+    max-width: 180mm !important;
+    min-width: 180mm !important;
+    width: 180mm !important;
+  }
+
+  body.desktop-print-layout.printing-distribution-report #distribution-exceptions .distribution-exceptions-body {
+    padding: 0 !important;
+  }
+
+  /* Mobile screen rules give the filter bar `display: grid !important` with
+     an ID-qualified selector. Keep controls out of the printed report with a
+     more specific print selector so phone print previews match desktop. */
+  body.desktop-print-layout.printing-distribution-report
+    #distribution-exceptions
+    .distribution-exception-filters.no-print {
+    display: none !important;
+    visibility: hidden !important;
+  }
+
+  body.desktop-print-layout table {
+    border-collapse: collapse !important;
+    table-layout: auto !important;
+    width: 100% !important;
+  }
+
+  /* Undo the mobile card/table transformation before printing. */
+  body.desktop-print-layout .responsive-adjustment-table {
+    display: table !important;
+  }
+
+  body.desktop-print-layout .responsive-adjustment-table thead {
+    display: table-header-group !important;
+  }
+
+  body.desktop-print-layout.printing-distribution-report .responsive-adjustment-table thead {
+    display: table-row-group !important;
+  }
+
+  body.desktop-print-layout .responsive-adjustment-table tbody {
+    display: table-row-group !important;
+  }
+
+  body.desktop-print-layout .responsive-adjustment-table tfoot {
+    display: table-footer-group !important;
+  }
+
+  body.desktop-print-layout .responsive-adjustment-table tr,
+  body.desktop-print-layout .responsive-adjustment-table thead tr {
+    background: transparent !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    display: table-row !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    position: static !important;
+  }
+
+  body.desktop-print-layout .responsive-adjustment-table th,
+  body.desktop-print-layout .responsive-adjustment-table td {
+    display: table-cell !important;
+    min-height: 0 !important;
+    padding: 5px 6px !important;
+    position: static !important;
+    text-align: center !important;
+    vertical-align: middle !important;
+    white-space: normal !important;
+  }
+
+  body.desktop-print-layout .responsive-adjustment-table td::before {
+    content: none !important;
+    display: none !important;
+  }
+
+  body.desktop-print-layout .responsive-adjustment-table th:nth-child(2),
+  body.desktop-print-layout .responsive-adjustment-table td:nth-child(2) {
+    text-align: left !important;
+  }
+
+  body.desktop-print-layout .print-report,
+  body.desktop-print-layout .admin-expense-print-report,
+  body.desktop-print-layout .stock-ledger-print,
+  body.desktop-print-layout .area-ledger-print-only,
+  body.desktop-print-layout .print-only-container {
+    box-sizing: border-box !important;
+    max-width: none !important;
+    width: 100% !important;
+  }
+
+  body.desktop-print-layout .print-report table,
+  body.desktop-print-layout .admin-expense-print-report table,
+  body.desktop-print-layout .stock-ledger-print table,
+  body.desktop-print-layout .area-ledger-print-table,
+  body.desktop-print-layout .print-only-container table {
+    display: table !important;
+    width: 100% !important;
+  }
+
+  body.desktop-print-layout .print-report tr,
+  body.desktop-print-layout .admin-expense-print-report tr,
+  body.desktop-print-layout .stock-ledger-print tr,
+  body.desktop-print-layout .area-ledger-print-table tr,
+  body.desktop-print-layout .print-only-container tr {
+    display: table-row !important;
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  body.desktop-print-layout .print-report th,
+  body.desktop-print-layout .print-report td,
+  body.desktop-print-layout .admin-expense-print-report th,
+  body.desktop-print-layout .admin-expense-print-report td,
+  body.desktop-print-layout .stock-ledger-print th,
+  body.desktop-print-layout .stock-ledger-print td,
+  body.desktop-print-layout .area-ledger-print-table th,
+  body.desktop-print-layout .area-ledger-print-table td,
+  body.desktop-print-layout .print-only-container th,
+  body.desktop-print-layout .print-only-container td {
+    display: table-cell !important;
+    float: none !important;
+    position: static !important;
+    white-space: normal !important;
+  }
+}

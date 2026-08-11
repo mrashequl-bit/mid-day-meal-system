@@ -70,6 +70,17 @@ export async function requireSuperAdmin() {
   return user?.role === "super_admin" ? user : null;
 }
 
+export async function requirePermission(module: string, manage = false) {
+  const user = await getAuthUser();
+  if (!user) return null;
+  if (user.role === "super_admin") return user;
+  const db = await ensureDatabase();
+  const permission = await db.prepare("SELECT can_view, can_manage FROM role_permissions WHERE role=? AND module=?")
+    .bind(user.role, module).first<{ can_view: number; can_manage: number }>();
+  if (!permission || (manage ? !permission.can_manage : !permission.can_view)) return null;
+  return user;
+}
+
 export async function destroyCurrentSession() {
   const cookieStore = await cookies();
   const token = cookieStore.get(AUTH_COOKIE)?.value;
@@ -82,4 +93,3 @@ export async function destroyCurrentSession() {
   }
   cookieStore.delete(AUTH_COOKIE);
 }
-

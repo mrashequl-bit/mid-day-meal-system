@@ -9,10 +9,11 @@ import "./distribution-redesign.css";
 import "./index.css";
 import * as React from "react";
 import * as JSXRuntime from "react/jsx-runtime";
-import { ClipboardList, Croissant, Egg, Banana, Ban, House } from "lucide-react";
+import { ClipboardList, Ban, House } from "lucide-react";
 import { SchoolDistributionAdjustment } from "./SchoolDistributionAdjustment";
 import { ErrorBoundary } from "./ErrorBoundary";
 import { formatDateDMY } from "../lib/date-format";
+import { printDesktopLayout } from "../lib/desktop-print";
 const t = () => React;
 const n = () => JSXRuntime;
 const e = (obj, _) => obj;
@@ -1671,6 +1672,36 @@ function B({ userName: e, userEmail: t, userRole: accountRole, userAreaCode: use
     [d, f] = (0, l.useState)(``),
     [p, m] = (0, l.useState)(1),
     [h, g] = (0, l.useState)(T),
+    _schoolDataEffect = (0, l.useEffect)(() => {
+      let cancelled = !1;
+      async function loadSchoolData() {
+        try {
+          let response = await fetch(`/api/schools`, { cache: `no-store` });
+          if (!response.ok) return;
+          let payload = await response.json(), rows = payload.schools ?? [];
+          if (!cancelled && rows.length) {
+            g(rows.map((school, index) => ({
+              serial: Number(school.serial_number ?? index + 1),
+              name: school.name_bn,
+              emisCode: school.emis_code,
+              headTeacher: school.head_teacher ?? ``,
+              legacyMobile: school.legacy_mobile ?? ``,
+              dailyDemand: Number(school.current_daily_demand ?? 0),
+              areaName: school.area_name ?? w.find((area) => area.code === school.area_code)?.name ?? ``,
+              areaCode: school.area_code,
+            })));
+          }
+        } catch {
+          // Keep the bundled fallback dataset when the database is temporarily unavailable.
+        }
+      }
+      loadSchoolData();
+      window.addEventListener(`school-data-updated`, loadSchoolData);
+      return () => {
+        cancelled = !0;
+        window.removeEventListener(`school-data-updated`, loadSchoolData);
+      };
+    }, []),
     [_, v] = (0, l.useState)(null),
     [y, b] = (0, l.useState)(``),
     [x, S] = (0, l.useState)(``),
@@ -2767,11 +2798,11 @@ function W({
           (0, E.jsx)(`div`, {
             className: `routine-list`,
             children: [
-              [`রবিবার`, `বনরুটি + সিদ্ধ ডিম`, (0, E.jsxs)(`div`, { style: { display: 'flex', gap: '4px', alignItems: 'center' }, children: [(0, E.jsx)(Croissant, { size: 16, color: '#d97706', fill: '#fcd34d' }), (0, E.jsx)(Egg, { size: 16, color: '#ca8a04', fill: '#fef08a' })] })],
-              [`সোমবার`, `বনরুটি`, (0, E.jsx)(Croissant, { size: 16, color: '#d97706', fill: '#fcd34d' })],
-              [`মঙ্গলবার`, `কলা`, (0, E.jsx)(Banana, { size: 16, color: '#ca8a04', fill: '#fef08a' })],
-              [`বুধবার`, `বনরুটি + সিদ্ধ ডিম`, (0, E.jsxs)(`div`, { style: { display: 'flex', gap: '4px', alignItems: 'center' }, children: [(0, E.jsx)(Croissant, { size: 16, color: '#d97706', fill: '#fcd34d' }), (0, E.jsx)(Egg, { size: 16, color: '#ca8a04', fill: '#fef08a' })] })],
-              [`বৃহস্পতিবার`, `বনরুটি + সিদ্ধ ডিম`, (0, E.jsxs)(`div`, { style: { display: 'flex', gap: '4px', alignItems: 'center' }, children: [(0, E.jsx)(Croissant, { size: 16, color: '#d97706', fill: '#fcd34d' }), (0, E.jsx)(Egg, { size: 16, color: '#ca8a04', fill: '#fef08a' })] })],
+              [`রবিবার`, `বনরুটি + সিদ্ধ ডিম`, (0, E.jsxs)(`div`, { className: `routine-food-photo-pair`, children: [(0, E.jsx)(`img`, { src: `/food-thumbnails/bread-roll.png`, alt: `বনরুটি`, className: `routine-food-photo` }), (0, E.jsx)(`img`, { src: `/food-thumbnails/boiled-egg.png`, alt: `সিদ্ধ ডিম`, className: `routine-food-photo` })] })],
+              [`সোমবার`, `বনরুটি`, (0, E.jsx)(`img`, { src: `/food-thumbnails/bread-roll.png`, alt: `বনরুটি`, className: `routine-food-photo` })],
+              [`মঙ্গলবার`, `কলা`, (0, E.jsx)(`img`, { src: `/food-thumbnails/banana.png`, alt: `কলা`, className: `routine-food-photo` })],
+              [`বুধবার`, `বনরুটি + সিদ্ধ ডিম`, (0, E.jsxs)(`div`, { className: `routine-food-photo-pair`, children: [(0, E.jsx)(`img`, { src: `/food-thumbnails/bread-roll.png`, alt: `বনরুটি`, className: `routine-food-photo` }), (0, E.jsx)(`img`, { src: `/food-thumbnails/boiled-egg.png`, alt: `সিদ্ধ ডিম`, className: `routine-food-photo` })] })],
+              [`বৃহস্পতিবার`, `বনরুটি + সিদ্ধ ডিম`, (0, E.jsxs)(`div`, { className: `routine-food-photo-pair`, children: [(0, E.jsx)(`img`, { src: `/food-thumbnails/bread-roll.png`, alt: `বনরুটি`, className: `routine-food-photo` }), (0, E.jsx)(`img`, { src: `/food-thumbnails/boiled-egg.png`, alt: `সিদ্ধ ডিম`, className: `routine-food-photo` })] })],
               [`শুক্রবার`, `বিতরণ নেই`, (0, E.jsx)(Ban, { size: 16, color: '#dc2626', fill: '#fecaca' })],
               [`শনিবার`, `বিতরণ নেই`, (0, E.jsx)(Ban, { size: 16, color: '#dc2626', fill: '#fecaca' })],
             ].map(([e, t, n]) =>
@@ -3099,15 +3130,7 @@ function G({ dailyDemand: e, startDate: t, areaFilter: n }) {
     (B(null), y(``), C(``), setSuppId(``), A(``), N(``), H(``));
   }
   function printStockLedger() {
-    const printClass = `printing-stock-ledger`;
-    const cleanup = () => document.body.classList.remove(printClass);
-    document.body.classList.add(printClass);
-    window.addEventListener(`afterprint`, cleanup, { once: true });
-    try {
-      window.print();
-    } finally {
-      window.setTimeout(cleanup, 1000);
-    }
+    printDesktopLayout(`printing-stock-ledger`);
   }
   return (0, E.jsxs)(`div`, {
     className: `stock-workspace`,
@@ -3970,7 +3993,7 @@ function K({ dailyDemand: e, areaFilter: t, onExport: n }) {
               (0, E.jsx)(`button`, {
                 className: `button-primary`,
                 type: `button`,
-                onClick: () => window.print(),
+                onClick: () => printDesktopLayout(),
                 children: `PDF / প্রিন্ট`,
               }),
             ],
@@ -4969,7 +4992,7 @@ function SupplierLedgerModal({ supplier, onClose }) {
                 (0, E.jsx)('input', { type: 'date', lang: 'en-GB', value: customEnd, onChange: e => setCustomEnd(e.target.value) })
               ]
             }),
-            (0, E.jsx)('button', { className: 'button-primary', onClick: () => window.print(), children: 'প্রিন্ট করুন' })
+            (0, E.jsx)('button', { className: 'button-primary', onClick: () => printDesktopLayout(), children: 'প্রিন্ট করুন' })
           ]
         }),
         (0, E.jsxs)('div', {

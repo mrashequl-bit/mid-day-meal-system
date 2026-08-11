@@ -218,6 +218,7 @@ test("distribution print action renders only the printable report table", async 
 test("430px distribution layout stays compact without flattening desktop tables", async () => {
   const distribution = await read("app/components/SchoolDistributionAdjustment.tsx");
   const dashboardStyles = await read("app/components/DashboardApp.css");
+  const distributionStyles = await read("app/components/distribution-redesign.css");
 
   assert.match(distribution, /className="distribution-exception-filters no-print"/);
   assert.match(distribution, /className="distribution-exceptions-body"/);
@@ -227,8 +228,43 @@ test("430px distribution layout stays compact without flattening desktop tables"
   );
   assert.match(
     dashboardStyles,
+    /@media \(max-width: 600px\) \{[\s\S]*?#distribution-exceptions \.distribution-exceptions-body \{[\s\S]*?padding: 4px !important;/,
+  );
+  assert.match(
+    dashboardStyles,
+    /@media \(max-width: 600px\) \{[\s\S]*?\.distribution-exception-filters \{[\s\S]*?grid-template-columns: repeat\(2, minmax\(0, 1fr\)\);[\s\S]*?gap: 8px !important;[\s\S]*?label:first-child \{[\s\S]*?grid-column: 1 \/ -1;/,
+  );
+  assert.match(
+    dashboardStyles,
+    /@media \(max-width: 600px\) \{[\s\S]*?\.responsive-adjustment-table tr \{[\s\S]*?grid-template-columns: repeat\(12, minmax\(0, 1fr\)\);[\s\S]*?\.responsive-adjustment-table td \{[\s\S]*?white-space: normal !important;/,
+  );
+  assert.match(
+    dashboardStyles,
+    /@media \(max-width: 600px\) \{[\s\S]*?td:nth-of-type\(6\) > span \{[\s\S]*?font-size: 10px !important;[\s\S]*?line-height: 1\.25;/,
+  );
+  assert.doesNotMatch(distribution, /className="distribution-exceptions-body" style=/);
+  assert.match(
+    dashboardStyles,
     /\.responsive-adjustment-table tr \{[\s\S]*?grid-template-columns: 42px minmax\(0, 1\.35fr\) minmax\(0, 1fr\);/,
   );
+  assert.match(
+    distributionStyles,
+    /\.daily-plan-panel-inner:not\(:has\(\.empty-state\)\) \{[\s\S]*?"plan-cards plan-total";/,
+  );
+  assert.match(
+    distributionStyles,
+    /@media \(width <= 520px\) \{[\s\S]*?grid-auto-columns: minmax\(104px, 32%\);/,
+  );
+  assert.match(
+    distributionStyles,
+    /@media \(width <= 520px\) \{[\s\S]*?grid-template-columns: minmax\(0, 1fr\) 104px;[\s\S]*?\.distribution-total strong \{[\s\S]*?font-size: 14px;/,
+  );
+  const dashboard = await read("app/components/DashboardApp.tsx");
+  assert.match(dashboard, /\/food-thumbnails\/bread-roll\.png/);
+  assert.match(dashboard, /\/food-thumbnails\/boiled-egg\.png/);
+  assert.match(dashboard, /\/food-thumbnails\/banana\.png/);
+  assert.doesNotMatch(dashboard, /\bCroissant\b|\bEgg\b|\bBanana\b/);
+  assert.match(distributionStyles, /\.routine-food-photo \{[\s\S]*?object-fit: contain;/);
 });
 
 test("legacy distribution exceptions widget and its local dead code stay removed", async () => {
@@ -260,7 +296,13 @@ test("area manager reporting uses the Dhaka 2 PM cutoff and exact automatic stat
   assert.match(distribution, /totalBanana \+= Number\(report\.received_banana\) \|\| 0/);
   assert.doesNotMatch(distribution, /else \{\s*totalBread \+= report\.received_bread/);
   assert.match(distribution, /সঠিক আইটেম পাওয়া গেছে/);
+  assert.match(distribution, /report\.status === 'new'[\s\S]*?problemTypeMapping as any\)\[report\.problem_type\]/);
+  assert.doesNotMatch(distribution, /report\.status === 'new' \? 'নতুন'/);
+  assert.doesNotMatch(distribution, /নতুন অভিযোগ \(New\)/);
   assert.match(collectionRoute, /if \(showBread \|\| showEgg \|\| showBanana\)/);
+  assert.match(collectionRoute, /INSERT OR IGNORE INTO distribution_reports/);
+  assert.match(collectionRoute, /status, problem_type, reason, comments, reported_by/);
+  assert.match(collectionRoute, /'resolved', 'none',[\s\S]*?'অটো-রিসিভড \(২ টার পর\)', 'System'/);
   assert.match(collectionRoute, /if \(!reportingWindow\.canReport\)/);
   assert.match(itemRoute, /if \(!getAreaManagerReportingWindow\(existing\.date\)\.canReport\)/);
 });
@@ -482,6 +524,43 @@ test("all user-facing dates use the shared day month year format", async () => {
   );
 });
 
+test("every print action uses the device-independent desktop print layout", async () => {
+  const layout = await read("app/layout.tsx");
+  const helper = await read("app/lib/desktop-print.ts");
+  const styles = await read("app/desktop-print.css");
+  const dashboard = await read("app/components/DashboardApp.tsx");
+  const distribution = await read("app/components/SchoolDistributionAdjustment.tsx");
+  const expenses = await read("app/components/AdminExpenseManagementPage.tsx");
+  const account = await read("app/components/AreaAccountPage.tsx");
+
+  assert.match(layout, /import "\.\/desktop-print\.css"/);
+  assert.match(helper, /"desktop-print-layout"/);
+  assert.match(helper, /window\.addEventListener\("afterprint"/);
+  assert.match(helper, /window\.matchMedia\("print"\)/);
+  assert.match(helper, /const previousTitle = document\.title/);
+  assert.match(helper, /document\.title = ""/);
+  assert.match(helper, /document\.title = previousTitle/);
+  for (const source of [dashboard, distribution, expenses, account]) {
+    assert.match(source, /printDesktopLayout/);
+    assert.doesNotMatch(source, /window\.print\(\)/);
+  }
+  assert.match(styles, /@page \{[\s\S]*?size: A4 portrait/);
+  assert.match(styles, /@page \{[\s\S]*?margin: 0;/);
+  assert.match(styles, /@top-left \{[\s\S]*?content: none/);
+  assert.match(styles, /@bottom-right \{[\s\S]*?content: none/);
+  assert.match(styles, /\.distribution-exceptions::before,[\s\S]*?content: none !important;[\s\S]*?display: none !important;/);
+  assert.match(styles, /body\.desktop-print-layout \{[\s\S]*?margin: 0 auto !important;[\s\S]*?min-width: 180mm !important;[\s\S]*?position: relative !important;[\s\S]*?width: 180mm !important;/);
+  assert.match(styles, /printing-distribution-report #distribution-exceptions,[\s\S]*?min-width: 180mm !important;[\s\S]*?width: 180mm !important;/);
+  assert.match(
+    styles,
+    /printing-distribution-report[\s\S]*?#distribution-exceptions[\s\S]*?\.distribution-exception-filters\.no-print[\s\S]*?display: none !important;[\s\S]*?visibility: hidden !important;/,
+  );
+  assert.match(styles, /\.responsive-adjustment-table[\s\S]*?display: table !important/);
+  assert.match(styles, /\.responsive-adjustment-table tr,[\s\S]*?display: table-row !important/);
+  assert.match(styles, /\.responsive-adjustment-table th,[\s\S]*?display: table-cell !important/);
+  assert.match(styles, /\.responsive-adjustment-table td::before \{[\s\S]*?content: none !important/);
+});
+
 test("production manifests reference only emitted client chunks", async () => {
   const manifest = await read("dist/server/__vite_rsc_assets_manifest.js");
   const assets = [
@@ -494,4 +573,43 @@ test("production manifests reference only emitted client chunks", async () => {
       access(new URL(`../dist/client/assets/${asset}`, import.meta.url)),
     ),
   );
+});
+
+test("super admin settings are backed by protected APIs, audit, permissions and encrypted 2FA", async () => {
+  const [page, settingsUi, settingsApi, bootstrap, auth, totp, secretBox] = await Promise.all([
+    read("app/page.tsx"), read("app/components/SettingsModule.tsx"),
+    read("app/api/settings/route.ts"), read("db/bootstrap.ts"),
+    read("app/lib/auth.ts"), read("app/lib/totp.ts"), read("app/lib/secret-box.ts"),
+  ]);
+  assert.match(page, /user\.role === "super_admin" && <SettingsModule/);
+  assert.match(settingsUi, /বিদ্যালয় ও অঞ্চল/);
+  assert.match(settingsUi, /ইউজার ও অনুমতি/);
+  assert.match(settingsUi, /নিরাপত্তা ও ব্যাকআপ/);
+  assert.match(settingsApi, /requireSuperAdmin/);
+  assert.match(settingsApi, /writeAudit/);
+  assert.match(bootstrap, /CREATE TABLE IF NOT EXISTS system_settings/);
+  assert.match(bootstrap, /CREATE TABLE IF NOT EXISTS role_permissions/);
+  assert.match(auth, /requirePermission/);
+  assert.match(totp, /verifyTotp/);
+  assert.match(secretBox, /AES-GCM/);
+});
+
+test("area school list refreshes from the database after a Settings edit", async () => {
+  const [dashboard, schoolsApi, settingsUi, bootstrap, schoolSettingsApi] = await Promise.all([
+    read("app/components/DashboardApp.tsx"),
+    read("app/api/schools/route.ts"),
+    read("app/components/SettingsModule.tsx"),
+    read("db/bootstrap.ts"),
+    read("app/api/settings/schools/route.ts"),
+  ]);
+  assert.match(dashboard, /fetch\(`\/api\/schools`/);
+  assert.match(dashboard, /school\.name_bn/);
+  assert.match(dashboard, /school-data-updated/);
+  assert.match(schoolsApi, /a\.name_bn AS area_name/);
+  assert.match(settingsUi, /dispatchEvent\(new Event\("school-data-updated"\)\)/);
+  assert.match(bootstrap, /serial_number/);
+  assert.match(schoolsApi, /COALESCE\(s\.serial_number, 999999\)/);
+  assert.match(dashboard, /school\.serial_number/);
+  assert.match(settingsUi, /বিদ্যালয়ের ক্রমিক/);
+  assert.match(schoolSettingsApi, /duplicateSerial/);
 });

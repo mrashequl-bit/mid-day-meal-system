@@ -29,19 +29,19 @@
 
 .routine-panel-inner {
   flex: 0 0 auto;
-  padding: 14px 16px 12px;
+  padding: 10px 14px 9px;
   border-bottom: 1px dashed rgba(220, 231, 226, 0.8);
   background: rgba(255, 255, 255, 0.3);
 }
 
 .daily-plan-panel-inner {
   flex: 0 0 auto;
-  padding: 12px 16px 14px;
+  padding: 9px 14px 10px;
 }
 
 .distribution-panel-head {
-  padding-bottom: 8px;
-  margin-bottom: 10px;
+  padding-bottom: 6px;
+  margin-bottom: 7px;
   border-bottom: 1px dashed rgba(220, 231, 226, 0.8);
   display: flex;
   align-items: center;
@@ -66,9 +66,9 @@
 .distribution-section-icon {
   background: linear-gradient(135deg, var(--green-soft), #d1efe4);
   color: var(--green);
-  width: 32px;
-  height: 32px;
-  border-radius: 10px;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -84,7 +84,7 @@
 .routine-list {
   display: grid;
   grid-template-columns: repeat(7, minmax(0, 1fr));
-  gap: 7px;
+  gap: 6px;
   margin-top: 0;
 }
 
@@ -93,10 +93,10 @@
   flex-direction: column;
   justify-content: flex-start;
   align-items: stretch;
-  gap: 5px;
+  gap: 3px;
   min-width: 0;
-  min-height: 62px;
-  padding: 8px 9px;
+  min-height: 52px;
+  padding: 6px 7px;
   background: #ffffff;
   border: 1px solid var(--line);
   border-radius: 8px;
@@ -106,7 +106,7 @@
 }
 
 .routine-day-card:hover {
-  transform: translateY(-2px);
+  transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(15, 107, 85, 0.05);
   border-color: #c0d8d0;
 }
@@ -128,7 +128,7 @@
 }
 
 .routine-day {
-  font-size: 11px !important;
+  font-size: 12px !important;
   font-weight: 700;
   color: var(--ink);
 }
@@ -137,17 +137,17 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 5px;
+  gap: 4px;
   width: 100%;
   min-width: 0;
   background: var(--canvas);
-  padding: 4px 6px;
-  border-radius: 7px;
+  padding: 3px 5px;
+  border-radius: 6px;
 }
 
 .routine-food p {
   min-width: 0;
-  font-size: 9px !important;
+  font-size: 10px !important;
   font-weight: 600;
   color: var(--muted);
   text-align: right;
@@ -157,9 +157,28 @@
 
 .routine-food-icon {
   flex: none;
-  font-size: 12px;
   display: flex;
   align-items: center;
+}
+
+.routine-food-photo {
+  display: block;
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+  filter: drop-shadow(0 1px 1px rgba(28, 49, 43, 0.14));
+}
+
+.routine-food-photo-pair {
+  display: flex;
+  align-items: center;
+  flex: none;
+  gap: 1px;
+}
+
+.routine-food-photo-pair .routine-food-photo {
+  width: 20px;
+  height: 20px;
 }
 
 /* Keep the no-distribution day useful without letting it dominate the page. */
@@ -218,26 +237,45 @@
 }
 
 .daily-plan-panel-inner:not(:has(.empty-state)) > .distribution-panel-head {
-  margin-bottom: 8px;
+  grid-area: plan-head;
+  margin: 0;
 }
 
 .daily-plan-panel-inner .plan-intro {
-  margin: 8px 0;
+  grid-area: plan-intro;
+  margin: 0;
+  font-size: 11px;
+  line-height: 1.35;
+}
+
+.daily-plan-panel-inner:not(:has(.empty-state)) {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(180px, 0.28fr);
+  grid-template-areas:
+    "plan-head plan-head"
+    "plan-intro plan-intro"
+    "plan-cards plan-total";
+  align-items: stretch;
+  gap: 6px 10px;
 }
 
 .daily-plan-panel-inner .daily-plan-cards {
+  grid-area: plan-cards;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 8px;
+  gap: 6px;
   margin-bottom: 0;
 }
 
 .daily-plan-panel-inner .daily-plan-cards article {
-  padding: 10px 12px;
+  min-height: 44px;
+  padding: 6px 9px;
 }
 
 .daily-plan-panel-inner .distribution-total {
-  margin-top: 9px;
-  padding: 9px 12px;
+  grid-area: plan-total;
+  min-height: 44px;
+  margin-top: 0;
+  padding: 6px 10px;
 }
 
 /* Daily Plan */
@@ -264,8 +302,8 @@
 }
 
 .daily-plan-cards article > span:first-child {
-  width: 32px;
-  height: 32px;
+  width: 28px;
+  height: 28px;
   border-radius: 8px;
   display: flex;
   align-items: center;
@@ -283,27 +321,27 @@
 .daily-plan-cards article > div {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 8px;
   flex: 1;
-  margin: 0 12px;
+  margin: 0 8px;
 }
 
 .daily-plan-cards article > div > p {
-  font-size: 13px !important;
+  font-size: 12px !important;
   font-weight: 700;
   color: var(--ink);
   margin: 0;
 }
 
 .daily-plan-cards article > div > strong {
-  font-size: 18px !important;
+  font-size: 16px !important;
   font-weight: 800;
   color: var(--green);
   margin-left: auto;
 }
 
 .daily-plan-cards article > div > small {
-  font-size: 11px;
+  font-size: 10px;
   color: var(--muted);
 }
 
@@ -334,7 +372,7 @@
 }
 
 .distribution-total strong {
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 850;
   color: var(--green);
 }
@@ -355,9 +393,9 @@
   .routine-list {
     grid-template-columns: none;
     grid-auto-flow: column;
-    grid-auto-columns: minmax(132px, 42%);
-    gap: 7px;
-    padding-bottom: 4px;
+    grid-auto-columns: minmax(108px, 31%);
+    gap: 6px;
+    padding-bottom: 2px;
     overflow-x: auto;
     overscroll-behavior-inline: contain;
     scroll-snap-type: inline proximity;
@@ -383,22 +421,104 @@
   }
 
   .daily-plan-panel-inner .daily-plan-cards {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
 @media (width <= 520px) {
   .routine-panel-inner,
   .daily-plan-panel-inner {
-    padding-inline: 12px;
+    padding-inline: 10px;
   }
 
   .routine-list {
-    grid-auto-columns: minmax(124px, 46%);
+    grid-auto-columns: minmax(104px, 32%);
+  }
+
+  .daily-plan-panel-inner:not(:has(.empty-state)) {
+    grid-template-columns: minmax(0, 1fr) 104px;
+    gap: 6px;
+  }
+
+  .daily-plan-panel-inner .daily-plan-cards {
+    grid-template-columns: 1fr;
+  }
+
+  .daily-plan-panel-inner .distribution-total {
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 2px;
+    min-width: 0;
+    padding: 5px 7px;
+  }
+
+  .daily-plan-panel-inner .distribution-total span {
+    font-size: 10px;
+    line-height: 1.25;
+  }
+
+  .daily-plan-panel-inner .distribution-total strong {
+    font-size: 14px;
+    line-height: 1.15;
+  }
+
+  .daily-plan-panel-inner .daily-plan-cards,
+  .daily-plan-panel-inner .daily-plan-cards article,
+  .daily-plan-panel-inner .daily-plan-cards article > div {
+    min-width: 0;
+  }
+
+  .daily-plan-panel-inner .daily-plan-cards article {
+    padding: 5px 6px;
+  }
+
+  .daily-plan-panel-inner .daily-plan-cards article > span:first-child {
+    width: 26px;
+    height: 26px;
+  }
+
+  .daily-plan-panel-inner .daily-plan-cards article > div {
+    gap: 3px;
+    margin: 0 4px;
+  }
+
+  .daily-plan-panel-inner .daily-plan-cards article > div > p {
+    font-size: 11px !important;
+  }
+
+  .daily-plan-panel-inner .daily-plan-cards article > div > strong {
+    font-size: 14px !important;
+  }
+
+  .daily-plan-panel-inner .daily-plan-cards article > div > small {
+    font-size: 9px;
+  }
+
+  .daily-plan-panel-inner .daily-plan-cards article > b {
+    flex: none;
+    padding: 2px 4px;
+    font-size: 8px;
   }
 
   .daily-plan-panel-inner .empty-state {
     padding: 10px 11px;
+  }
+}
+
+@media (width <= 340px) {
+  .daily-plan-panel-inner:not(:has(.empty-state)) {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "plan-head"
+      "plan-intro"
+      "plan-cards"
+      "plan-total";
+  }
+
+  .daily-plan-panel-inner .distribution-total {
+    flex-direction: row;
+    align-items: center;
   }
 }
 

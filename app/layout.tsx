@@ -6,6 +6,7 @@ import "@fontsource/anek-bangla/600.css";
 import "@fontsource/anek-bangla/700.css";
 import "@fontsource/anek-bangla/800.css";
 import "./globals.css";
+import "./desktop-print.css";
 
 export async function generateMetadata(): Promise<Metadata> {
   const requestHeaders = await headers();

@@ -1,10 +1,10 @@
 import { NextResponse } from "next/server";
 import { ensureDatabase } from "../../../db/bootstrap";
-import { getAuthUser } from "../../lib/auth";
+import { requirePermission } from "../../lib/auth";
 
 export async function GET() {
-  if (!(await getAuthUser())) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!(await requirePermission("areas"))) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
   try {
     const db = await ensureDatabase();

@@ -4,6 +4,8 @@ export const USER_ROLE_LABELS = {
   project_manager: "প্রকল্প ম্যানেজার",
   store_manager: "স্টোর ম্যানেজার",
   tiffin_manager: "টিফিন ম্যানেজার",
+  school_headmaster: "প্রধান শিক্ষক",
+  supplier: "সরবরাহকারী",
 } as const;
 
 export type UserRole = keyof typeof USER_ROLE_LABELS;
@@ -13,6 +15,8 @@ export const ASSIGNABLE_USER_ROLES = [
   "project_manager",
   "store_manager",
   "tiffin_manager",
+  "school_headmaster",
+  "supplier",
 ] as const satisfies readonly UserRole[];
 
 export function isAssignableUserRole(value: unknown): value is (typeof ASSIGNABLE_USER_ROLES)[number] {

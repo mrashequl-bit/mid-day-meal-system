@@ -3,6 +3,7 @@ import { ensureDatabase } from "../../../db/bootstrap";
 import { requireSuperAdmin } from "../../lib/auth";
 import { hashPassword } from "../../lib/password";
 import { isAssignableUserRole } from "../../lib/user-roles";
+import { validatePasswordPolicy, writeAudit } from "../../lib/admin-settings";
 
 export async function GET() {
   if (!(await requireSuperAdmin())) {
@@ -27,7 +28,8 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
-  if (!(await requireSuperAdmin())) {
+  const actor = await requireSuperAdmin();
+  if (!actor) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
   try {
@@ -39,6 +41,8 @@ export async function POST(request: Request) {
     if (!username || !password || !name) {
       return NextResponse.json({ error: "নাম, ইউজারনেম এবং পাসওয়ার্ড আবশ্যক।" }, { status: 400 });
     }
+    const passwordError = await validatePasswordPolicy(password);
+    if (passwordError) return NextResponse.json({ error: passwordError }, { status: 400 });
     if (!isAssignableUserRole(role)) {
       return NextResponse.json({ error: "সঠিক ইউজার রোল নির্বাচন করুন।" }, { status: 400 });
     }
@@ -50,7 +54,7 @@ export async function POST(request: Request) {
     if (duplicate) {
       return NextResponse.json({ error: "এই ইউজারনেমটি ইতোমধ্যে ব্যবহৃত হচ্ছে।" }, { status: 409 });
     }
-    await db.prepare(
+    const inserted = await db.prepare(
       `INSERT INTO users
        (username, password, name, role, area_code, is_active, email, phone,
         bio, address, designation)
@@ -68,6 +72,7 @@ export async function POST(request: Request) {
       String(data.address ?? "").trim(),
       String(data.designation ?? "").trim(),
     ).run();
+    await writeAudit(actor.username, "user.created", "user", String(inserted.meta.last_row_id || username), null, { username, name, role, area_code: data.area_code });
     return NextResponse.json({ success: true });
   } catch (error) {
     return NextResponse.json(
