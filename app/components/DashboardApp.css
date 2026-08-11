@@ -1126,7 +1126,7 @@
   }
   /* The status dropdown will take full width since it's the 3rd item, which wraps to the next row and can optionally span, but by default it takes 1 column. 
      Let's make it span full width if it's the only one on the row */
-  #distribution-exceptions .distribution-exception-filters label:nth-child(3) {
+  #distribution-exceptions .distribution-exception-filters label:nth-child(1) {
     grid-column: 1 / -1;
   }
 }
