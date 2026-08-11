@@ -5,6 +5,7 @@ import "./DashboardApp.css";
 import serialMapping from "./serial_mapping.json";
 import { getAreaManagerReportingWindow, getDhakaClock } from "../lib/distribution-reporting-window";
 import { formatDateDMY } from "../lib/date-format";
+import { printDesktopLayout } from "../lib/desktop-print";
 
 const AlertIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-alert-circle">
@@ -53,17 +54,7 @@ export function SchoolDistributionAdjustment({ accountRole, userAreaCode }: { ac
   const [focusedSchoolEmis, setFocusedSchoolEmis] = useState('');
 
   const printDistributionReport = useCallback(() => {
-    const printClass = 'printing-distribution-report';
-    const cleanup = () => document.body.classList.remove(printClass);
-
-    document.body.classList.add(printClass);
-    window.addEventListener('afterprint', cleanup, { once: true });
-
-    try {
-      window.print();
-    } finally {
-      cleanup();
-    }
+    printDesktopLayout('printing-distribution-report');
   }, []);
 
   useEffect(() => {
@@ -304,15 +295,15 @@ export function SchoolDistributionAdjustment({ accountRole, userAreaCode }: { ac
   ].filter(Boolean).join(', ');
 
   return (
-    <section id="distribution-exceptions" className="panel distribution-exceptions" style={{ gridColumn: "1 / -1", marginBottom: '24px' }}>
+    <section id="distribution-exceptions" className="panel distribution-exceptions" style={{ gridColumn: "1 / -1", marginBottom: '16px' }}>
       <div className="panel-head distribution-panel-head distribution-exceptions-head no-print" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <span className="distribution-section-icon distribution-section-icon-alert" aria-hidden="true">
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <span className="distribution-section-icon distribution-section-icon-alert" aria-hidden="true" style={{ width: '36px', height: '36px' }}>
             <AlertIcon />
           </span>
           <div>
-            <h2 style={{ marginBottom: '4px' }}>স্কুলভিত্তিক বিতরণ সমন্বয়</h2>
-              <p style={{ fontSize: '14px', fontWeight: 600, color: 'var(--ink-dark)', marginTop: '4px', marginBottom: 0 }}>
+            <h2 style={{ marginBottom: '0' }}>স্কুলভিত্তিক বিতরণ সমন্বয়</h2>
+              <p style={{ fontSize: '13px', fontWeight: 600, color: 'var(--ink-dark)', marginTop: '0', marginBottom: 0 }}>
                 {mounted ? currentTime.toLocaleString('bn-BD', {
                   timeZone: 'Asia/Dhaka',
                   dateStyle: 'full',
@@ -322,16 +313,15 @@ export function SchoolDistributionAdjustment({ accountRole, userAreaCode }: { ac
           </div>
         </div>
         <button 
-          className="button-primary no-print" 
+          className="button-primary no-print distribution-print-btn" 
           onClick={printDistributionReport}
-          style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
         >
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
-          প্রিন্ট করুন
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
+          <span>প্রিন্ট করুন</span>
         </button>
       </div>
 
-      <div className="distribution-exceptions-body" style={{ padding: '20px' }}>
+      <div className="distribution-exceptions-body">
         <div className="print-only" style={{ textAlign: 'center', marginBottom: '20px' }}>
           <h2 style={{ fontSize: '24px', marginBottom: '8px', fontWeight: 'bold' }}>স্কুলভিত্তিক বিতরণ</h2>
           <p style={{ fontSize: '16px', margin: 0, marginBottom: '6px' }}>
@@ -352,33 +342,32 @@ export function SchoolDistributionAdjustment({ accountRole, userAreaCode }: { ac
           </div>
         )}
 
-        <div className="distribution-exception-filters no-print" style={{ marginBottom: '16px', display: 'flex', gap: '16px', alignItems: 'center', flexWrap: 'wrap' }}>
-          <label style={{ display: 'flex', flexDirection: 'column', gap: '4px', fontSize: '13px' }}>
+        <div className="distribution-exception-filters no-print">
+          <label>
             তারিখ:
             <input 
               type="date" 
               lang="en-GB"
               value={filterDate} 
               onChange={e => setFilterDate(e.target.value)} 
-              style={{ padding: '8px', borderRadius: '6px', border: '1px solid var(--line)' }}
             />
           </label>
           
           {accountRole === 'super_admin' && (
             <>
-              <label style={{ display: 'flex', flexDirection: 'column', gap: '4px', fontSize: '13px' }}>
+              <label>
                 অঞ্চল:
-                <select value={filterArea} onChange={e => setFilterArea(e.target.value)} style={{ padding: '8px', borderRadius: '6px', border: '1px solid var(--line)' }}>
+                <select value={filterArea} onChange={e => setFilterArea(e.target.value)}>
                   <option value="">সকল অঞ্চল</option>
                   {areas.map(a => <option key={a.code} value={a.code}>{a.name_bn || a.name}</option>)}
                 </select>
               </label>
-              <label style={{ display: 'flex', flexDirection: 'column', gap: '4px', fontSize: '13px' }}>
+              <label>
                 স্ট্যাটাস:
-                <select value={filterStatus} onChange={e => setFilterStatus(e.target.value)} style={{ padding: '8px', borderRadius: '6px', border: '1px solid var(--line)' }}>
+                <select value={filterStatus} onChange={e => setFilterStatus(e.target.value)}>
                   <option value="">সকল</option>
-                  <option value="new">নতুন অভিযোগ (New)</option>
-                  <option value="resolved">সমন্বয় সম্পন্ন (Resolved)</option>
+                  <option value="new">রিপোর্ট করা সমস্যা</option>
+                  <option value="resolved">সমন্বয় সম্পন্ন</option>
                 </select>
               </label>
             </>
@@ -529,9 +518,11 @@ export function SchoolDistributionAdjustment({ accountRole, userAreaCode }: { ac
                                   background: report.status === 'new' ? '#fff3cd' : 
                                               report.status === 'resolved' ? '#d1e7dd' : '#e2e3e5'
                                 }}>
-                                  {report.status === 'new' ? 'নতুন' : report.status === 'resolved' ? 'সম্পন্ন' : report.status}
+                                  {report.status === 'new'
+                                    ? ((problemTypeMapping as any)[report.problem_type] || report.problem_type)
+                                    : report.status === 'resolved' ? 'সম্পন্ন' : report.status}
                                 </span>
-                                {accountRole === 'super_admin' && report.problem_type && (
+                                {accountRole === 'super_admin' && report.status !== 'new' && report.problem_type && report.problem_type !== 'none' && (
                                   <div className="no-print" style={{ fontSize: '11px', color: 'var(--muted)', marginTop: '4px' }}>
                                     নোট: {(problemTypeMapping as any)[report.problem_type] || report.problem_type}
                                   </div>

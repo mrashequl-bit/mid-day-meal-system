@@ -1095,3 +1095,67 @@
   .distribution-exceptions-head { flex-direction: row !important; align-items: center !important; gap: 8px !important; }
 }
 
+
+.distribution-print-btn {
+  display: flex !important;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  white-space: nowrap;
+}
+
+@media screen and (max-width: 520px) {
+  .distribution-print-btn {
+    padding: 6px 8px !important;
+    gap: 4px !important;
+  }
+  .distribution-print-btn span {
+    font-size: 11px !important;
+  }
+  .distribution-print-btn svg {
+    width: 14px;
+    height: 14px;
+  }
+  
+  #distribution-exceptions .distribution-exception-filters {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 12px !important;
+  }
+  #distribution-exceptions .distribution-exception-filters > div:last-child {
+    grid-column: 1 / -1;
+  }
+  /* The status dropdown will take full width since it's the 3rd item, which wraps to the next row and can optionally span, but by default it takes 1 column. 
+     Let's make it span full width if it's the only one on the row */
+  #distribution-exceptions .distribution-exception-filters label:nth-child(3) {
+    grid-column: 1 / -1;
+  }
+}
+
+
+.distribution-exception-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: center;
+  margin-bottom: 16px;
+}
+.distribution-exception-filters label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 13px;
+}
+.distribution-exception-filters input,
+.distribution-exception-filters select {
+  padding: 8px 14px;
+  border-radius: 6px;
+  border: 1px solid var(--line);
+  background: #fafbfc;
+  min-height: 44px;
+  min-width: 140px;
+}
+.filter-loading-indicator {
+  align-self: flex-end;
+  padding-bottom: 8px;
+}
+
