@@ -2,8 +2,10 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
-import { Settings, X, Save, Plus, Pencil, Trash2, ShieldCheck } from "lucide-react";
+import { X, Save, Pencil, Trash2, ShieldCheck } from "lucide-react";
 import { USER_ROLE_LABELS } from "../lib/user-roles";
+import { MealPlanningSettings } from "./MealPlanningSettings";
+import { UserManagementWidget } from "./UserManagementWidget";
 import "./settings-module.css";
 
 type Area = { code:string; name_bn:string; manager_name:string; manager_mobile:string; is_active:number };
@@ -11,17 +13,18 @@ type School = { emis_code:string; name_bn:string; area_code:string; area_name:st
 type Permission = { role:string; module:string; can_view:number; can_manage:number };
 type Payload = { settings:Record<string,string>; areas:Area[]; schools:School[]; permissions:Permission[]; audits:Array<Record<string,string>>; backups:Array<Record<string,string>>; secretStatus:Record<string,boolean> };
 const tabs = [["general","সাধারণ"],["schools","বিদ্যালয় ও অঞ্চল"],["users","ইউজার ও অনুমতি"],["notifications","নোটিফিকেশন"],["security","নিরাপত্তা ও ব্যাকআপ"],["audit","অডিট লগ"]] as const;
+const settingsTabs = [...tabs.slice(0, 2), ["meal-planning", "মাসিক পরিকল্পনা"] as const, ...tabs.slice(2)];
 const moduleLabels:Record<string,string> = { dashboard:"ড্যাশবোর্ড",areas:"অঞ্চল",distribution:"বিতরণ",expenses:"খরচ",stock:"স্টক",suppliers:"সরবরাহকারী",reports:"রিপোর্ট",users:"ইউজার" };
 
 export function SettingsModule() {
-  const [target,setTarget]=useState<Element|null>(null), [open,setOpen]=useState(false), [tab,setTab]=useState("general");
+  const [open,setOpen]=useState(false), [tab,setTab]=useState("general");
   const [data,setData]=useState<Payload|null>(null), [draft,setDraft]=useState<Record<string,string>>({}), [permissions,setPermissions]=useState<Permission[]>([]);
   const [busy,setBusy]=useState(false), [dirty,setDirty]=useState(false), [message,setMessage]=useState("");
   const [areaForm,setAreaForm]=useState<Partial<Area>>({}), [schoolForm,setSchoolForm]=useState<Partial<School>>({});
   const [twoFactor,setTwoFactor]=useState(false);
   const [secretDraft,setSecretDraft]=useState({sms_api_secret:"",email_api_secret:""});
   const load=useCallback(async()=>{ setBusy(true); setMessage(""); try { const r=await fetch("/api/settings",{cache:"no-store"}); if(!r.ok) throw new Error("সেটিংস লোড করা যায়নি।"); const p=await r.json() as Payload; setData(p); setDraft(p.settings); setPermissions(p.permissions); setDirty(false); } catch(e){setMessage(e instanceof Error?e.message:"সমস্যা হয়েছে।");} finally{setBusy(false)} },[]);
-  useEffect(()=>{ const locate=()=>setTarget(document.querySelector(".sidebar-foot")); locate(); const o=new MutationObserver(locate); o.observe(document.body,{childList:true,subtree:true}); return()=>o.disconnect(); },[]);
+  useEffect(()=>{const openSettings=()=>setOpen(true);window.addEventListener("open-system-settings",openSettings);return()=>window.removeEventListener("open-system-settings",openSettings)},[]);
   useEffect(()=>{ if(open){load();fetch("/api/settings/2fa").then(async r=>r.ok?await r.json() as {enabled?:boolean}:null).then(x=>x&&setTwoFactor(!!x.enabled)).catch(()=>undefined)} },[open,load]);
   useEffect(()=>{ const warn=(e:BeforeUnloadEvent)=>{if(dirty){e.preventDefault();e.returnValue=""}}; addEventListener("beforeunload",warn); return()=>removeEventListener("beforeunload",warn)},[dirty]);
   const close=()=>{ if(dirty&&!confirm("সংরক্ষণ না করা পরিবর্তন আছে। তবুও বন্ধ করবেন?"))return; setOpen(false); setDirty(false); };
@@ -32,11 +35,10 @@ export function SettingsModule() {
   const permissionRoles=useMemo(()=>Array.from(new Set(permissions.map(p=>p.role))),[permissions]);
   const togglePermission=(role:string,module:string,key:"can_view"|"can_manage")=>{setPermissions(rows=>rows.map(row=>row.role===role&&row.module===module?{...row,[key]:row[key]?0:1,...(key==="can_view"&&row.can_view?{can_manage:0}:{})}:row));setDirty(true)};
   async function configure2fa(){try{if(twoFactor){const code=prompt("Authenticator app-এর বর্তমান ৬ সংখ্যার code দিন");if(!code)return;const r=await fetch("/api/settings/2fa",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({action:"disable",code})});const j=await r.json() as {error?:string};if(!r.ok)throw new Error(j.error);setTwoFactor(false);setMessage("2FA বন্ধ করা হয়েছে।");return}const begin=await fetch("/api/settings/2fa",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({action:"begin"})});const setup=await begin.json() as {secret?:string;uri?:string;error?:string};if(!begin.ok||!setup.secret)throw new Error(setup.error);const code=prompt(`Authenticator app-এ এই secret যোগ করুন:\n${setup.secret}\n\nতারপর ৬ সংখ্যার code দিন`);if(!code)return;const enabled=await fetch("/api/settings/2fa",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({action:"enable",secret:setup.secret,code})});const result=await enabled.json() as {error?:string};if(!enabled.ok)throw new Error(result.error);setTwoFactor(true);setMessage("2FA সফলভাবে চালু হয়েছে।")}catch(e){setMessage(e instanceof Error?e.message:"2FA পরিবর্তন করা যায়নি।")}}
-  const button=target&&createPortal(<button className="settings-launcher" aria-label="সেটিংস" title="সেটিংস" onClick={()=>setOpen(true)}><Settings size={18}/><span>সেটিংস</span></button>,target);
-  if(!open)return button;
-  return <>{button}{createPortal(<div className="settings-overlay" role="dialog" aria-modal="true" aria-label="সুপার অ্যাডমিন সেটিংস"><section className="settings-modal">
+  if(!open)return null;
+  return createPortal(<div className="settings-overlay" role="dialog" aria-modal="true" aria-label="সুপার অ্যাডমিন সেটিংস"><section className="settings-modal">
     <header><div><p>SUPER ADMIN CONTROL</p><h2>সিস্টেম সেটিংস</h2></div><button onClick={close} aria-label="বন্ধ করুন"><X/></button></header>
-    <nav>{tabs.map(([id,label])=><button key={id} className={tab===id?"active":""} onClick={()=>setTab(id)}>{label}</button>)}</nav>
+    <nav>{settingsTabs.map(([id,label])=><button key={id} className={tab===id?"active":""} onClick={()=>setTab(id)}>{label}</button>)}</nav>
     <main>{busy&&!data?<div className="settings-state">লোড হচ্ছে…</div>:null}{message?<div className="settings-message">{message}</div>:null}
       {data&&tab==="general"&&<div className="settings-grid two">
         <Field label="প্রতিষ্ঠানের নাম" value={draft.institution_name} onChange={v=>update("institution_name",v)}/><Field label="প্রকল্পের নাম" value={draft.project_name} onChange={v=>update("project_name",v)}/>
@@ -47,13 +49,14 @@ export function SettingsModule() {
         <label>তারিখ ফরমেট<select value={draft.date_format||"DD/MM/YYYY"} onChange={e=>update("date_format",e.target.value)}><option>DD/MM/YYYY</option><option>DD-MM-YYYY</option></select></label>
       </div>}
       {data&&tab==="schools"&&<div className="entity-columns"><EntityArea data={data.areas} form={areaForm} setForm={setAreaForm} save={saveEntity} remove={remove}/><EntitySchool data={data.schools} areas={data.areas} form={schoolForm} setForm={setSchoolForm} save={saveEntity} remove={remove}/></div>}
-      {data&&tab==="users"&&<><div className="section-toolbar"><div><h3>ইউজার ও অনুমতি</h3><p>Super Admin-এর পূর্ণ নিয়ন্ত্রণ পরিবর্তন করা যাবে না।</p></div><button className="primary" onClick={()=>window.dispatchEvent(new Event("open-user-management"))}><Plus size={16}/> ইউজার ম্যানেজমেন্ট</button></div><div className="permission-scroll"><table><thead><tr><th>রোল</th>{Object.values(moduleLabels).map(x=><th key={x}>{x}<small>দেখা / পরিচালনা</small></th>)}</tr></thead><tbody><tr><td>সুপার অ্যাডমিন 🔒</td>{Object.keys(moduleLabels).map(x=><td key={x}>✓ / ✓</td>)}</tr>{permissionRoles.map(role=><tr key={role}><td>{USER_ROLE_LABELS[role as keyof typeof USER_ROLE_LABELS]||role}</td>{Object.keys(moduleLabels).map(module=>{const p=permissions.find(x=>x.role===role&&x.module===module);return <td key={module}><input aria-label="দেখা" type="checkbox" checked={!!p?.can_view} onChange={()=>togglePermission(role,module,"can_view")}/><input aria-label="পরিচালনা" type="checkbox" checked={!!p?.can_manage} disabled={!p?.can_view} onChange={()=>togglePermission(role,module,"can_manage")}/></td>})}</tr>)}</tbody></table></div></>}
+      {data&&tab==="meal-planning"&&<MealPlanningSettings/>}
+      {data&&tab==="users"&&<><div className="section-toolbar"><div><h3>ইউজার ও অনুমতি</h3><p>Super Admin-এর পূর্ণ নিয়ন্ত্রণ পরিবর্তন করা যাবে না।</p></div></div><UserManagementWidget/><div className="permission-scroll"><table><thead><tr><th>রোল</th>{Object.values(moduleLabels).map(x=><th key={x}>{x}<small>দেখা / পরিচালনা</small></th>)}</tr></thead><tbody><tr><td>সুপার অ্যাডমিন 🔒</td>{Object.keys(moduleLabels).map(x=><td key={x}>✓ / ✓</td>)}</tr>{permissionRoles.map(role=><tr key={role}><td>{USER_ROLE_LABELS[role as keyof typeof USER_ROLE_LABELS]||role}</td>{Object.keys(moduleLabels).map(module=>{const p=permissions.find(x=>x.role===role&&x.module===module);return <td key={module}><input aria-label="দেখা" type="checkbox" checked={!!p?.can_view} onChange={()=>togglePermission(role,module,"can_view")}/><input aria-label="পরিচালনা" type="checkbox" checked={!!p?.can_manage} disabled={!p?.can_view} onChange={()=>togglePermission(role,module,"can_manage")}/></td>})}</tr>)}</tbody></table></div></>}
       {data&&tab==="notifications"&&<div className="settings-grid two"><Toggle label="SMS নোটিফিকেশন" value={draft.sms_enabled} onChange={v=>update("sms_enabled",v)}/><Field label="SMS Gateway/Provider" value={draft.sms_provider} onChange={v=>update("sms_provider",v)}/><Field label={`SMS API secret ${data.secretStatus.sms_api_secret?"(configured)":""}`} type="password" value={secretDraft.sms_api_secret} onChange={v=>{setSecretDraft(x=>({...x,sms_api_secret:v}));setDirty(true)}}/><Toggle label="ইমেইল নোটিফিকেশন" value={draft.email_enabled} onChange={v=>update("email_enabled",v)}/><Field label="Email Provider" value={draft.email_provider} onChange={v=>update("email_provider",v)}/><Field label={`Email API secret ${data.secretStatus.email_api_secret?"(configured)":""}`} type="password" value={secretDraft.email_api_secret} onChange={v=>{setSecretDraft(x=>({...x,email_api_secret:v}));setDirty(true)}}/><div className="security-note"><ShieldCheck/><span>Secret encrypted অবস্থায় সংরক্ষিত হয়; API response ও audit log-এ কখনও ফেরত আসে না।</span></div></div>}
       {data&&tab==="security"&&<div className="settings-grid two"><Field label="পাসওয়ার্ডের সর্বনিম্ন দৈর্ঘ্য" type="number" value={draft.password_min_length} onChange={v=>update("password_min_length",v)}/><Toggle label="বড় হাতের অক্ষর আবশ্যক" value={draft.password_require_uppercase} onChange={v=>update("password_require_uppercase",v)}/><Toggle label="ছোট হাতের অক্ষর আবশ্যক" value={draft.password_require_lowercase} onChange={v=>update("password_require_lowercase",v)}/><Toggle label="সংখ্যা আবশ্যক" value={draft.password_require_number} onChange={v=>update("password_require_number",v)}/><div className="security-note"><ShieldCheck/><span>Two-factor authentication: <strong>{twoFactor?"চালু":"বন্ধ"}</strong></span><button className="primary" onClick={configure2fa}>{twoFactor?"2FA বন্ধ করুন":"2FA চালু করুন"}</button></div><Toggle label="Scheduled backup চালু" value={draft.backup_enabled} onChange={v=>update("backup_enabled",v)}/><label>ব্যাকআপ ফ্রিকোয়েন্সি<select value={draft.backup_frequency||"daily"} onChange={e=>update("backup_frequency",e.target.value)}><option value="daily">প্রতিদিন</option><option value="weekly">সাপ্তাহিক</option></select></label><Field label="ব্যাকআপ সময়" type="time" value={draft.backup_time} onChange={v=>update("backup_time",v)}/>{data.backups.length===0&&<div className="empty">এখনও কোনো backup run record নেই।</div>}</div>}
       {data&&tab==="audit"&&<div className="audit-list">{data.audits.length===0?<div className="empty">কোনো অডিট লগ নেই।</div>:data.audits.map(a=><article key={a.id}><strong>{a.action}</strong><span>{a.actor} · {a.entity_type} #{a.entity_id}</span><time>{a.created_at}</time></article>)}</div>}
     </main>
     <footer><button onClick={close}>বন্ধ করুন</button><button className="primary" disabled={busy||!dirty} onClick={save}><Save size={16}/>{busy?"সংরক্ষণ হচ্ছে…":"পরিবর্তন সংরক্ষণ"}</button></footer>
-  </section></div>,document.body)}</>;
+  </section></div>,document.body);
 }
 
 function Field({label,value="",onChange,type="text"}:{label:string;value?:string;onChange:(v:string)=>void;type?:string}){return <label>{label}<input type={type} value={value||""} onChange={e=>onChange(e.target.value)}/></label>}

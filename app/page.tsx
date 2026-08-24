@@ -1,7 +1,6 @@
 import { redirect } from "next/navigation";
 import { DashboardApp } from "./components/DashboardApp";
 import { AccountProfileCard } from "./components/AccountProfileCard";
-import { UserManagementWidget } from "./components/UserManagementWidget";
 import { ReportDashboardWidgets } from "./components/ReportDashboardWidgets";
 import { NotificationCenter } from "./components/NotificationCenter";
 import { SettingsModule } from "./components/SettingsModule";
@@ -41,6 +40,7 @@ export default async function Home() {
       <AccountProfileCard
         fallbackName={user.name || "User"}
         fallbackEmail={user.mobile || ""}
+        showSettings={user.role === "super_admin"}
       />
       <SystemBrandSync />
       <DashboardApp
@@ -59,7 +59,6 @@ export default async function Home() {
         areaName={userArea?.name}
       />
       <NotificationCenter />
-      {user.role === "super_admin" && <UserManagementWidget />}
       {user.role === "super_admin" && <SettingsModule />}
     </>
   );

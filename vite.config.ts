@@ -1,7 +1,7 @@
 import vinext from "vinext";
 import { defineConfig } from "vite";
-import hostingConfig from "./.openai/hosting.json";
-import { sites } from "./build/sites-vite-plugin";
+import hostingConfig from "./.openai/hosting.json" with { type: "json" };
+import { sites } from "./build/sites-vite-plugin.ts";
 
 type HostingConfig = {
   d1?: string;
@@ -18,7 +18,12 @@ const isCodexSeatbeltSandbox = process.env.CODEX_SANDBOX === "seatbelt";
 
 const localBindingConfig = {
   main: "./worker/index.ts",
+  compatibility_date: "2026-08-23",
   compatibility_flags: ["nodejs_compat"],
+  observability: {
+    enabled: true,
+    head_sampling_rate: 1,
+  },
   routes: [
     {
       pattern: "middaymeal.xyz",

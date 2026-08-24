@@ -17,6 +17,10 @@ const eslintConfig = defineConfig([
     "Backup/**",
     "next-env.d.ts",
     "app/components/DashboardApp.tsx",
+    "fix-*.cjs",
+    "fix-*.js",
+    "test-login.cjs",
+    "test-pass.mjs",
   ]),
   {
     rules: {

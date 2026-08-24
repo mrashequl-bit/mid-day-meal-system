@@ -55,8 +55,9 @@ export async function PATCH(
       'receivedBread', 'receivedEgg', 'receivedBanana',
       'shortageBread', 'shortageEgg', 'shortageBanana',
       'excessBread', 'excessEgg', 'excessBanana',
-      'problemType', 'reason', 'comments', 'status'
+      'problemType', 'reason', 'comments',
     ];
+    if (authUser.role === "super_admin") allowedFields.push("status");
 
     for (const field of allowedFields) {
       if (data[field] !== undefined) {

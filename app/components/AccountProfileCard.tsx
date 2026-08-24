@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
-import { UserRound } from "lucide-react";
+import { Settings as SettingsIcon, UserRound } from "lucide-react";
 import { USER_ROLE_LABELS } from "../lib/user-roles";
 import "./account-profile.css";
 
@@ -24,7 +24,7 @@ function initials(name: string) {
   return name.trim().split(/\s+/).slice(0, 2).map((part) => part.slice(0, 1)).join("") || "ইউ";
 }
 
-export function AccountProfileCard({ fallbackName, fallbackEmail }: { fallbackName: string; fallbackEmail: string }) {
+export function AccountProfileCard({ fallbackName, fallbackEmail, showSettings = false }: { fallbackName: string; fallbackEmail: string; showSettings?: boolean }) {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState(false);
@@ -116,17 +116,20 @@ export function AccountProfileCard({ fallbackName, fallbackEmail }: { fallbackNa
     setMessage("");
   };
   const launcher = (
-    <button
-      type="button"
-      className="account-profile-launcher"
-      aria-haspopup="dialog"
-      aria-expanded={open}
-      onClick={() => { setOpen((current) => !current); setEditing(false); setMessage(""); }}
-    >
-      {avatar ? <img className="account-launcher-avatar" src={avatar} alt="প্রোফাইল ছবি" /> : <span className="account-launcher-avatar"><UserRound aria-hidden="true" /></span>}
-      <span className="account-launcher-details"><strong>{display.name}</strong><small>প্রোফাইল</small></span>
-      <span className="mobile-profile-label">প্রোফাইল</span>
-    </button>
+    <div className="account-user-card">
+      <button
+        type="button"
+        className="account-profile-launcher"
+        aria-haspopup="dialog"
+        aria-expanded={open}
+        onClick={() => { setOpen((current) => !current); setEditing(false); setMessage(""); }}
+      >
+        {avatar ? <img className="account-launcher-avatar" src={avatar} alt="প্রোফাইল ছবি" /> : <span className="account-launcher-avatar"><UserRound aria-hidden="true" /></span>}
+        <span className="account-launcher-details"><strong>{display.name}</strong><small>প্রোফাইল</small></span>
+        <span className="mobile-profile-label">প্রোফাইল</span>
+      </button>
+      {showSettings && <button className="account-settings-button" type="button" aria-label="সেটিংস" title="সেটিংস" onClick={() => window.dispatchEvent(new Event("open-system-settings"))}><SettingsIcon aria-hidden="true" /></button>}
+    </div>
   );
   return (
     <>
@@ -155,6 +158,11 @@ export function AccountProfileCard({ fallbackName, fallbackEmail }: { fallbackNa
             {avatar ? <img className="account-avatar" src={avatar} alt="প্রোফাইল ছবি" /> : <span className="account-avatar account-avatar-fallback">{initialsText}</span>}
             <div className="account-identity"><h2>{display.name}</h2><p>{roleLabel}</p><span className="account-status"><i /> সক্রিয় অ্যাকাউন্ট</span></div>
           </div>
+          {showSettings && (
+            <button className="account-modal-settings-btn" type="button" aria-label="সিস্টেম সেটিংস" title="সিস্টেম সেটিংস" onClick={() => { setOpen(false); window.dispatchEvent(new Event("open-system-settings")); }}>
+              <SettingsIcon aria-hidden="true" />
+            </button>
+          )}
           <button type="button" className="account-edit-button" onClick={toggleEditing}>{editing ? "বন্ধ করুন" : "প্রোফাইল সম্পাদনা"}</button>
         </div>
         <div className="account-meta-grid">

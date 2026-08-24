@@ -7,6 +7,7 @@ import "./mobile-navigation.css";
 import "./header-cleanup.css";
 import "./distribution-redesign.css";
 import "./index.css";
+import "./mobile-system.css";
 import * as React from "react";
 import * as JSXRuntime from "react/jsx-runtime";
 import { ClipboardList, Ban, House } from "lucide-react";
@@ -1628,16 +1629,50 @@ var I = {
     returned: `ফেরত`,
     adjustment_add: `সমন্বয় যোগ`,
     adjustment_sub: `সমন্বয় বিয়োগ`,
-  };
-function R(e, t, n) {
-  let r = [],
-    i = new Date(e);
-  for (let e = 0; e < 21 && r.length < n; e += 1) {
-    let n = new Date(i);
-    (n.setDate(i.getDate() + e),
-      (A[n.getDay()] ?? []).includes(t) && r.push(n));
+  },
+  stockEntryTransactionTypes = [
+    `opening`,
+    `stock_in`,
+    `stock_out`,
+    `damaged`,
+    `returned`,
+  ];
+function mealCodesToRoutineNames(codes) {
+  return (codes ?? []).map((code) => I[code]?.routineName).filter(Boolean);
+}
+function formatStockPlanDate(e) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(e)) return ``;
+  let [t, n, r] = e.split(`-`).map(Number),
+    i = new Date(`${e}T00:00:00+06:00`),
+    a = new Intl.DateTimeFormat(`bn-BD`, {
+      month: `long`,
+      timeZone: `Asia/Dhaka`,
+    }).format(i);
+  return `${a} ${D.format(r)}, ${N(String(t))}`;
+}
+function formatStockPlanWeekday(e) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(e)) return ``;
+  return new Intl.DateTimeFormat(`bn-BD`, {
+    weekday: `long`,
+    timeZone: `Asia/Dhaka`,
+  }).format(new Date(`${e}T00:00:00+06:00`));
+}
+function parseStockAreaCodes(e) {
+  if (!e) return [];
+  if (Array.isArray(e)) return e.map(String).filter(Boolean);
+  if (typeof e !== `string`) return [];
+  if (!e.startsWith(`[`)) return [e];
+  try {
+    let t = JSON.parse(e);
+    return Array.isArray(t) ? t.map(String).filter(Boolean) : [];
+  } catch {
+    return [e];
   }
-  return r;
+}
+function formatStockAreaNames(e) {
+  return parseStockAreaCodes(e)
+    .map((e) => w.find((t) => t.code === e)?.name || e)
+    .join(`, `);
 }
 function z({ label: e, value: t, note: n, tone: r = `green` }) {
   return (0, E.jsxs)(`article`, {
@@ -1705,6 +1740,7 @@ function B({ userName: e, userEmail: t, userRole: accountRole, userAreaCode: use
     }, []),
     [monthlyPlanCounts, setMonthlyPlanCounts] = (0, l.useState)(null),
     [monthlyRemainingCounts, setMonthlyRemainingCounts] = (0, l.useState)(null),
+    [monthlyPlanDays, setMonthlyPlanDays] = (0, l.useState)(null),
     [monthlyPlanName, setMonthlyPlanName] = (0, l.useState)(``),
     _monthlyPlanEffect = (0, l.useEffect)(() => {
       let cancelled = !1;
@@ -1718,6 +1754,7 @@ function B({ userName: e, userEmail: t, userRole: accountRole, userAreaCode: use
           if (payload.source !== `configured`) {
             setMonthlyPlanCounts(null);
             setMonthlyRemainingCounts(null);
+            setMonthlyPlanDays(null);
             setMonthlyPlanName(``);
             return;
           }
@@ -1734,11 +1771,13 @@ function B({ userName: e, userEmail: t, userRole: accountRole, userAreaCode: use
           }
           setMonthlyPlanCounts(counts);
           setMonthlyRemainingCounts(remainingCounts);
+          setMonthlyPlanDays(payload.days ?? []);
           setMonthlyPlanName(payload.periodName ?? ``);
         } catch {
           if (!cancelled) {
             setMonthlyPlanCounts(null);
             setMonthlyRemainingCounts(null);
+            setMonthlyPlanDays(null);
             setMonthlyPlanName(``);
           }
         }
@@ -1776,7 +1815,9 @@ function B({ userName: e, userEmail: t, userRole: accountRole, userAreaCode: use
       [i, h, accountRole, userAreaCode],
     ).reduce((e, t) => e + t.dailyDemand, 0),
     P = (0, l.useMemo)(() => new Date(`${c}T12:00:00`), [c]),
-    F = A[P.getDay()] ?? [],
+    F = monthlyPlanDays === null
+      ? (A[P.getDay()] ?? [])
+      : mealCodesToRoutineNames(monthlyPlanDays.find((day) => day.date === c)?.items),
     I = o === `সব পণ্য` ? F : F.filter((e) => e === o),
     L = (0, l.useMemo)(() => {
       let e = P.getFullYear(),
@@ -1933,6 +1974,8 @@ function B({ userName: e, userEmail: t, userRole: accountRole, userAreaCode: use
           }),
           (0, E.jsxs)(`div`, {
             className: `sidebar-foot`,
+            role: `status`,
+            title: `সিস্টেম সচল — সর্বশেষ ডেটা: ১২৬ বিদ্যালয়`,
             children: [
               (0, E.jsx)(`span`, { className: `live-dot` }),
               (0, E.jsxs)(`p`, {
@@ -2006,9 +2049,10 @@ function B({ userName: e, userEmail: t, userRole: accountRole, userAreaCode: use
                   }),
                 ],
               }),
-              (0, E.jsxs)(`div`, {
-                className: `global-filters no-print`,
-                children: [
+              ![`areas`, `stock`, `suppliers`].includes(n) &&
+                (0, E.jsxs)(`div`, {
+                  className: `global-filters no-print`,
+                  children: [
                   (0, E.jsxs)(`label`, {
                     children: [
                       `তারিখ`,
@@ -2108,7 +2152,12 @@ function B({ userName: e, userEmail: t, userRole: accountRole, userAreaCode: use
               userAreaCode,
             }),
           n === `stock` &&
-            (0, E.jsx)(G, { dailyDemand: N, startDate: P, areaFilter: i }),
+            (0, E.jsx)(G, {
+              dailyDemand: N,
+              startDate: P,
+              areaFilter: i,
+              schools: h,
+            }),
           n === `reports` &&
             (0, E.jsx)(K, {
               dailyDemand: N,
@@ -2898,6 +2947,94 @@ function W({
   accountRole,
   userAreaCode,
 }) {
+  let [selectedDailyDate, setSelectedDailyDate] = (0, l.useState)(M(new Date(e))),
+    [dailyPlanCodes, setDailyPlanCodes] = (0, l.useState)(null),
+    [weeklyPlanDays, setWeeklyPlanDays] = (0, l.useState)([]),
+    _activeDateSyncEffect = (0, l.useEffect)(() => setSelectedDailyDate(M(new Date(e))), [e]),
+    _dailyPlanEffect = (0, l.useEffect)(() => {
+      let cancelled = !1;
+      async function loadDailyPlan() {
+        try {
+          let response = await fetch(`/api/meal-plan?date=${encodeURIComponent(selectedDailyDate)}`, { cache: `no-store` });
+          if (!response.ok) throw Error(`daily meal plan unavailable`);
+          let payload = await response.json();
+          if (!cancelled) setDailyPlanCodes(payload.source === `configured` ? (payload.items ?? []).map((item) => item.code) : null);
+        } catch {
+          if (!cancelled) setDailyPlanCodes(null);
+        }
+      }
+      loadDailyPlan();
+      window.addEventListener(`meal-plan-updated`, loadDailyPlan);
+      return () => {
+        cancelled = !0;
+        window.removeEventListener(`meal-plan-updated`, loadDailyPlan);
+      };
+    }, [selectedDailyDate]),
+    weekStart = (0, l.useMemo)(() => {
+      let date = new Date(`${selectedDailyDate}T12:00:00`);
+      date.setDate(date.getDate() - date.getDay());
+      date.setHours(12, 0, 0, 0);
+      return date;
+    }, [selectedDailyDate]),
+    weekDates = (0, l.useMemo)(() =>
+      Array.from({ length: 7 }, (_, index) => {
+        let date = new Date(weekStart);
+        date.setDate(weekStart.getDate() + index);
+        return M(date);
+      }), [weekStart]),
+    _weeklyPlanEffect = (0, l.useEffect)(() => {
+      let cancelled = !1;
+      async function loadWeeklyPlan() {
+        try {
+          let months = [...new Set(weekDates.map((date) => date.slice(0, 7)))],
+            payloads = await Promise.all(months.map(async (month) => {
+              let response = await fetch(`/api/meal-plan?month=${month}`, { cache: `no-store` });
+              if (!response.ok) throw Error(`weekly meal plan unavailable`);
+              return response.json();
+            }));
+          if (cancelled) return;
+          setWeeklyPlanDays(payloads
+            .filter((payload) => payload.source === `configured`)
+            .flatMap((payload) => payload.days ?? []));
+        } catch {
+          if (!cancelled) setWeeklyPlanDays([]);
+        }
+      }
+      loadWeeklyPlan();
+      window.addEventListener(`meal-plan-updated`, loadWeeklyPlan);
+      return () => {
+        cancelled = !0;
+        window.removeEventListener(`meal-plan-updated`, loadWeeklyPlan);
+      };
+    }, [weekDates.join(`,`)]),
+    weeklyItemsByDate = new Map(weeklyPlanDays.map((day) => [day.date, day.items ?? []])),
+    routineDays = weekDates.map((date, index) => {
+      let items = weeklyItemsByDate.get(date) ?? [],
+        photos = {
+          bun: [`/food-thumbnails/bread-roll.png`, `বনরুটি`],
+          egg: [`/food-thumbnails/boiled-egg.png`, `সিদ্ধ ডিম`],
+          banana: [`/food-thumbnails/banana.png`, `কলা`],
+        },
+        validItems = items.filter((code) => I[code]),
+        icon = validItems.length
+          ? (0, E.jsx)(`div`, {
+              className: `routine-food-photo-pair`,
+              children: validItems.map((code) => (0, E.jsx)(`img`, {
+                src: photos[code][0],
+                alt: photos[code][1],
+                className: `routine-food-photo`,
+              }, code)),
+            })
+          : (0, E.jsx)(Ban, { size: 16, color: `#dc2626`, fill: `#fecaca` });
+      return [
+        [`রবিবার`, `সোমবার`, `মঙ্গলবার`, `বুধবার`, `বৃহস্পতিবার`, `শুক্রবার`, `শনিবার`][index],
+        validItems.length ? validItems.map((code) => I[code].routineName).join(` + `) : `বিদ্যালয় বন্ধ`,
+        icon,
+        date,
+      ];
+    }),
+    dailyItems = dailyPlanCodes === null ? n : mealCodesToRoutineNames(dailyPlanCodes),
+    dailyDate = new Date(`${selectedDailyDate}T12:00:00`);
   return (0, E.jsxs)(`div`, {
     className: `distribution-layout`,
     children: [
@@ -2925,15 +3062,7 @@ function W({
           }),
           (0, E.jsx)(`div`, {
             className: `routine-list`,
-            children: [
-              [`রবিবার`, `বনরুটি + সিদ্ধ ডিম`, (0, E.jsxs)(`div`, { className: `routine-food-photo-pair`, children: [(0, E.jsx)(`img`, { src: `/food-thumbnails/bread-roll.png`, alt: `বনরুটি`, className: `routine-food-photo` }), (0, E.jsx)(`img`, { src: `/food-thumbnails/boiled-egg.png`, alt: `সিদ্ধ ডিম`, className: `routine-food-photo` })] })],
-              [`সোমবার`, `বনরুটি`, (0, E.jsx)(`img`, { src: `/food-thumbnails/bread-roll.png`, alt: `বনরুটি`, className: `routine-food-photo` })],
-              [`মঙ্গলবার`, `কলা`, (0, E.jsx)(`img`, { src: `/food-thumbnails/banana.png`, alt: `কলা`, className: `routine-food-photo` })],
-              [`বুধবার`, `বনরুটি + সিদ্ধ ডিম`, (0, E.jsxs)(`div`, { className: `routine-food-photo-pair`, children: [(0, E.jsx)(`img`, { src: `/food-thumbnails/bread-roll.png`, alt: `বনরুটি`, className: `routine-food-photo` }), (0, E.jsx)(`img`, { src: `/food-thumbnails/boiled-egg.png`, alt: `সিদ্ধ ডিম`, className: `routine-food-photo` })] })],
-              [`বৃহস্পতিবার`, `বনরুটি + সিদ্ধ ডিম`, (0, E.jsxs)(`div`, { className: `routine-food-photo-pair`, children: [(0, E.jsx)(`img`, { src: `/food-thumbnails/bread-roll.png`, alt: `বনরুটি`, className: `routine-food-photo` }), (0, E.jsx)(`img`, { src: `/food-thumbnails/boiled-egg.png`, alt: `সিদ্ধ ডিম`, className: `routine-food-photo` })] })],
-              [`শুক্রবার`, `বিতরণ নেই`, (0, E.jsx)(Ban, { size: 16, color: '#dc2626', fill: '#fecaca' })],
-              [`শনিবার`, `বিতরণ নেই`, (0, E.jsx)(Ban, { size: 16, color: '#dc2626', fill: '#fecaca' })],
-            ].map(([e, t, n]) =>
+            children: routineDays.map(([e, t, n, date]) =>
               (0, E.jsxs)(
                 `article`,
                 {
@@ -2955,7 +3084,7 @@ function W({
                     }),
                   ],
                 },
-                e,
+                date,
               ),
             ),
           }),
@@ -2978,7 +3107,7 @@ function W({
                     className: `eyebrow`,
                     children: `দৈনিক পরিকল্পনা`,
                   }),
-                  (0, E.jsx)(`h2`, { children: k.format(e) }),
+                  (0, E.jsx)(`h2`, { children: k.format(dailyDate) }),
                 ],
               }),
               (0, E.jsx)(`span`, {
@@ -2987,7 +3116,7 @@ function W({
               }),
             ],
           }),
-          n.length
+          dailyItems.length
             ? (0, E.jsxs)(E.Fragment, {
                 children: [
                   (0, E.jsxs)(`p`, {
@@ -3001,7 +3130,7 @@ function W({
                   }),
                   (0, E.jsx)(`div`, {
                     className: `daily-plan-cards`,
-                    children: n.map((e) =>
+                    children: dailyItems.map((e) =>
                       (0, E.jsxs)(
                         `article`,
                         {
@@ -3028,7 +3157,7 @@ function W({
                     children: [
                       (0, E.jsx)(`span`, { children: `মোট আইটেম সংখ্যা` }),
                       (0, E.jsx)(`strong`, {
-                        children: D.format(t * n.length),
+                        children: D.format(t * dailyItems.length),
                       }),
                     ],
                   }),
@@ -3046,7 +3175,7 @@ function W({
                     children: `এই দিনে কোনো বিতরণ নির্ধারিত নেই`,
                   }),
                   (0, E.jsx)(`p`, {
-                    children: `শুক্রবার, শনিবার অথবা নির্বাচিত item রুটিনে নেই।`,
+                    children: `মাসিক খাবার পরিকল্পনায় এই তারিখে কোনো খাবার নির্ধারিত নেই।`,
                   }),
                 ],
               }),
@@ -3055,12 +3184,16 @@ function W({
     ],
   }),
   (0, E.jsx)(ErrorBoundary, {
-        children: (0, E.jsx)(SchoolDistributionAdjustment, { accountRole: accountRole, userAreaCode: userAreaCode })
+        children: (0, E.jsx)(SchoolDistributionAdjustment, {
+          accountRole: accountRole,
+          userAreaCode: userAreaCode,
+          onDateChange: setSelectedDailyDate,
+        })
       }),
     ],
   });
 }
-function G({ dailyDemand: e, startDate: t, areaFilter: n }) {
+function G({ dailyDemand: e, startDate: t, areaFilter: n, schools: stockSchools = T }) {
   let [r, i] = (0, l.useState)([
       {
         itemCode: `bun`,
@@ -3099,11 +3232,14 @@ function G({ dailyDemand: e, startDate: t, areaFilter: n }) {
     [z, B] = (0, l.useState)(null),
     [V, H] = (0, l.useState)(``),
     [U, W] = (0, l.useState)(!1),
-    [stockOutArea, setStockOutArea] = (0, l.useState)(``),
+    [stockOutAreas, setStockOutAreas] = (0, l.useState)([]),
     [stockLedgerItem, setStockLedgerItem] = (0, l.useState)(`all`),
     [stockLedgerFrom, setStockLedgerFrom] = (0, l.useState)(``),
     [stockLedgerTo, setStockLedgerTo] = (0, l.useState)(``),
-    [stockLedgerPage, setStockLedgerPage] = (0, l.useState)(1);
+    [stockLedgerPage, setStockLedgerPage] = (0, l.useState)(1),
+    [stockPlannerOpen, setStockPlannerOpen] = (0, l.useState)(!1),
+    [stockPlanDays, setStockPlanDays] = (0, l.useState)([]),
+    stockReferenceDate = M(t);
   async function G() {
     let e = await fetch(`/api/stock`);
     if (!e.ok) throw Error(`Stock unavailable`);
@@ -3132,6 +3268,47 @@ function G({ dailyDemand: e, startDate: t, areaFilter: n }) {
       }
     );
   }, []);
+  (0, l.useEffect)(() => {
+    let e = !1;
+    async function t() {
+      try {
+        let t = new Date(`${stockReferenceDate}T00:00:00Z`),
+          n = stockReferenceDate.slice(0, 7),
+          r = new Date(Date.UTC(t.getUTCFullYear(), t.getUTCMonth() + 1, 1))
+            .toISOString()
+            .slice(0, 7),
+          i = await Promise.all(
+            [n, r].map(async (e) => {
+              let t = await fetch(`/api/meal-plan?month=${e}`, {
+                cache: `no-store`,
+              });
+              if (!t.ok) throw Error(`meal plan unavailable`);
+              return t.json();
+            }),
+          ),
+          a = i
+            .flatMap((e) => e.days ?? [])
+            .filter(
+              (e) =>
+                e.date >= stockReferenceDate &&
+                Array.isArray(e.items) &&
+                e.items.length > 0,
+            )
+            .sort((e, t) => e.date.localeCompare(t.date));
+        e || setStockPlanDays(a);
+      } catch {
+        e || setStockPlanDays([]);
+      }
+    }
+    return (
+      t(),
+      window.addEventListener(`meal-plan-updated`, t),
+      () => {
+        e = !0;
+        window.removeEventListener(`meal-plan-updated`, t);
+      }
+    );
+  }, [stockReferenceDate]);
   let K =
       g === `stock_in`
         ? Math.round((Number(v) || 0) * (Number(O) || 0) * 100)
@@ -3139,11 +3316,24 @@ function G({ dailyDemand: e, startDate: t, areaFilter: n }) {
     q = Math.round((Number(j) || 0) * 100),
     J = K - q,
     Y = s.find((e) => e.id === Number(suppId)),
+    areaDailyDemandByCode = stockSchools.reduce((e, t) => {
+      if (t.areaCode) e[t.areaCode] = (e[t.areaCode] ?? 0) + Number(t.dailyDemand || 0);
+      return e;
+    }, {}),
     X = { bun: u, egg: f, banana: 1 },
+    nextStockDistribution = stockPlanDays.find(
+      (e) => e.date > stockReferenceDate && e.items.length > 0,
+    ),
+    nextStockDistributionLabel = nextStockDistribution
+      ? `পরবর্তী বিতরণ ${formatStockPlanDate(nextStockDistribution.date)} রোজঃ ${formatStockPlanWeekday(nextStockDistribution.date)}`
+      : `পরবর্তী বিতরণের তারিখ নির্ধারিত নেই`,
     Z = Object.keys(I).map((n) => {
       let i = I[n],
         a = X[n],
-        o = R(t, i.routineName, a),
+        o = stockPlanDays
+          .filter((e) => e.items.includes(n))
+          .slice(0, a)
+          .map((e) => new Date(`${e.date}T00:00:00+06:00`)),
         s = e * o.length,
         c = r.find((e) => e.itemCode === n)?.currentQuantity ?? 0;
       return {
@@ -3175,6 +3365,10 @@ function G({ dailyDemand: e, startDate: t, areaFilter: n }) {
       H(`পরিমাণ শূন্যের চেয়ে বড় পূর্ণ সংখ্যা হতে হবে।`);
       return;
     }
+    if (g === `stock_out` && stockOutAreas.length === 0) {
+      H(`বিতরণের জন্য অন্তত একটি অঞ্চল নির্বাচন করুন।`);
+      return;
+    }
     if (g === `stock_in` && !suppId) {
       H(`ক্রয়ের জন্য সরবরাহকারী নির্বাচন করুন।`);
       return;
@@ -3186,23 +3380,31 @@ function G({ dailyDemand: e, startDate: t, areaFilter: n }) {
     (W(!0), H(``));
     try {
       let e = await fetch(`/api/stock`, {
-          method: z ? `PATCH` : `POST`,
-          headers: { "content-type": `application/json` },
-          body: JSON.stringify({
-            id: z,
-            itemCode: m,
-            transactionType: g,
-            quantity: t,
-            transactionDate: b,
-            note: S,
-            supplierId: g === `stock_in` ? Number(suppId) : null,
-            areaCode: g === `stock_out` ? stockOutArea : null,
-            unitPricePoisha:
-              g === `stock_in` ? Math.round((Number(O) || 0) * 100) : 0,
-            paidAmountPoisha: g === `stock_in` ? q : 0,
-          }),
+        method: z ? `PATCH` : `POST`,
+        headers: { "content-type": `application/json` },
+        body: JSON.stringify({
+          id: z,
+          itemCode: m,
+          transactionType: g,
+          quantity: t,
+          transactionDate: b,
+          note: S,
+          supplierId: g === `stock_in` ? Number(suppId) : null,
+          areaCodes: g === `stock_out` ? stockOutAreas : [],
+          unitPricePoisha:
+            g === `stock_in` ? Math.round((Number(O) || 0) * 100) : 0,
+          paidAmountPoisha: g === `stock_in` ? q : 0,
         }),
-        n = await e.json();
+      });
+      let responseText = await e.text(), n = { error: ``, currentQuantity: 0 };
+      if (!responseText) {
+        throw Error(`সার্ভার থেকে কোনো উত্তর পাওয়া যায়নি। আবার চেষ্টা করুন।`);
+      }
+      try {
+        n = JSON.parse(responseText);
+      } catch {
+        throw Error(`সার্ভার থেকে সঠিক উত্তর পাওয়া যায়নি। আবার চেষ্টা করুন।`);
+      }
       if (!e.ok)
         throw n.error === `INSUFFICIENT_STOCK`
           ? Error(
@@ -3213,6 +3415,7 @@ function G({ dailyDemand: e, startDate: t, areaFilter: n }) {
         y(``),
         C(``),
         setSuppId(``),
+        setStockOutAreas([]),
         A(``),
         N(``),
         B(null),
@@ -3235,6 +3438,7 @@ function G({ dailyDemand: e, startDate: t, areaFilter: n }) {
       x(e.transactionDate),
       C(e.note ?? ``),
       setSuppId(e.supplierId ? String(e.supplierId) : ``),
+      setStockOutAreas(parseStockAreaCodes(e.areaCode)),
       A(e.unitPricePoisha ? String(e.unitPricePoisha / 100) : ``),
       N(e.paidAmountPoisha ? String(e.paidAmountPoisha / 100) : ``),
       H(`সম্পাদনার জন্য লেনদেনের তথ্য ফর্মে লোড হয়েছে`));
@@ -3244,8 +3448,16 @@ function G({ dailyDemand: e, startDate: t, areaFilter: n }) {
       (W(!0), H(``));
       try {
         let e = await fetch(`/api/stock?id=${z}`, { method: `DELETE` }),
-          t = await e.json();
-        if (!e.ok) throw Error(t.error);
+          responseText = await e.text(),
+          t = { error: `` };
+        if (responseText) {
+          try {
+            t = JSON.parse(responseText);
+          } catch {
+            throw Error(`সার্ভার থেকে সঠিক উত্তর পাওয়া যায়নি। আবার চেষ্টা করুন।`);
+          }
+        }
+        if (!e.ok) throw Error(t.error || `মুছে ফেলা যায়নি।`);
         (H(`লেনদেনটি মুছে ফেলা হয়েছে।`), $(), await G());
       } catch (e) {
         H(P(e, `মুছে ফেলা যায়নি।`));
@@ -3255,7 +3467,14 @@ function G({ dailyDemand: e, startDate: t, areaFilter: n }) {
     }
   }
   function $() {
-    (B(null), y(``), C(``), setSuppId(``), A(``), N(``), H(``));
+    (B(null),
+      y(``),
+      C(``),
+      setSuppId(``),
+      setStockOutAreas([]),
+      A(``),
+      N(``),
+      H(``));
   }
   function printStockLedger() {
     printDesktopLayout(`printing-stock-ledger`);
@@ -3264,18 +3483,37 @@ function G({ dailyDemand: e, startDate: t, areaFilter: n }) {
     className: `stock-workspace`,
     children: [
       (0, E.jsxs)(`section`, {
-        className: `panel stock-planner`,
+        className: stockPlannerOpen
+          ? `panel stock-planner is-open`
+          : `panel stock-planner`,
         children: [
           (0, E.jsxs)(`div`, {
             className: `panel-head`,
             children: [
               (0, E.jsxs)(`div`, {
                 children: [
-                  (0, E.jsx)(`h2`, { children: `কত দিনের পণ্য একসাথে কিনবেন` }),
-                  (0, E.jsxs)(`p`, {
+                  (0, E.jsx)(`h2`, { children: `কত দিনের পণ্য একসাথে কিনবেন?` }),
+                  (0, E.jsx)(`p`, {
                     className: `panel-subtitle`,
-                    children: [n, ` · শুরু `, k.format(t)],
+                    children: nextStockDistributionLabel,
                   }),
+                ],
+              }),
+              (0, E.jsxs)(`button`, {
+                className: stockPlannerOpen
+                  ? `button-secondary stock-planner-toggle is-open`
+                  : `button-primary stock-planner-toggle`,
+                type: `button`,
+                "aria-expanded": stockPlannerOpen,
+                onClick: () => setStockPlannerOpen((e) => !e),
+                children: [
+                  (0, E.jsx)(`span`, {
+                    "aria-hidden": `true`,
+                    children: stockPlannerOpen ? `−` : `+`,
+                  }),
+                  stockPlannerOpen
+                    ? `ক্রয় পরিকল্পনা বন্ধ করুন`
+                    : `ক্রয় পরিকল্পনা খুলুন`,
                 ],
               }),
             ],
@@ -3379,7 +3617,7 @@ function G({ dailyDemand: e, startDate: t, areaFilter: n }) {
                         (0, E.jsx)(
                           `span`,
                           {
-                            children: formatDateDMY(e),
+                            children: `${formatStockPlanDate(M(e))} রোজঃ ${formatStockPlanWeekday(M(e))}`,
                           },
                           M(e),
                         ),
@@ -3435,17 +3673,6 @@ function G({ dailyDemand: e, startDate: t, areaFilter: n }) {
                 e.itemCode,
               ),
             ),
-          }),
-          (0, E.jsxs)(`div`, {
-            className: `stock-formula`,
-            children: [
-              (0, E.jsx)(`strong`, {
-                children: `ক্রয় পরিমাণ = নির্বাচিত দিনের মোট চাহিদা − বর্তমান ব্যবহারযোগ্য স্টক`,
-              }),
-              (0, E.jsx)(`span`, {
-                children: `নষ্ট বা ইস্যুকৃত পণ্য স্টক লেনদেন দেওয়ার সঙ্গে সঙ্গে মজুত থেকে বাদ যাবে।`,
-              }),
-            ],
           }),
         ],
       }),
@@ -3509,9 +3736,22 @@ function G({ dailyDemand: e, startDate: t, areaFilter: n }) {
                         value: g,
                         onChange: (e) => {
                           let t = e.target.value;
-                          (_(t), t !== `stock_in` && (setSuppId(``), A(``), N(``)));
+                          (_(t),
+                            t !== `stock_in` && (setSuppId(``), A(``), N(``)),
+                            t !== `stock_out` &&
+                              (setStockOutAreas([]), g === `stock_out` && y(``)),
+                            t === `stock_out` &&
+                              stockOutAreas.length > 0 &&
+                              y(
+                                String(
+                                  stockOutAreas.reduce(
+                                    (sum, code) => sum + (areaDailyDemandByCode[code] ?? 0),
+                                    0,
+                                  ),
+                                ),
+                              ));
                         },
-                        children: Object.keys(L).map((e) =>
+                        children: stockEntryTransactionTypes.map((e) =>
                           (0, E.jsx)(`option`, { value: e, children: L[e] }, e),
                         ),
                       }),
@@ -3653,23 +3893,42 @@ function G({ dailyDemand: e, startDate: t, areaFilter: n }) {
                       className: `stock-note`,
                       children: [
                         `অঞ্চল (যেখানে বিতরণ করা হলো)`,
-                        (0, E.jsxs)(`select`, {
-                          required: !0,
-                          value: stockOutArea,
-                          onChange: (e) => setStockOutArea(e.target.value),
-                          children: [
-                            (0, E.jsx)(`option`, {
-                              value: ``,
-                              children: `অঞ্চল নির্বাচন করুন`,
-                            }),
-                            w.map((area) =>
-                              (0, E.jsx)(
-                                `option`,
-                                { value: area.code, children: area.name },
-                                area.code,
-                              ),
+                        (0, E.jsx)(`div`, {
+                          className: `stock-area-picker`,
+                          role: `group`,
+                          'aria-label': `বিতরণের অঞ্চল নির্বাচন`,
+                          children: w.map((area) =>
+                            (0, E.jsxs)(
+                              `label`,
+                              {
+                                children: [
+                                  (0, E.jsx)(`input`, {
+                                    type: `checkbox`,
+                                    checked: stockOutAreas.includes(area.code),
+                                    onChange: (e) => {
+                                      let nextAreas = e.target.checked
+                                        ? [...stockOutAreas, area.code]
+                                        : stockOutAreas.filter((code) => code !== area.code);
+                                      (setStockOutAreas(nextAreas),
+                                        y(
+                                          nextAreas.length
+                                            ? String(
+                                                nextAreas.reduce(
+                                                  (sum, code) =>
+                                                    sum + (areaDailyDemandByCode[code] ?? 0),
+                                                  0,
+                                                ),
+                                              )
+                                            : ``,
+                                        ));
+                                    },
+                                  }),
+                                  (0, E.jsx)(`span`, { children: area.name }),
+                                ],
+                              },
+                              area.code,
                             ),
-                          ],
+                          ),
                         }),
                       ],
                     }),
@@ -3825,7 +4084,9 @@ function G({ dailyDemand: e, startDate: t, areaFilter: n }) {
                                       L[e.transactionType],
                                       ` · `,
                                       e.transactionDate,
-                                      e.transactionType === 'stock_out' && e.areaCode ? ` · ${w.find(a => a.code === e.areaCode)?.name || 'অজানা অঞ্চল'}` : ''
+                                      e.transactionType === 'stock_out' && e.areaCode
+                                        ? ` · ${formatStockAreaNames(e.areaCode) || 'অজানা অঞ্চল'}`
+                                        : ''
                                     ],
                                   }),
                                   e.supplierName &&
@@ -3868,12 +4129,17 @@ function G({ dailyDemand: e, startDate: t, areaFilter: n }) {
                                       }),
                                 ],
                               }),
-                              (0, E.jsx)(`button`, {
-                                className: `ledger-edit button-secondary`,
-                                type: `button`,
-                                onClick: () => ee(e),
-                                children: `এডিট`,
-                              }),
+                              stockEntryTransactionTypes.includes(e.transactionType)
+                                ? (0, E.jsx)(`button`, {
+                                    className: `ledger-edit button-secondary`,
+                                    type: `button`,
+                                    onClick: () => ee(e),
+                                    children: `এডিট`,
+                                  })
+                                : (0, E.jsx)(`span`, {
+                                    className: `ledger-edit-placeholder`,
+                                    "aria-hidden": `true`,
+                                  }),
                               (0, E.jsxs)(`div`, {
                                 className: `ledger-balance`,
                                 children: [
@@ -3972,7 +4238,7 @@ function G({ dailyDemand: e, startDate: t, areaFilter: n }) {
                                 (0, E.jsx)(`td`, {
                                   children:
                                     e.supplierName ||
-                                    (e.areaCode ? w.find((a) => a.code === e.areaCode)?.name : ``) ||
+                                    (e.areaCode ? formatStockAreaNames(e.areaCode) : ``) ||
                                     e.note ||
                                     `—`,
                                 }),
@@ -4678,7 +4944,8 @@ function q() {
     [p, m] = (0, l.useState)(null),
     [h, g] = (0, l.useState)(``),
     [_, v] = (0, l.useState)(!1),
-    [ledg, setLedg] = (0, l.useState)(null);
+    [ledg, setLedg] = (0, l.useState)(null),
+    [supplierFormOpen, setSupplierFormOpen] = (0, l.useState)(!1);
   async function y() {
     let e = await fetch(`/api/stock`);
     if (!e.ok) throw Error(`Stock unavailable`);
@@ -4737,31 +5004,66 @@ function q() {
     }
   }
   function x() {
-    (m(null), a(``), s(``), u(``), f(``), setOpeningBalance(``));
+    (m(null),
+      a(``),
+      s(``),
+      u(``),
+      f(``),
+      setOpeningBalance(``),
+      setSupplierFormOpen(!1));
   }
   return (0, E.jsx)(`div`, {
     className: `stock-workspace`,
     children: (0, E.jsxs)(`section`, {
       className: `panel supplier-panel`,
       children: [
-        (0, E.jsx)(`div`, {
+        (0, E.jsxs)(`div`, {
           className: `panel-head`,
-          children: (0, E.jsxs)(`div`, {
-            children: [
-              (0, E.jsx)(`h2`, {
-                children: `পণ্যভিত্তিক সরবরাহকারী ও আলাদা হিসাব`,
-              }),
-              (0, E.jsx)(`p`, {
-                className: `panel-subtitle`,
-                children: `বনরুটি, ডিম ও কলার ক্রয়, নগদ প্রদান এবং বাকি আলাদাভাবে দেখা যাবে।`,
-              }),
-            ],
-          }),
-        }),
-        (0, E.jsxs)(`form`, {
-          className: `supplier-form`,
-          onSubmit: b,
           children: [
+            (0, E.jsxs)(`div`, {
+              children: [
+                (0, E.jsx)(`h2`, {
+                  children: `পণ্যভিত্তিক সরবরাহকারী ও আলাদা হিসাব`,
+                }),
+                (0, E.jsx)(`p`, {
+                  className: `panel-subtitle`,
+                  children: `বনরুটি, ডিম ও কলার ক্রয়, নগদ প্রদান এবং বাকি আলাদাভাবে দেখা যাবে।`,
+                }),
+              ],
+            }),
+            (0, E.jsxs)(`button`, {
+              className: supplierFormOpen
+                ? `button-secondary supplier-form-toggle is-open`
+                : `button-primary supplier-form-toggle`,
+              type: `button`,
+              "aria-expanded": supplierFormOpen,
+              "aria-controls": `supplier-entry-form`,
+              onClick: () => {
+                supplierFormOpen
+                  ? x()
+                  : (x(), setSupplierFormOpen(!0));
+              },
+              children: [
+                (0, E.jsx)(`span`, {
+                  "aria-hidden": `true`,
+                  children: supplierFormOpen ? `−` : `+`,
+                }),
+                supplierFormOpen ? `ফর্ম বন্ধ করুন` : `নতুন সরবরাহকারী যোগ করুন`,
+              ],
+            }),
+          ],
+        }),
+        (0, E.jsx)(`div`, {
+          className: supplierFormOpen
+            ? `supplier-form-shell is-open`
+            : `supplier-form-shell`,
+          "aria-hidden": !supplierFormOpen,
+          inert: !supplierFormOpen ? !0 : void 0,
+          children: (0, E.jsxs)(`form`, {
+            id: `supplier-entry-form`,
+            className: `supplier-form`,
+            onSubmit: b,
+            children: [
             (0, E.jsxs)(`label`, {
               children: [
                 `পণ্য`,
@@ -4852,7 +5154,8 @@ function q() {
                   }),
               ],
             }),
-          ],
+            ],
+          }),
         }),
         h && (0, E.jsx)(`p`, { className: `stock-message`, children: h }),
         (0, E.jsx)(`div`, {
@@ -4949,7 +5252,8 @@ function q() {
                                       s(e.ownerName || ``),
                                       u(e.mobile || ``),
                                       f(e.address || ``),
-                                      setOpeningBalance(e.openingBalancePoisha ? String(e.openingBalancePoisha / 100) : ``));
+                                      setOpeningBalance(e.openingBalancePoisha ? String(e.openingBalancePoisha / 100) : ``),
+                                      setSupplierFormOpen(!0));
                                     let t =
                                       document.querySelector(`.supplier-form`);
                                     t &&

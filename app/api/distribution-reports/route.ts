@@ -13,7 +13,11 @@ export async function GET(request: Request) {
 
     const { searchParams } = new URL(request.url);
     const date = searchParams.get("date");
-    const areaCode = searchParams.get("areaCode");
+    const requestedAreaCode = searchParams.get("areaCode");
+    const areaCode =
+      authUser.role === "super_admin"
+        ? requestedAreaCode
+        : authUser.areaCode;
     const status = searchParams.get("status");
 
     const db = await ensureDatabase();
@@ -29,13 +33,10 @@ export async function GET(request: Request) {
       if (showBread || showEgg || showBanana) {
         let schoolQuery = `SELECT emis_code, area_code, current_daily_demand FROM schools`;
         const schoolParams: string[] = [];
-        if (authUser.role !== 'super_admin') {
-          if (!authUser.areaCode) {
-            return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-          }
-          schoolQuery += ` WHERE area_code = ?`;
-          schoolParams.push(authUser.areaCode);
-        } else if (areaCode) {
+        if (authUser.role !== 'super_admin' && !areaCode) {
+          return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+        }
+        if (areaCode) {
           schoolQuery += ` WHERE area_code = ?`;
           schoolParams.push(areaCode);
         }
@@ -89,13 +90,12 @@ export async function GET(request: Request) {
       params.push(date);
     }
     
+    if (authUser.role !== 'super_admin' && !areaCode) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
     if (areaCode) {
       query += ` AND r.area_code = ?`;
       params.push(areaCode);
-    } else if (authUser.role !== 'super_admin') {
-      // Area managers can only see their own area
-      query += ` AND r.area_code = ?`;
-      params.push(authUser.areaCode);
     }
     
     if (status) {
@@ -136,13 +136,36 @@ export async function POST(request: Request) {
       }
     }
 
+    const nextStatus =
+      authUser.role === "super_admin" ? String(data.status || "new") : "new";
+
+    const school = await db
+      .prepare("SELECT area_code FROM schools WHERE emis_code = ?")
+      .bind(data.schoolEmisCode)
+      .first<{ area_code: string }>();
+    if (!school) {
+      return NextResponse.json({ error: "School not found" }, { status: 404 });
+    }
+    if (school.area_code !== data.areaCode) {
+      return NextResponse.json(
+        { error: "School does not belong to the selected area" },
+        { status: 403 },
+      );
+    }
+
     // Upsert logic (if a report for this school+date exists, it updates it, otherwise inserts)
     // First, check if exists
     const existing = await db.prepare(
-      `SELECT id FROM distribution_reports WHERE date = ? AND school_emis_code = ?`
-    ).bind(data.date, data.schoolEmisCode).first();
+      `SELECT id, area_code FROM distribution_reports WHERE date = ? AND school_emis_code = ?`
+    ).bind(data.date, data.schoolEmisCode).first<{ id: number; area_code: string }>();
 
     if (existing) {
+      if (existing.area_code !== data.areaCode) {
+        return NextResponse.json(
+          { error: "Report area does not match the selected area" },
+          { status: 409 },
+        );
+      }
       const stmt = db.prepare(`
         UPDATE distribution_reports SET
           planned_bread = ?, planned_egg = ?, planned_banana = ?,
@@ -158,7 +181,7 @@ export async function POST(request: Request) {
         data.shortageBread || 0, data.shortageEgg || 0, data.shortageBanana || 0,
         data.excessBread || 0, data.excessEgg || 0, data.excessBanana || 0,
         data.problemType, data.reason, data.comments || null,
-        data.status || 'new', existing.id
+        nextStatus, existing.id
       ).run();
 
       if (result.success) {
@@ -187,7 +210,7 @@ export async function POST(request: Request) {
       data.shortageBread || 0, data.shortageEgg || 0, data.shortageBanana || 0,
       data.excessBread || 0, data.excessEgg || 0, data.excessBanana || 0,
       data.problemType, data.reason, data.comments || null,
-      data.status || 'new', authUser.name || 'Unknown Manager'
+      nextStatus, authUser.name || 'Unknown Manager'
     ).run();
 
     if (result.success) {
@@ -203,7 +226,7 @@ export async function POST(request: Request) {
           `/?area=${data.areaCode}&date=${data.date}&status=new&school=${data.schoolEmisCode}#distribution-exceptions`,
           null
         ).run();
-      } else if (authUser.role === 'super_admin' && data.status === 'resolved') {
+      } else if (authUser.role === 'super_admin' && nextStatus === 'resolved') {
         // Create Notification for Area Manager
         const schoolRow = await db.prepare(`SELECT name_bn FROM schools WHERE emis_code = ?`).bind(data.schoolEmisCode).first();
         const schoolName = schoolRow ? (schoolRow.name_bn || data.schoolEmisCode) : data.schoolEmisCode;

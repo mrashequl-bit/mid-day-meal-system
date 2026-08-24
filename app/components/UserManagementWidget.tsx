@@ -8,14 +8,14 @@ import "./user-management.css";
 
 type ManagedUser = {
   id: number; username: string; name: string; role: string;
-  area_code?: string | null; area_name?: string | null; school_emis_code?: string | null; school_name?: string | null; is_active: number;
+  area_code?: string | null; area_name?: string | null; is_active: number;
   email?: string | null; phone?: string | null; bio?: string | null;
   address?: string | null; designation?: string | null; photo_base64?: string | null;
 };
 
 const emptyForm = {
   username: "", password: "", name: "", role: "area_manager",
-  area_code: "", school_emis_code: "", is_active: 1, email: "", phone: "", bio: "",
+  area_code: "", is_active: 1, email: "", phone: "", bio: "",
   address: "", designation: "",
 };
 
@@ -28,7 +28,6 @@ function displayRole(role: string) {
 }
 
 export function UserManagementWidget() {
-  const [target, setTarget] = useState<Element | null>(null);
   const [allowed, setAllowed] = useState(false);
   const [users, setUsers] = useState<ManagedUser[]>([]);
   const [open, setOpen] = useState(false);
@@ -49,21 +48,14 @@ export function UserManagementWidget() {
   }, []);
 
   useEffect(() => {
-    const locate = () => setTarget(document.querySelector(".dashboard-columns .chart-panel"));
-    locate();
-    const observer = new MutationObserver(locate);
-    observer.observe(document.body, { childList: true, subtree: true });
     loadUsers().catch(() => undefined);
-    const openFromSettings = () => { setOpen(true); loadUsers().catch(() => undefined); };
-    window.addEventListener("open-user-management", openFromSettings);
-    return () => { observer.disconnect(); window.removeEventListener("open-user-management", openFromSettings); };
   }, [loadUsers]);
 
   const filteredUsers = useMemo(() => {
     const needle = query.trim().toLocaleLowerCase("bn");
     if (!needle) return users;
     return users.filter((user) =>
-      [user.name, user.username, user.phone, user.email, user.area_name, user.school_name]
+      [user.name, user.username, user.phone, user.email, user.area_name]
         .filter(Boolean).some((value) => String(value).toLocaleLowerCase("bn").includes(needle)),
     );
   }, [query, users]);
@@ -117,8 +109,8 @@ export function UserManagementWidget() {
 
   const field = (key: keyof typeof form, value: string | number) => setForm((current) => ({ ...current, [key]: value }));
 
-  if (!target || !allowed) return null;
-  return createPortal(<>
+  if (!allowed) return null;
+  return <>
     <button className="user-management-widget" type="button" onClick={() => setOpen(true)}>
       <span className="user-widget-icon">ইউ</span><span><strong>ইউজার ম্যানেজমেন্ট</strong><small>{users.length}টি প্রোফাইল · সম্পাদনা ও অনুমতি নিয়ন্ত্রণ</small></span>
       <span className="user-widget-avatars">{users.slice(0, 3).map((user) => <i key={user.id}>{userInitials(user.name)}</i>)}</span><b>খুলুন</b>
@@ -132,7 +124,7 @@ export function UserManagementWidget() {
           <div className="managed-user-grid">{filteredUsers.map((user) => (
             <article key={user.id} className={user.is_active ? "" : "managed-user-disabled"}>
               <div className="managed-user-avatar">{userInitials(user.name)}</div>
-              <div className="managed-user-main"><div><h3>{user.name}</h3><span className={user.is_active ? "user-active" : "user-inactive"}>{user.is_active ? "সক্রিয়" : "নিষ্ক্রিয়"}</span></div><p>{displayRole(user.role)}</p><dl><div><dt>ইউজারনেম</dt><dd>{user.username}</dd></div><div><dt>অঞ্চল</dt><dd>{user.area_name || "সব অঞ্চল"}</dd></div><div><dt>বিদ্যালয়</dt><dd>{user.school_name || "প্রযোজ্য নয়"}</dd></div><div><dt>মোবাইল</dt><dd>{user.phone || user.username}</dd></div></dl></div>
+              <div className="managed-user-main"><div><h3>{user.name}</h3><span className={user.is_active ? "user-active" : "user-inactive"}>{user.is_active ? "সক্রিয়" : "নিষ্ক্রিয়"}</span></div><p>{displayRole(user.role)}</p><dl><div><dt>ইউজারনেম</dt><dd>{user.username}</dd></div><div><dt>অঞ্চল</dt><dd>{user.area_name || "সব অঞ্চল"}</dd></div><div><dt>মোবাইল</dt><dd>{user.phone || user.username}</dd></div></dl></div>
               <div className="managed-user-actions"><button type="button" onClick={() => startEdit(user)}>প্রোফাইল সম্পাদনা</button>{user.role !== "super_admin" && <button className="user-delete-button" type="button" onClick={() => deleteUser(user)}>ডিলেট</button>}</div>
             </article>
           ))}</div>
@@ -158,5 +150,5 @@ export function UserManagementWidget() {
         </section>
       </div>, document.body,
     )}
-  </>, target);
+  </>;
 }

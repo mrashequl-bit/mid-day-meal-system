@@ -311,3 +311,11 @@ export const sessionsTable = sqliteTable(
     index("sessions_expires_at_idx").on(table.expiresAt),
   ],
 );
+
+export const loginAttemptsTable = sqliteTable("login_attempts", {
+  attemptKey: text("attempt_key").primaryKey(),
+  attempts: integer("attempts").notNull().default(0),
+  firstAttemptAt: text("first_attempt_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+  lastAttemptAt: text("last_attempt_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+  blockedUntil: text("blocked_until"),
+});

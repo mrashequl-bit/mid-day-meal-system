@@ -11,7 +11,10 @@ export async function GET(request: Request) {
     }
 
     const searchParams = new URL(request.url).searchParams;
-    const targetAreaCode = searchParams.get("area_code") || (authUser.role === "area_manager" ? authUser.areaCode : null);
+    const targetAreaCode =
+      authUser.role === "super_admin"
+        ? searchParams.get("area_code")
+        : authUser.areaCode;
     const month = searchParams.get("month"); // Format: YYYY-MM
     const db = await ensureDatabase();
 

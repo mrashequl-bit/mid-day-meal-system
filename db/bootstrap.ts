@@ -90,6 +90,7 @@ export async function ensureDatabase() {
           note TEXT,
           supplier_id INTEGER REFERENCES suppliers(id),
           area_code TEXT REFERENCES areas(code),
+          area_codes_json TEXT,
           unit_price_poisha INTEGER NOT NULL DEFAULT 0 CHECK(unit_price_poisha >= 0),
           total_amount_poisha INTEGER NOT NULL DEFAULT 0 CHECK(total_amount_poisha >= 0),
           paid_amount_poisha INTEGER NOT NULL DEFAULT 0 CHECK(paid_amount_poisha >= 0),
@@ -246,6 +247,16 @@ export async function ensureDatabase() {
           created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
         )`,
       ),
+    db
+      .prepare(
+        `CREATE TABLE IF NOT EXISTS login_attempts (
+          attempt_key TEXT PRIMARY KEY,
+          attempts INTEGER NOT NULL DEFAULT 0,
+          first_attempt_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+          last_attempt_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+          blocked_until TEXT
+        )`,
+      ),
     db.prepare(
       `CREATE TABLE IF NOT EXISTS system_settings (
         setting_key TEXT PRIMARY KEY,
@@ -338,6 +349,7 @@ export async function ensureDatabase() {
   const missingStockColumns = [
     ["supplier_id", "INTEGER REFERENCES suppliers(id)"],
     ["area_code", "TEXT REFERENCES areas(code)"],
+    ["area_codes_json", "TEXT"],
     ["unit_price_poisha", "INTEGER NOT NULL DEFAULT 0 CHECK(unit_price_poisha >= 0)"],
     ["total_amount_poisha", "INTEGER NOT NULL DEFAULT 0 CHECK(total_amount_poisha >= 0)"],
     ["paid_amount_poisha", "INTEGER NOT NULL DEFAULT 0 CHECK(paid_amount_poisha >= 0)"],
@@ -435,26 +447,8 @@ export async function ensureDatabase() {
     ).bind(adminPassword).run();
   }
 
-  const areaManagerUsers = await Promise.all(
-    areas
-      .filter((area) => area.managerMobile)
-      .map(async (area) => ({
-        ...area,
-        managerMobile: String(area.managerMobile),
-        password: await hashPassword(String(area.managerMobile)),
-      })),
-  );
-  await db.batch(
-    areaManagerUsers.map((area) =>
-      db
-        .prepare(
-          `INSERT OR IGNORE INTO users
-           (username, password, name, role, area_code)
-           VALUES (?, ?, ?, 'area_manager', ?)`,
-        )
-        .bind(area.managerMobile, area.password, area.managerName, area.code),
-    ),
-  );
+  // Area Manager accounts are created by Super Admin from Settings so every
+  // account receives an explicit password that follows the configured policy.
 
   // Add profile columns if missing
   const userColumns = await db

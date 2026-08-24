@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { headers } from "next/headers";
 import "@fontsource/anek-bangla/400.css";
 import "@fontsource/anek-bangla/500.css";
@@ -7,6 +7,13 @@ import "@fontsource/anek-bangla/700.css";
 import "@fontsource/anek-bangla/800.css";
 import "./globals.css";
 import "./desktop-print.css";
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+  themeColor: "#0b4a3e",
+};
 
 export async function generateMetadata(): Promise<Metadata> {
   const requestHeaders = await headers();

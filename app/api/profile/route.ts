@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { ensureDatabase } from "../../../db/bootstrap";
 import { getAuthUser } from "../../lib/auth";
 import { hashPassword } from "../../lib/password";
+import { validatePasswordPolicy } from "../../lib/admin-settings";
 
 export async function GET() {
   try {
@@ -34,6 +35,15 @@ export async function PUT(request: Request) {
 
     const data = (await request.json()) as Record<string, unknown>;
     const db = await ensureDatabase();
+    if (data.new_password) {
+      const passwordError = await validatePasswordPolicy(
+        String(data.new_password),
+        authUser.username,
+      );
+      if (passwordError) {
+        return NextResponse.json({ error: passwordError }, { status: 400 });
+      }
+    }
     const nextPassword = data.new_password
       ? await hashPassword(String(data.new_password))
       : null;

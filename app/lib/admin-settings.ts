@@ -16,10 +16,13 @@ export async function getSettings() {
   return Object.fromEntries(rows.results.map((row) => [row.setting_key, row.setting_value]));
 }
 
-export async function validatePasswordPolicy(password: string) {
+export async function validatePasswordPolicy(password: string, username = "") {
   const settings = await getSettings();
   const min = Math.max(6, Math.min(64, Number(settings.password_min_length || 8)));
   if (password.length < min) return `পাসওয়ার্ড কমপক্ষে ${min} অক্ষরের হতে হবে।`;
+  if (username && password.toLocaleLowerCase() === username.trim().toLocaleLowerCase()) {
+    return "পাসওয়ার্ড ইউজারনেমের মতো রাখা যাবে না।";
+  }
   if (settings.password_require_uppercase === "1" && !/[A-Z]/.test(password)) return "পাসওয়ার্ডে একটি বড় হাতের ইংরেজি অক্ষর থাকতে হবে।";
   if (settings.password_require_lowercase === "1" && !/[a-z]/.test(password)) return "পাসওয়ার্ডে একটি ছোট হাতের ইংরেজি অক্ষর থাকতে হবে।";
   if (settings.password_require_number === "1" && !/\d/.test(password)) return "পাসওয়ার্ডে একটি সংখ্যা থাকতে হবে।";

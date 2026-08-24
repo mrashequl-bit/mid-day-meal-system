@@ -91,7 +91,7 @@ export default function LoginPage() {
         </form>
 
         <div className="mt-8 text-center text-xs text-[var(--muted)]">
-          <p>এরিয়া ম্যানেজারদের ইউজারনেম ও পাসওয়ার্ড তাদের মোবাইল নাম্বার।</p>
+          <p>লগইন তথ্যের জন্য সিস্টেম অ্যাডমিনের সঙ্গে যোগাযোগ করুন।</p>
         </div>
       </div>
     </div>

@@ -1,4 +1,8 @@
+import { pbkdf2Async } from "@noble/hashes/pbkdf2.js";
+import { sha256 } from "@noble/hashes/sha2.js";
+
 const PBKDF2_ITERATIONS = 100_000;
+const WEB_CRYPTO_MAX_ITERATIONS = 100_000;
 const SALT_BYTES = 16;
 const KEY_BYTES = 32;
 
@@ -15,7 +19,15 @@ async function derivePassword(
   salt: Uint8Array,
   iterations: number,
 ) {
-  const keyMaterial = await crypto.subtle.importKey(
+  if (iterations > WEB_CRYPTO_MAX_ITERATIONS) {
+    return pbkdf2Async(sha256, password, salt, {
+      c: iterations,
+      dkLen: KEY_BYTES,
+      asyncTick: 10,
+    });
+  }
+
+  const key = await crypto.subtle.importKey(
     "raw",
     new TextEncoder().encode(password),
     "PBKDF2",
@@ -23,13 +35,8 @@ async function derivePassword(
     ["deriveBits"],
   );
   const bits = await crypto.subtle.deriveBits(
-    {
-      name: "PBKDF2",
-      hash: "SHA-256",
-      salt: Uint8Array.from(salt).buffer,
-      iterations,
-    },
-    keyMaterial,
+    { name: "PBKDF2", hash: "SHA-256", salt, iterations },
+    key,
     KEY_BYTES * 8,
   );
   return new Uint8Array(bits);
@@ -77,9 +84,9 @@ export async function verifyPassword(password: string, storedPassword: string) {
     const ok = constantTimeEqual(actual, decode(hashText));
     return {
       ok,
-      needsRehash: ok && iterations < PBKDF2_ITERATIONS,
+      needsRehash: ok && iterations !== PBKDF2_ITERATIONS,
       passwordHash:
-        ok && iterations < PBKDF2_ITERATIONS
+        ok && iterations !== PBKDF2_ITERATIONS
           ? await hashPassword(password)
           : undefined,
     };

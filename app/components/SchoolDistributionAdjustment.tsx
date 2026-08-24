@@ -13,7 +13,7 @@ const AlertIcon = () => (
   </svg>
 );
 
-export function SchoolDistributionAdjustment({ accountRole, userAreaCode }: { accountRole: string, userAreaCode?: string }) {
+export function SchoolDistributionAdjustment({ accountRole, userAreaCode, onDateChange }: { accountRole: string, userAreaCode?: string, onDateChange?: (date: string) => void }) {
   const problemTypeMapping = {
     less_item: 'কম আইটেম পাওয়া গেছে',
     more_item: 'বেশি আইটেম পাওয়া গেছে',
@@ -53,6 +53,10 @@ export function SchoolDistributionAdjustment({ accountRole, userAreaCode }: { ac
   const [filterStatus, setFilterStatus] = useState('');
   const [focusedSchoolEmis, setFocusedSchoolEmis] = useState('');
   const [configuredMealItems, setConfiguredMealItems] = useState<string[] | null>(null);
+
+  useEffect(() => {
+    onDateChange?.(filterDate);
+  }, [filterDate, onDateChange]);
 
   const printDistributionReport = useCallback(() => {
     printDesktopLayout('printing-distribution-report');

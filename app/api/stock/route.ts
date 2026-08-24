@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { ensureDatabase } from "../../../db/bootstrap";
 import {
   type AuthUser,
-  getAuthUser,
+  requirePermission,
   requireSuperAdmin,
 } from "../../lib/auth";
 
@@ -13,8 +13,6 @@ const transactionTypes = new Set([
   "stock_out",
   "damaged",
   "returned",
-  "adjustment_add",
-  "adjustment_sub",
 ]);
 const outgoingTypes = new Set(["stock_out", "damaged", "adjustment_sub"]);
 
@@ -28,6 +26,7 @@ type TransactionInput = {
   unitPricePoisha?: unknown;
   paidAmountPoisha?: unknown;
   areaCode?: unknown;
+  areaCodes?: unknown;
 };
 
 type StockReplayRow = {
@@ -40,6 +39,9 @@ type StockReplayRow = {
 
 type StoredStockTransaction = Record<string, unknown> & {
   item_code: string;
+  transaction_type: string;
+  quantity: number;
+  transaction_date: string;
 };
 
 function validateTransaction(payload: TransactionInput) {
@@ -49,10 +51,22 @@ function validateTransaction(payload: TransactionInput) {
   const transactionDate = String(payload.transactionDate ?? "");
   const note =
     typeof payload.note === "string" ? payload.note.trim().slice(0, 500) : "";
-  const areaCode =
-    typeof payload.areaCode === "string" && payload.areaCode.trim().length > 0
-      ? payload.areaCode.trim()
-      : null;
+  const areaCodes = Array.isArray(payload.areaCodes)
+    ? Array.from(new Set(payload.areaCodes.map((value) => String(value).trim()).filter(Boolean)))
+    : typeof payload.areaCode === "string" && payload.areaCode.trim().length > 0
+      ? (() => {
+          const stored = payload.areaCode.trim();
+          if (!stored.startsWith("[")) return [stored];
+          try {
+            const parsed = JSON.parse(stored);
+            return Array.isArray(parsed) ? parsed.map((value) => String(value).trim()).filter(Boolean) : [];
+          } catch {
+            return [stored];
+          }
+        })()
+      : [];
+  const areaCode = areaCodes[0] ?? null;
+  const areaCodesJson = areaCodes.length ? JSON.stringify(areaCodes) : null;
   const supplierId =
     payload.supplierId === null || payload.supplierId === undefined
       ? null
@@ -69,6 +83,9 @@ function validateTransaction(payload: TransactionInput) {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(transactionDate)) {
     return { error: "A valid transaction date is required." } as const;
   }
+  if (transactionType === "stock_out" && areaCodes.length === 0) {
+    return { error: "At least one area is required for a distribution." } as const;
+  }
 
   if (transactionType !== "stock_in") {
     return {
@@ -80,6 +97,7 @@ function validateTransaction(payload: TransactionInput) {
         note,
         supplierId: null,
         areaCode: transactionType === "stock_out" ? areaCode : null,
+        areaCodesJson: transactionType === "stock_out" ? areaCodesJson : null,
         unitPricePoisha: 0,
         totalAmountPoisha: 0,
         paidAmountPoisha: 0,
@@ -114,6 +132,7 @@ function validateTransaction(payload: TransactionInput) {
       note,
       supplierId: Number(supplierId),
       areaCode: null,
+      areaCodesJson: null,
       unitPricePoisha,
       totalAmountPoisha,
       paidAmountPoisha: actualPaid,
@@ -128,8 +147,8 @@ function currentActor(user: AuthUser) {
 }
 
 export async function GET() {
-  if (!(await getAuthUser())) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!(await requirePermission("stock"))) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
   const db = await ensureDatabase();
   const [balances, transactions, suppliers] = await Promise.all([
@@ -148,7 +167,7 @@ export async function GET() {
          st.previous_balance AS previousBalance, st.new_balance AS newBalance,
          st.transaction_date AS transactionDate, st.note, st.actor,
          st.supplier_id AS supplierId, s.name AS supplierName,
-         st.area_code AS areaCode,
+         COALESCE(st.area_codes_json, st.area_code) AS areaCode,
          st.unit_price_poisha AS unitPricePoisha,
          st.total_amount_poisha AS totalAmountPoisha,
          st.paid_amount_poisha AS paidAmountPoisha,
@@ -372,9 +391,9 @@ export async function POST(request: Request) {
       .prepare(
         `INSERT INTO stock_transactions
          (item_code, transaction_type, quantity, previous_balance, new_balance,
-          transaction_date, note, supplier_id, area_code, unit_price_poisha,
+          transaction_date, note, supplier_id, area_code, area_codes_json, unit_price_poisha,
           total_amount_poisha, paid_amount_poisha, due_amount_poisha, actor)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       )
       .bind(
         value.itemCode,
@@ -386,6 +405,7 @@ export async function POST(request: Request) {
         value.note || null,
         value.supplierId,
         value.areaCode,
+        value.areaCodesJson,
         value.unitPricePoisha,
         value.totalAmountPoisha,
         value.paidAmountPoisha,
@@ -441,7 +461,7 @@ export async function PATCH(request: Request) {
     .prepare(
       `SELECT id, item_code AS itemCode, transaction_type AS transactionType,
        quantity, transaction_date AS transactionDate, note, supplier_id AS supplierId,
-       area_code AS areaCode,
+       COALESCE(area_codes_json, area_code) AS areaCode,
        unit_price_poisha AS unitPricePoisha,
        total_amount_poisha AS totalAmountPoisha,
        paid_amount_poisha AS paidAmountPoisha,
@@ -539,7 +559,7 @@ export async function PATCH(request: Request) {
       .prepare(
         `UPDATE stock_transactions
          SET item_code = ?, transaction_type = ?, quantity = ?,
-         transaction_date = ?, note = ?, supplier_id = ?, area_code = ?,
+         transaction_date = ?, note = ?, supplier_id = ?, area_code = ?, area_codes_json = ?,
          unit_price_poisha = ?, total_amount_poisha = ?,
          paid_amount_poisha = ?, due_amount_poisha = ?,
          updated_at = CURRENT_TIMESTAMP
@@ -553,6 +573,7 @@ export async function PATCH(request: Request) {
         value.note || null,
         value.supplierId,
         value.areaCode,
+        value.areaCodesJson,
         value.unitPricePoisha,
         value.totalAmountPoisha,
         value.paidAmountPoisha,
@@ -599,81 +620,101 @@ export async function DELETE(request: Request) {
   if (!Number.isInteger(id) || id <= 0) {
     return NextResponse.json({ error: "Invalid transaction id." }, { status: 422 });
   }
-  const db = await ensureDatabase();
-  const existing = await db
-    .prepare("SELECT * FROM stock_transactions WHERE id = ?")
-    .bind(id)
-    .first<StoredStockTransaction>();
-  if (!existing) {
-    return NextResponse.json({ error: "Transaction not found." }, { status: 404 });
-  }
+  try {
+    const db = await ensureDatabase();
+    const existing = await db
+      .prepare("SELECT * FROM stock_transactions WHERE id = ?")
+      .bind(id)
+      .first<StoredStockTransaction>();
+    if (!existing) {
+      return NextResponse.json({ error: "Transaction not found." }, { status: 404 });
+    }
 
-  const allRows = await db
-    .prepare(
-      `SELECT id, item_code AS itemCode, transaction_type AS transactionType,
-       quantity, transaction_date AS transactionDate
-       FROM stock_transactions
-       WHERE item_code = ?`
-    )
-    .bind(existing.item_code)
-    .all<StockReplayRow>();
+    const current = await db
+      .prepare(
+        "SELECT current_quantity AS currentQuantity FROM stock_balances WHERE item_code = ?",
+      )
+      .bind(existing.item_code)
+      .first<{ currentQuantity: number }>();
+    if (!current) {
+      return NextResponse.json({ error: "Stock item not found." }, { status: 404 });
+    }
 
-  const recalculated: Array<{
-    id: number;
-    previousBalance: number;
-    newBalance: number;
-  }> = [];
+    const deletedDelta = outgoingTypes.has(existing.transaction_type)
+      ? -existing.quantity
+      : existing.quantity;
+    const reverseDelta = -deletedDelta;
+    const nextCurrentBalance = current.currentQuantity + reverseDelta;
 
-  const itemRows = allRows.results
-    .filter((row: StockReplayRow) => row.id !== id)
-    .sort(
-      (left: StockReplayRow, right: StockReplayRow) =>
-        left.transactionDate.localeCompare(right.transactionDate) ||
-        left.id - right.id,
-    );
-    
-  let balance = 0;
-  for (const row of itemRows) {
-    const previousBalance = balance;
-    balance += outgoingTypes.has(row.transactionType)
-      ? -row.quantity
-      : row.quantity;
-    if (balance < 0) {
+    const laterRows = await db
+      .prepare(
+        `SELECT id, previous_balance AS previousBalance, new_balance AS newBalance
+         FROM stock_transactions
+         WHERE item_code = ? AND id <> ?
+         AND (transaction_date > ? OR (transaction_date = ? AND id > ?))
+         ORDER BY transaction_date, id`,
+      )
+      .bind(
+        existing.item_code,
+        id,
+        existing.transaction_date,
+        existing.transaction_date,
+        id,
+      )
+      .all<{ id: number; previousBalance: number; newBalance: number }>();
+
+    const adjustedRows = laterRows.results.map((row) => ({
+      id: row.id,
+      previousBalance: row.previousBalance + reverseDelta,
+      newBalance: row.newBalance + reverseDelta,
+    }));
+    if (
+      nextCurrentBalance < 0 ||
+      adjustedRows.some((row) => row.previousBalance < 0 || row.newBalance < 0)
+    ) {
       return NextResponse.json(
         {
-          error: "মুছে ফেললে পূর্ববর্তী স্টক ঋণাত্মক হয়ে যাবে।",
-          currentQuantity: previousBalance,
+          error:
+            "এই ক্রয়/স্টক লেনদেনটি মুছলে পরবর্তী মজুদ অপর্যাপ্ত হবে। আগে সংশ্লিষ্ট বিতরণ বা নষ্ট লেনদেন সমন্বয় করুন।",
         },
         { status: 409 },
       );
     }
-    recalculated.push({ id: row.id, previousBalance, newBalance: balance });
-  }
 
-  const actor = currentActor(authUser);
-  const statements = [
-    db.prepare("DELETE FROM stock_transactions WHERE id = ?").bind(id),
-    ...recalculated.map((row) =>
+    const actor = currentActor(authUser);
+    await db.batch([
+      db.prepare("DELETE FROM stock_transactions WHERE id = ?").bind(id),
+      ...adjustedRows.map((row) =>
+        db
+          .prepare(
+            "UPDATE stock_transactions SET previous_balance = ?, new_balance = ? WHERE id = ?",
+          )
+          .bind(row.previousBalance, row.newBalance, row.id),
+      ),
       db
         .prepare(
-          "UPDATE stock_transactions SET previous_balance = ?, new_balance = ? WHERE id = ?",
+          "UPDATE stock_balances SET current_quantity = ?, updated_at = CURRENT_TIMESTAMP WHERE item_code = ?",
         )
-        .bind(row.previousBalance, row.newBalance, row.id),
-    ),
-    db
-      .prepare(
-        "UPDATE stock_balances SET current_quantity = ?, updated_at = CURRENT_TIMESTAMP WHERE item_code = ?",
-      )
-      .bind(balance, existing.item_code),
-    db
-      .prepare(
-        `INSERT INTO audit_logs
-         (actor, action, entity_type, entity_id, before_json, after_json)
-         VALUES (?, 'DELETE_STOCK_TRANSACTION', 'stock_transaction', ?, ?, null)`,
-      )
-      .bind(actor, id, JSON.stringify(existing)),
-  ];
+        .bind(nextCurrentBalance, existing.item_code),
+      db
+        .prepare(
+          `INSERT INTO audit_logs
+           (actor, action, entity_type, entity_id, before_json, after_json)
+           VALUES (?, 'DELETE_STOCK_TRANSACTION', 'stock_transaction', ?, ?, null)`,
+        )
+        .bind(actor, id, JSON.stringify(existing)),
+    ]);
 
-  await db.batch(statements);
-  return NextResponse.json({ ok: true });
+    return NextResponse.json({
+      ok: true,
+      itemCode: existing.item_code,
+      currentQuantity: nextCurrentBalance,
+    });
+  } catch (error) {
+    console.error("Stock transaction deletion failed", error);
+    return NextResponse.json(
+      { error: "লেনদেনটি মুছে ফেলা যায়নি। আবার চেষ্টা করুন।" },
+      { status: 500 },
+    );
+  }
 }

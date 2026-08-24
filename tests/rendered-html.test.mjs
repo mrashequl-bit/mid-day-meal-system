@@ -23,12 +23,15 @@ test("stock page keeps its Bengali headings without English section labels", asy
   const dashboard = await read("app/components/DashboardApp.tsx");
   const styles = await read("app/components/DashboardApp.css");
   const stockRoute = await read("app/api/stock/route.ts");
+  const acceptedStockTypes = stockRoute.match(/const transactionTypes = new Set\(\[[\s\S]*?\]\);/)?.[0] ?? "";
 
   assert.doesNotMatch(dashboard, /Procurement Planner|Stock Transaction|Recent Ledger/);
   assert.match(dashboard, /কত দিনের পণ্য একসাথে কিনবেন/);
   assert.match(dashboard, /সাম্প্রতিক লেনদেন/);
   assert.doesNotMatch(dashboard, /ডিফল্ট পরিকল্পনা|চাহিদাভিত্তিক/);
-  assert.match(dashboard, /নষ্ট বা ইস্যুকৃত পণ্য স্টক লেনদেন/);
+  assert.doesNotMatch(dashboard, /ক্রয় পরিমাণ = নির্বাচিত দিনের মোট চাহিদা/);
+  assert.doesNotMatch(dashboard, /নষ্ট বা ইস্যুকৃত পণ্য স্টক লেনদেন/);
+  assert.doesNotMatch(styles, /stock-formula/);
   assert.doesNotMatch(dashboard, /stock transaction দেওয়ার সঙ্গে সঙ্গে balance/);
   assert.match(styles, /\/\* Compact procurement planner \*\//);
   assert.match(styles, /\.stock-planner \{[\s\S]*?padding: 16px 18px;/);
@@ -43,8 +46,50 @@ test("stock page keeps its Bengali headings without English section labels", asy
   assert.match(dashboard, /className: `stock-ledger-toolbar no-print`/);
   assert.match(dashboard, /className: `stock-ledger-pagination no-print`/);
   assert.match(dashboard, /className: `stock-ledger-print print-only`/);
-  assert.match(dashboard, /printClass = `printing-stock-ledger`/);
+  assert.match(dashboard, /printDesktopLayout\(`printing-stock-ledger`\)/);
   assert.match(styles, /body\.printing-stock-ledger \.stock-ledger-print/);
+  assert.match(dashboard, /\[stockPlannerOpen, setStockPlannerOpen\]/);
+  assert.match(dashboard, /stockPlannerOpen \? `−` : `\+`/);
+  assert.match(dashboard, /setStockPlannerOpen\(\(e\) => !e\)/);
+  assert.doesNotMatch(styles, /\.stock-planner \{[\s\S]*?order: 2/);
+  assert.match(styles, /\.stock-planner:not\(\.is-open\) \.coverage-controls/);
+  assert.match(dashboard, /কত দিনের পণ্য একসাথে কিনবেন\?/);
+  assert.match(dashboard, /পরবর্তী বিতরণ \$\{formatStockPlanDate/);
+  assert.match(dashboard, /\$\{N\(String\(t\)\)\}/);
+  assert.match(dashboard, /রোজঃ \$\{formatStockPlanWeekday/);
+  assert.match(dashboard, /\/api\/meal-plan\?month=\$\{e\}/);
+  assert.match(dashboard, /stockPlanDays\.find/);
+  assert.match(dashboard, /e\.items\.includes\(n\)/);
+  assert.match(dashboard, /schools: h/);
+  assert.match(dashboard, /areaDailyDemandByCode = stockSchools\.reduce/);
+  assert.match(dashboard, /\[stockOutAreas, setStockOutAreas\]/);
+  assert.match(dashboard, /className: `stock-area-picker`/);
+  assert.match(dashboard, /type: `checkbox`/);
+  assert.match(dashboard, /stockOutAreas\.reduce/);
+  assert.match(dashboard, /areaCodes: g === `stock_out` \? stockOutAreas : \[\]/);
+  assert.match(dashboard, /formatStockAreaNames\(e\.areaCode\)/);
+  assert.match(styles, /\.stock-area-picker \{[\s\S]*?grid-template-columns: repeat\(4/);
+  assert.match(stockRoute, /areaCodes\?: unknown/);
+  assert.match(stockRoute, /JSON\.stringify\(areaCodes\)/);
+  assert.match(stockRoute, /area_codes_json/);
+  assert.match(await read("db/bootstrap.ts"), /\["area_codes_json", "TEXT"\]/);
+  assert.doesNotMatch(
+    dashboard,
+    /অঞ্চল নির্বাচন করলে একদিনের এক আইটেমের চাহিদা পরিমাণ ঘরে স্বয়ংক্রিয়ভাবে বসবে/,
+  );
+  const deleteHandler = stockRoute.slice(stockRoute.indexOf("export async function DELETE"));
+  assert.doesNotMatch(deleteHandler, /let balance = 0|পূর্ববর্তী স্টক ঋণাত্মক/);
+  assert.match(deleteHandler, /const reverseDelta = -deletedDelta/);
+  assert.match(deleteHandler, /current\.currentQuantity \+ reverseDelta/);
+  assert.match(deleteHandler, /return NextResponse\.json\([\s\S]*?status: 500/);
+  assert.match(dashboard, /responseText = await e\.text\(\)[\s\S]*?method: `DELETE`|method: `DELETE`[\s\S]*?responseText = await e\.text\(\)/);
+  assert.match(dashboard, /stockEntryTransactionTypes\.map/);
+  assert.match(dashboard, /stockEntryTransactionTypes\.includes\(e\.transactionType\)/);
+  assert.doesNotMatch(acceptedStockTypes, /adjustment_add|adjustment_sub/);
+  assert.match(stockRoute, /outgoingTypes = new Set\(\["stock_out", "damaged", "adjustment_sub"\]\)/);
+  assert.match(dashboard, /formatStockPlanDate\(M\(e\)\).*রোজঃ.*formatStockPlanWeekday\(M\(e\)\)/);
+  assert.match(styles, /\.stock-planner \.date-chips \{[\s\S]*?display: grid/);
+  assert.match(styles, /\.stock-planner \.date-chips span \{[\s\S]*?white-space: normal/);
   assert.doesNotMatch(stockRoute, /ORDER BY st\.id DESC LIMIT 20/);
 });
 
@@ -60,6 +105,12 @@ test("supplier page keeps the Bengali account heading without the English label"
   assert.match(styles, /\.supplier-account-grid \{[\s\S]*?grid-template-columns: minmax\(0, 1fr\)/);
   assert.match(styles, /\.supplier-account \{[\s\S]*?grid-template-columns: minmax\(210px, \.7fr\) minmax\(0, 1\.3fr\)/);
   assert.match(styles, /\.supplier-account \.supplier-list > div \{[\s\S]*?grid-template-columns: minmax\(210px, 1fr\) auto auto minmax\(125px, auto\)/);
+  assert.match(dashboard, /\[supplierFormOpen, setSupplierFormOpen\]/);
+  assert.match(dashboard, /aria-controls": `supplier-entry-form`/);
+  assert.match(dashboard, /supplierFormOpen \? `−` : `\+`/);
+  assert.match(dashboard, /setSupplierFormOpen\(!0\)/);
+  assert.match(styles, /\.supplier-form-shell \{[\s\S]*?max-height: 0/);
+  assert.match(styles, /\.supplier-form-shell\.is-open \{[\s\S]*?max-height: 520px/);
 });
 
 test("mobile notification icon uses the lucide bell without idle background", async () => {
@@ -134,8 +185,24 @@ test("profile launcher is rendered inside the sidebar instead of the header", as
   assert.match(profileCard, /import \{ createPortal \} from "react-dom"/);
   assert.match(profileCard, /document\.querySelector\("\.sidebar"\)/);
   assert.match(profileCard, /launcherTarget && createPortal\(launcher, launcherTarget\)/);
-  assert.match(accountStyles, /\.sidebar > \.account-profile-launcher \{[\s\S]*?position: static;/);
-  assert.match(accountStyles, /\.sidebar-collapsed > \.account-profile-launcher > span:last-child \{[\s\S]*?display: none;/);
+  assert.match(profileCard, /className="account-user-card"/);
+  assert.match(profileCard, /className="account-settings-button"/);
+  assert.match(profileCard, /open-system-settings/);
+  assert.match(accountStyles, /\.sidebar > \.account-user-card \{[\s\S]*?position: static;/);
+  assert.match(accountStyles, /\.sidebar > \.account-user-card \{[\s\S]*?gap: 0;[\s\S]*?overflow: hidden;/);
+  assert.match(accountStyles, /\.sidebar > \.account-user-card \.account-settings-button \{[\s\S]*?border-left: 1px solid/);
+  assert.match(accountStyles, /\.sidebar > \.account-user-card \.account-profile-launcher \{[\s\S]*?background: transparent;[\s\S]*?border: 0;/);
+  assert.match(accountStyles, /\.sidebar-collapsed > \.account-user-card \.account-launcher-details,[\s\S]*?display: none;/);
+  assert.match(accountStyles, /\.sidebar-collapsed > \.account-user-card \.account-settings-button \{ display: none; \}/);
+  assert.match(accountStyles, /\.sidebar-collapsed > \.account-user-card \.account-profile-launcher \{[\s\S]*?justify-content: center;[\s\S]*?padding: 6px;/);
+  assert.match(accountStyles, /\.sidebar-collapsed > \.account-user-card img\.account-launcher-avatar \{[\s\S]*?clip-path: circle\(50% at 50% 50%\);[\s\S]*?object-fit: cover;/);
+  assert.match(accountStyles, /\.account-profile-card \{[\s\S]*?max-width: 282px;[\s\S]*?width: min\(282px,/);
+  assert.match(accountStyles, /\.account-identity-row \{[\s\S]*?display: grid;[\s\S]*?gap: 4px;/);
+  assert.match(accountStyles, /\.account-profile-trigger \{[\s\S]*?margin-top: 4px;/);
+  assert.match(accountStyles, /\.account-modal-settings-btn \{[\s\S]*?margin-top: 4px;/);
+  assert.match(accountStyles, /\.account-close-button \{[\s\S]*?aspect-ratio: 1;[\s\S]*?min-height: 22px;[\s\S]*?min-width: 22px;/);
+  assert.match(accountStyles, /\.account-modal-settings-btn \{[\s\S]*?aspect-ratio: 1;[\s\S]*?min-height: 28px;[\s\S]*?min-width: 28px;/);
+  assert.match(accountStyles, /@media \(max-width: 800px\) \{[\s\S]*?\.account-user-card \.account-settings-button \{ display: none; \}[\s\S]*?\.account-modal-settings-btn \{ display: flex; \}/);
   assert.match(headerStyles, /\.topbar \{[\s\S]*?margin-left: -32px;[\s\S]*?padding-right: 32px;/);
   assert.match(headerStyles, /\.top-actions \{[\s\S]*?margin-right: -14px;/);
   assert.match(headerStyles, /@media \(max-width: 800px\) \{[\s\S]*?\.top-actions \{[\s\S]*?margin-right: 0;/);
@@ -144,8 +211,8 @@ test("profile launcher is rendered inside the sidebar instead of the header", as
   assert.match(headerStyles, /\.topbar > div:first-child > p,[\s\S]*?\.topbar > div:first-child > small \{[\s\S]*?white-space: nowrap;/);
   assert.match(headerStyles, /\.top-actions \.user-card \{[\s\S]*?display: none !important;/);
   assert.doesNotMatch(dashboard, /একদিনের এক আইটেমের অনুমোদিত চাহিদাকে ভিত্তি ধরে পরিকল্পনা ও হিসাব/);
-  assert.match(headerStyles, /\.page-head \{[\s\S]*?align-items: center;[\s\S]*?padding-bottom: 18px;/);
-  assert.match(headerStyles, /\.page-head > div:first-child > p:last-child \{[\s\S]*?display: none !important;/);
+  assert.match(headerStyles, /\.page-head \{[\s\S]*?align-items: flex-end;[\s\S]*?padding-bottom: 12px;/);
+  assert.match(headerStyles, /\.page-head > div:first-child \{[\s\S]*?display: none !important;/);
 });
 
 test("dashboard cleanup widgets replace operational alert residue", async () => {
@@ -185,7 +252,7 @@ test("distribution print action renders only the printable report table", async 
   const dashboardStyles = await read("app/components/DashboardApp.css");
 
   assert.match(distribution, /const printDistributionReport = useCallback/);
-  assert.match(distribution, /document\.body\.classList\.add\(printClass\)/);
+  assert.match(distribution, /printDesktopLayout\('printing-distribution-report'\)/);
   assert.match(distribution, /onClick=\{printDistributionReport\}/);
   assert.match(
     dashboardStyles,
@@ -380,8 +447,17 @@ test("security cleanup keeps password hashing helpers in place", async () => {
   const stockRoute = await read("app/api/stock/route.ts");
   const demandRoute = await read("app/api/schools/[emisCode]/demand/route.ts");
   const supplierRoute = await read("app/api/suppliers/[id]/ledger/route.ts");
+  const distributionRoute = await read("app/api/distribution-reports/route.ts");
+  const distributionItemRoute = await read("app/api/distribution-reports/[id]/route.ts");
+  const accountRoute = await read("app/api/my-account/route.ts");
+  const bootstrap = await read("db/bootstrap.ts");
+  const loginPage = await read("app/login/page.tsx");
 
-  assert.match(passwordHelper, /PBKDF2_ITERATIONS = 210_000/);
+  assert.match(passwordHelper, /PBKDF2_ITERATIONS = 100_000/);
+  assert.match(passwordHelper, /import \{ pbkdf2Async \} from "@noble\/hashes\/pbkdf2\.js"/);
+  assert.match(passwordHelper, /iterations > WEB_CRYPTO_MAX_ITERATIONS/);
+  assert.match(passwordHelper, /pbkdf2Async\(sha256, password, salt/);
+  assert.match(passwordHelper, /crypto\.subtle\.deriveBits/);
   assert.match(passwordHelper, /pbkdf2-sha256:/);
   assert.match(loginRoute, /verifyPassword/);
   assert.match(loginRoute, /createSession\(user\.id\)/);
@@ -392,8 +468,21 @@ test("security cleanup keeps password hashing helpers in place", async () => {
   assert.match(profileRoute, /\.bind\(authUser\.id\)/);
   assert.doesNotMatch(profileRoute, /data\.id/);
   assert.match(stockRoute, /requireSuperAdmin/);
+  assert.match(stockRoute, /requirePermission\("stock"\)/);
   assert.match(demandRoute, /requireSuperAdmin/);
   assert.match(supplierRoute, /requireSuperAdmin/);
+  assert.match(distributionRoute, /authUser\.role === "super_admin"[\s\S]*?requestedAreaCode[\s\S]*?: authUser\.areaCode/);
+  assert.match(distributionRoute, /SELECT area_code FROM schools WHERE emis_code = \?/);
+  assert.match(distributionRoute, /school\.area_code !== data\.areaCode/);
+  assert.match(distributionRoute, /existing\.area_code !== data\.areaCode/);
+  assert.match(distributionRoute, /authUser\.role === "super_admin" \? String\(data\.status \|\| "new"\) : "new"/);
+  assert.match(distributionItemRoute, /if \(authUser\.role === "super_admin"\) allowedFields\.push\("status"\)/);
+  assert.match(accountRoute, /authUser\.role === "super_admin"[\s\S]*?searchParams\.get\("area_code"\)[\s\S]*?: authUser\.areaCode/);
+  assert.match(loginRoute, /MAX_LOGIN_FAILURES = 5/);
+  assert.match(loginRoute, /status: 429/);
+  assert.match(bootstrap, /CREATE TABLE IF NOT EXISTS login_attempts/);
+  assert.doesNotMatch(bootstrap, /password: await hashPassword\(String\(area\.managerMobile\)\)/);
+  assert.doesNotMatch(loginPage, /পাসওয়ার্ড তাদের মোবাইল নাম্বার/);
 });
 
 test("area manager account page and expense report API are wired", async () => {
@@ -467,12 +556,16 @@ test("desktop sidebar can collapse and expand without mobile injection", async (
   assert.match(dashboard, /সাইডবার ক্লোজ করুন/);
   assert.match(dashboard, /সাইডবার ওপেন করুন/);
   assert.match(sidebarStyles, /\.sidebar-collapsed \{/);
+  assert.match(sidebarStyles, /\.sidebar-collapsed \.sidebar-foot \{[\s\S]*?border-radius: 16px;[\s\S]*?height: 52px;[\s\S]*?width: 56px;/);
+  assert.match(sidebarStyles, /\.sidebar-collapsed \.sidebar-foot \.live-dot \{[\s\S]*?box-shadow:[\s\S]*?height: 10px;[\s\S]*?width: 10px;/);
   assert.match(sidebarStyles, /\.sidebar-is-collapsed \.app-main \{[\s\S]*?margin-left: 84px;/);
   assert.match(sidebarStyles, /@media \(max-width: 800px\) \{[\s\S]*?\.desktop-sidebar-toggle \{[\s\S]*?display: none;/);
 });
 
 test("super admin user management supports validated Bengali roles, create, update and delete", async () => {
   const widget = await read("app/components/UserManagementWidget.tsx");
+  const page = await read("app/page.tsx");
+  const settings = await read("app/components/SettingsModule.tsx");
   const roles = await read("app/lib/user-roles.ts");
   const usersRoute = await read("app/api/users/route.ts");
   const userRoute = await read("app/api/users/[id]/route.ts");
@@ -485,6 +578,8 @@ test("super admin user management supports validated Bengali roles, create, upda
   assert.match(widget, /method: isCreating \? "POST" : "PUT"/);
   assert.match(widget, /method: "DELETE"/);
   assert.match(widget, /window\.confirm/);
+  assert.doesNotMatch(page, /UserManagementWidget/);
+  assert.match(settings, /tab==="users"[\s\S]*?<UserManagementWidget\/>/);
   assert.match(usersRoute, /isAssignableUserRole/);
   assert.match(userRoute, /existing\.role === "super_admin"/);
   assert.match(bootstrap, /role IN \('accounts', 'viewer', 'auditor'\)/);
@@ -585,6 +680,8 @@ test("super admin settings are backed by protected APIs, audit, permissions and 
   assert.match(settingsUi, /বিদ্যালয় ও অঞ্চল/);
   assert.match(settingsUi, /ইউজার ও অনুমতি/);
   assert.match(settingsUi, /নিরাপত্তা ও ব্যাকআপ/);
+  assert.match(settingsUi, /window\.addEventListener\("open-system-settings"/);
+  assert.doesNotMatch(settingsUi, /settings-launcher/);
   assert.match(settingsApi, /requireSuperAdmin/);
   assert.match(settingsApi, /writeAudit/);
   assert.match(bootstrap, /CREATE TABLE IF NOT EXISTS system_settings/);
@@ -639,9 +736,25 @@ test("monthly meal planning is persisted, protected, audited and used by daily d
   assert.match(dailyApi, /SELECT plan_date,items_json FROM meal_plan_days/);
   assert.match(distribution, /\/api\/meal-plan\?date=/);
   assert.match(distribution, /configuredMealItems/);
+  assert.match(distribution, /onDateChange\?\.\(filterDate\)/);
   const dashboard = await read("app/components/DashboardApp.tsx");
+  assert.match(dashboard, /function W\(/);
+  assert.match(dashboard, /weeklyPlanDays/);
+  assert.match(dashboard, /weeklyItemsByDate/);
+  assert.match(dashboard, /selectedDailyDate/);
+  assert.match(dashboard, /dailyPlanCodes/);
+  assert.match(dashboard, /onDateChange: setSelectedDailyDate/);
+  assert.match(dashboard, /months = \[\.\.\.new Set\(weekDates/);
+  assert.match(dashboard, /বিদ্যালয় বন্ধ/);
+  assert.doesNotMatch(dashboard, /\[`রবিবার`, `বনরুটি \+ সিদ্ধ ডিম`/);
   assert.match(dashboard, /\/api\/meal-plan\?month=/);
   assert.match(dashboard, /monthlyPlanCounts/);
+  assert.match(dashboard, /monthlyPlanDays/);
+  assert.match(dashboard, /setMonthlyPlanDays\(payload\.days \?\? \[\]\)/);
+  assert.match(dashboard, /monthlyPlanDays\.find\(\(day\) => day\.date === c\)/);
+  assert.match(dashboard, /mealCodesToRoutineNames/);
+  assert.match(dashboard, /মাসিক খাবার পরিকল্পনায় এই তারিখে কোনো খাবার নির্ধারিত নেই/);
+  assert.doesNotMatch(dashboard, /শুক্রবার, শনিবার অথবা নির্বাচিত item/);
   assert.match(dashboard, /monthlyPlanCounts\.bun/);
   assert.match(dashboard, /monthlyRemainingCounts/);
   assert.match(dashboard, /day\.date > today/);
@@ -655,4 +768,24 @@ test("monthly meal planning is persisted, protected, audited and used by daily d
   assert.doesNotMatch(dashboard, /শিক্ষার্থী সংখ্যা নয়/);
   assert.match(dashboard, /setMonthlyPlanName\(payload\.periodName/);
   assert.match(dashboard, /monthlyPlanName \|\| `চলমান মাস`/);
+  assert.match(dashboard, /!\[`areas`, `stock`, `suppliers`\]\.includes\(n\) &&[\s\S]*?\(0, E\.jsxs\)\(`div`, \{[\s\S]*?className: `global-filters no-print`/);
+});
+
+test("every dashboard view shares the mobile-first system layout", async () => {
+  const dashboard = await read("app/components/DashboardApp.tsx");
+  const mobile = await read("app/components/mobile-system.css");
+  const mobileNavigation = await read("app/components/mobile-navigation.css");
+  const layout = await read("app/layout.tsx");
+
+  assert.match(dashboard, /import "\.\/mobile-system\.css"/);
+  assert.match(layout, /viewportFit: "cover"/);
+  assert.match(mobile, /\.metric-grid \{[\s\S]*?grid-template-columns: repeat\(2/);
+  assert.match(mobile, /\.table-panel \.table-scroll > table > tbody > tr \{[\s\S]*?display: grid/);
+  assert.match(mobile, /\.sidebar > \.account-user-card/);
+  assert.match(mobileNavigation, /\.sidebar > \.account-user-card \{[\s\S]*?bottom: auto !important;[\s\S]*?right: auto !important;[\s\S]*?top: auto !important;/);
+  assert.doesNotMatch(mobile, /sidebar-foot:has\(\.settings-launcher\)/);
+  assert.match(mobile, /button,[\s\S]*?input,[\s\S]*?select,[\s\S]*?textarea,[\s\S]*?min-height: 44px/);
+  assert.match(mobile, /font-size: 16px/);
+  assert.match(mobile, /safe-area-inset-bottom/);
+  assert.match(mobile, /@media \(orientation: landscape\)/);
 });
