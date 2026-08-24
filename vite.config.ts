@@ -24,6 +24,10 @@ const localBindingConfig = {
     enabled: true,
     head_sampling_rate: 1,
   },
+  vars: {
+    CLOUDFLARE_ACCOUNT_ID: "40c8dfca597e104fca80ba959b292f10",
+    CLOUDFLARE_D1_DATABASE_ID: SITE_CREATOR_PLACEHOLDER_DATABASE_ID,
+  },
   routes: [
     {
       pattern: "middaymeal.xyz",
