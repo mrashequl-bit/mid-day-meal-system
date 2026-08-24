@@ -1,0 +1,314 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  মিড-ডে মিল অপারেশন সিস্টেম
+  প্রধান শিক্ষক / টিফিন ম্যানেজার পোর্টাল — UI স্ট্রাকচার
+  
+  রোল: school_headmaster (প্রধান শিক্ষক), tiffin_manager (টিফিন ম্যানেজার)
+  প্রতিটি ইউজার একটি নির্দিষ্ট স্কুলের (emis_code) সাথে সম্পর্কিত।
+  লগইন করার পর শুধু নিজের স্কুলের বিতরণ তথ্য দেখতে ও রিপোর্ট করতে পারবে।
+-->
+
+<App name="মিড-ডে মিল অপারেশন সিস্টেম" baseUrl="https://middaymeal.xyz">
+
+  <!-- ═══════════════════════════════════════════════════ -->
+  <!-- ১. লগইন পেজ                                        -->
+  <!-- ═══════════════════════════════════════════════════ -->
+  <Screen id="login" route="/login" title="লগইন">
+    <Logo src="/logo.png" alt="মিড-ডে মিল লোগো" />
+    <Heading>মিড-ডে মিল অপারেশন</Heading>
+    <SubHeading>আপনার অ্যাকাউন্টে প্রবেশ করুন</SubHeading>
+
+    <Form method="POST" action="/api/auth/login">
+      <Field name="username" type="text" label="ইউজার নেম" placeholder="আপনার ইউজার নেম" required="true" />
+      <Field name="password" type="password" label="পাসওয়ার্ড" placeholder="••••••••" required="true" />
+      <SubmitButton>লগইন করুন</SubmitButton>
+    </Form>
+
+    <ErrorMessage type="invalid_credentials">ইউজার নেম বা পাসওয়ার্ড ভুল</ErrorMessage>
+    <ErrorMessage type="account_locked">অ্যাকাউন্ট লক হয়েছে। কিছুক্ষণ পর চেষ্টা করুন।</ErrorMessage>
+  </Screen>
+
+  <!-- ═══════════════════════════════════════════════════ -->
+  <!-- ২. ড্যাশবোর্ড / হোম (লগইনের পর)                    -->
+  <!-- ═══════════════════════════════════════════════════ -->
+  <Screen id="dashboard" route="/" title="ড্যাশবোর্ড" requiresAuth="true" roles="school_headmaster,tiffin_manager">
+
+    <!-- টপ বার -->
+    <TopBar>
+      <BrandName>মিড-ডে মিল অপারেশন</BrandName>
+      <UserInfo>
+        <UserName>{user.name}</UserName>
+        <UserRole>{user.role_label}</UserRole>
+        <!-- role_label: "প্রধান শিক্ষক" অথবা "টিফিন ম্যানেজার" -->
+      </UserInfo>
+      <LogoutButton>লগ আউট</LogoutButton>
+    </TopBar>
+
+    <!-- স্কুলের তথ্য কার্ড -->
+    <Section id="school-info">
+      <Card>
+        <Title>আমার স্কুল</Title>
+        <InfoRow label="স্কুলের নাম" value="{school.name_bn}" />
+        <InfoRow label="EMIS কোড" value="{school.emis_code}" />
+        <InfoRow label="অঞ্চল" value="{area.name_bn}" />
+        <InfoRow label="প্রধান শিক্ষক" value="{school.head_teacher}" />
+        <InfoRow label="দৈনিক চাহিদা (শিক্ষার্থী সংখ্যা)" value="{school.current_daily_demand}" />
+      </Card>
+    </Section>
+
+    <!-- ═══════════════════════════════════════════════════ -->
+    <!-- ৩. আজকের বিতরণ তথ্য (মূল সেকশন)                  -->
+    <!-- ═══════════════════════════════════════════════════ -->
+    <Section id="todays-distribution" title="আজকের বিতরণ তথ্য">
+
+      <!-- তারিখ নির্বাচন -->
+      <DatePicker name="selected_date" label="তারিখ" defaultValue="{today}" />
+
+      <!-- আজকের মেনু / বরাদ্দ তথ্য (Read-only) -->
+      <Card id="allocation-summary" title="বরাদ্দ তথ্য">
+        <Table>
+          <TableHeader>
+            <Column>আইটেম</Column>
+            <Column>বরাদ্দ (পরিকল্পিত)</Column>
+            <Column>প্রাপ্ত</Column>
+            <Column>ঘাটতি / অতিরিক্ত</Column>
+            <Column>স্ট্যাটাস</Column>
+          </TableHeader>
+
+          <TableRow item="bread">
+            <Cell label="আইটেম">রুটি</Cell>
+            <Cell label="বরাদ্দ">{report.planned_bread}</Cell>
+            <Cell label="প্রাপ্ত">{report.received_bread}</Cell>
+            <Cell label="ঘাটতি/অতিরিক্ত">
+              <!-- ঘাটতি হলে লাল রঙে "-X", অতিরিক্ত হলে সবুজে "+X" -->
+              <DifferenceIndicator
+                shortage="{report.shortage_bread}"
+                excess="{report.excess_bread}"
+              />
+            </Cell>
+            <Cell label="স্ট্যাটাস">
+              <StatusBadge value="{report.status}" />
+              <!-- 
+                স্ট্যাটাস মান ও রঙ:
+                - "new"                → "নতুন রিপোর্ট"         (হলুদ)
+                - "under_review"       → "পর্যালোচনাধীন"        (নীল)
+                - "partially_resolved" → "আংশিক সমাধান"        (কমলা)
+                - "resolved"           → "সমাধান হয়েছে"        (সবুজ)
+                - "cancelled"          → "বাতিল"               (ধূসর)
+                - (কোনো রিপোর্ট না থাকলে) → "সঠিক আইটেম পাওয়া যায়নি" (ধূসর)
+              -->
+            </Cell>
+          </TableRow>
+
+          <TableRow item="egg" showIf="meal_plan_includes_egg">
+            <Cell label="আইটেম">ডিম</Cell>
+            <Cell label="বরাদ্দ">{report.planned_egg}</Cell>
+            <Cell label="প্রাপ্ত">{report.received_egg}</Cell>
+            <Cell label="ঘাটতি/অতিরিক্ত">
+              <DifferenceIndicator shortage="{report.shortage_egg}" excess="{report.excess_egg}" />
+            </Cell>
+            <Cell label="স্ট্যাটাস"><StatusBadge value="{report.status}" /></Cell>
+          </TableRow>
+
+          <TableRow item="banana" showIf="meal_plan_includes_banana">
+            <Cell label="আইটেম">কলা</Cell>
+            <Cell label="বরাদ্দ">{report.planned_banana}</Cell>
+            <Cell label="প্রাপ্ত">{report.received_banana}</Cell>
+            <Cell label="ঘাটতি/অতিরিক্ত">
+              <DifferenceIndicator shortage="{report.shortage_banana}" excess="{report.excess_banana}" />
+            </Cell>
+            <Cell label="স্ট্যাটাস"><StatusBadge value="{report.status}" /></Cell>
+          </TableRow>
+        </Table>
+      </Card>
+
+      <!-- সমস্যার সারাংশ -->
+      <Card id="problem-summary" showIf="has_problem" title="সমস্যার বিবরণ">
+        <InfoRow label="সমস্যার ধরন" value="{report.problem_type_label}" />
+        <!--
+          সমস্যার ধরন:
+          - less_item    → "কম পরিমাণ পাওয়া গেছে"
+          - more_item    → "বেশি পরিমাণ পাওয়া গেছে"
+          - no_item      → "কোনো পরিমাণ পাওয়া যায়নি"
+          - wrong_item   → "ভুল পরিমাণ পাওয়া গেছে"
+          - school_closed → "স্কুল বন্ধ ছিল"
+          - other        → "অন্যান্য"
+        -->
+        <InfoRow label="কারণ" value="{report.reason}" />
+        <InfoRow label="মন্তব্য" value="{report.comments}" />
+      </Card>
+    </Section>
+
+    <!-- ═══════════════════════════════════════════════════ -->
+    <!-- ৪. বিতরণ রিপোর্ট জমা / সম্পাদনা ফর্ম              -->
+    <!-- ═══════════════════════════════════════════════════ -->
+    <Section id="submit-report" title="বিতরণ রিপোর্ট জমা দিন">
+      <Description>আজকের বিতরণে কোনো সমস্যা থাকলে নিচে জানান</Description>
+
+      <Form method="POST" action="/api/distribution-reports">
+        <HiddenField name="date" value="{selected_date}" />
+        <HiddenField name="school_emis_code" value="{user.school_emis_code}" />
+
+        <!-- প্রাপ্ত পরিমাণ -->
+        <FieldGroup title="প্রাপ্ত পরিমাণ লিখুন">
+          <Field name="received_bread" type="number" label="রুটি প্রাপ্ত" placeholder="0" min="0" required="true" />
+          <Field name="received_egg" type="number" label="ডিম প্রাপ্ত" placeholder="0" min="0" showIf="meal_plan_includes_egg" />
+          <Field name="received_banana" type="number" label="কলা প্রাপ্ত" placeholder="0" min="0" showIf="meal_plan_includes_banana" />
+        </FieldGroup>
+
+        <!-- সমস্যার ধরন -->
+        <Field name="problem_type" type="select" label="সমস্যার ধরন" required="true">
+          <Option value="less_item">কম পরিমাণ পাওয়া গেছে</Option>
+          <Option value="more_item">বেশি পরিমাণ পাওয়া গেছে</Option>
+          <Option value="no_item">কোনো পরিমাণ পাওয়া যায়নি</Option>
+          <Option value="wrong_item">ভুল পরিমাণ পাওয়া গেছে</Option>
+          <Option value="school_closed">স্কুল বন্ধ ছিল</Option>
+          <Option value="other">অন্যান্য</Option>
+        </Field>
+
+        <!-- কারণ -->
+        <Field name="reason" type="textarea" label="কারণ" placeholder="সমস্যার কারণ লিখুন..." rows="2" />
+
+        <!-- মন্তব্য -->
+        <Field name="comments" type="textarea" label="মন্তব্য (ঐচ্ছিক)" placeholder="অতিরিক্ত তথ্য থাকলে লিখুন..." rows="2" />
+
+        <SubmitButton>রিপোর্ট জমা দিন</SubmitButton>
+      </Form>
+
+      <SuccessMessage>রিপোর্ট সফলভাবে জমা হয়েছে!</SuccessMessage>
+      <ErrorMessage>রিপোর্ট জমা দিতে সমস্যা হয়েছে। আবার চেষ্টা করুন।</ErrorMessage>
+    </Section>
+
+    <!-- ═══════════════════════════════════════════════════ -->
+    <!-- ৫. বিতরণ ইতিহাস (গত ৭ দিন)                        -->
+    <!-- ═══════════════════════════════════════════════════ -->
+    <Section id="distribution-history" title="বিতরণ ইতিহাস (গত ৭ দিন)">
+      <Table>
+        <TableHeader>
+          <Column>তারিখ</Column>
+          <Column>বরাদ্দ (রুটি)</Column>
+          <Column>প্রাপ্ত</Column>
+          <Column>ঘাটতি/অতিরিক্ত</Column>
+          <Column>স্ট্যাটাস</Column>
+        </TableHeader>
+
+        <!-- প্রতিটি দিনের জন্য একটি করে সারি -->
+        <TableRow repeat="last_7_days">
+          <Cell>{day.date_formatted}</Cell>          <!-- উদাহরণ: ২৪/০৮/২০২৬ -->
+          <Cell>{day.planned_bread}</Cell>
+          <Cell>{day.received_bread}</Cell>
+          <Cell><DifferenceIndicator shortage="{day.shortage_bread}" excess="{day.excess_bread}" /></Cell>
+          <Cell><StatusBadge value="{day.status}" /></Cell>
+        </TableRow>
+      </Table>
+
+      <!-- যদি ইতিহাস খালি থাকে -->
+      <EmptyState showIf="no_history">
+        <Icon name="clipboard-empty" />
+        <Text>গত ৭ দিনে কোনো বিতরণ রিপোর্ট পাওয়া যায়নি</Text>
+      </EmptyState>
+    </Section>
+
+  </Screen>
+
+  <!-- ═══════════════════════════════════════════════════ -->
+  <!-- ডেটা মডেল রেফারেন্স                                -->
+  <!-- ═══════════════════════════════════════════════════ -->
+  <DataModels>
+
+    <!-- ইউজার (লগইনকৃত) -->
+    <Model name="User">
+      <Field name="id" type="integer" description="ইউজার আইডি" />
+      <Field name="username" type="string" description="ইউজার নেম (লগইন)" />
+      <Field name="name" type="string" description="পুরো নাম (বাংলা)" />
+      <Field name="role" type="enum" values="school_headmaster,tiffin_manager" description="রোল" />
+      <Field name="role_label" type="string" description="রোলের বাংলা নাম (প্রধান শিক্ষক / টিফিন ম্যানেজার)" />
+      <Field name="area_code" type="string" description="অঞ্চল কোড" />
+      <Field name="school_emis_code" type="string" description="নিজের স্কুলের EMIS কোড" />
+    </Model>
+
+    <!-- স্কুল -->
+    <Model name="School">
+      <Field name="emis_code" type="string" description="EMIS কোড (প্রাইমারি কী)" />
+      <Field name="name_bn" type="string" description="স্কুলের নাম (বাংলা)" />
+      <Field name="area_code" type="string" description="অঞ্চল কোড" />
+      <Field name="head_teacher" type="string" description="প্রধান শিক্ষকের নাম" />
+      <Field name="current_daily_demand" type="integer" description="দৈনিক চাহিদা (শিক্ষার্থী সংখ্যা)" />
+      <Field name="serial_number" type="integer" description="ক্রমিক নম্বর" />
+    </Model>
+
+    <!-- বিতরণ রিপোর্ট -->
+    <Model name="DistributionReport">
+      <Field name="id" type="integer" description="রিপোর্ট আইডি" />
+      <Field name="date" type="date" format="YYYY-MM-DD" description="বিতরণের তারিখ" />
+      <Field name="school_emis_code" type="string" description="স্কুলের EMIS কোড" />
+      <Field name="area_code" type="string" description="অঞ্চল কোড" />
+      <Field name="planned_bread" type="integer" description="বরাদ্দ রুটি সংখ্যা" />
+      <Field name="planned_egg" type="integer" description="বরাদ্দ ডিম সংখ্যা" />
+      <Field name="planned_banana" type="integer" description="বরাদ্দ কলা সংখ্যা" />
+      <Field name="received_bread" type="integer" description="প্রাপ্ত রুটি সংখ্যা" />
+      <Field name="received_egg" type="integer" description="প্রাপ্ত ডিম সংখ্যা" />
+      <Field name="received_banana" type="integer" description="প্রাপ্ত কলা সংখ্যা" />
+      <Field name="shortage_bread" type="integer" description="রুটি ঘাটতি (বরাদ্দ - প্রাপ্ত, যদি ধনাত্মক)" />
+      <Field name="shortage_egg" type="integer" description="ডিম ঘাটতি" />
+      <Field name="shortage_banana" type="integer" description="কলা ঘাটতি" />
+      <Field name="excess_bread" type="integer" description="রুটি অতিরিক্ত (প্রাপ্ত - বরাদ্দ, যদি ধনাত্মক)" />
+      <Field name="excess_egg" type="integer" description="ডিম অতিরিক্ত" />
+      <Field name="excess_banana" type="integer" description="কলা অতিরিক্ত" />
+      <Field name="problem_type" type="enum" values="less_item,more_item,no_item,wrong_item,school_closed,other" description="সমস্যার ধরন" />
+      <Field name="reason" type="string" description="সমস্যার কারণ" />
+      <Field name="comments" type="string" description="অতিরিক্ত মন্তব্য" />
+      <Field name="status" type="enum" values="new,under_review,partially_resolved,resolved,cancelled" description="রিপোর্টের বর্তমান স্ট্যাটাস" />
+      <Field name="reported_by" type="string" description="কে রিপোর্ট করেছে" />
+      <Field name="created_at" type="datetime" description="রিপোর্ট জমার সময়" />
+    </Model>
+
+  </DataModels>
+
+  <!-- ═══════════════════════════════════════════════════ -->
+  <!-- API এন্ডপয়েন্ট রেফারেন্স                           -->
+  <!-- ═══════════════════════════════════════════════════ -->
+  <API>
+    <Endpoint method="POST" path="/api/auth/login" description="লগইন">
+      <RequestBody>{ "username": "string", "password": "string" }</RequestBody>
+      <Response>{ "success": true, "user": User }</Response>
+    </Endpoint>
+
+    <Endpoint method="GET" path="/api/distribution-reports?date={date}&amp;school={emis_code}" description="নিজের স্কুলের বিতরণ রিপোর্ট দেখা">
+      <Response>{ "reports": [DistributionReport] }</Response>
+    </Endpoint>
+
+    <Endpoint method="POST" path="/api/distribution-reports" description="নতুন বিতরণ রিপোর্ট জমা দেওয়া">
+      <RequestBody>{
+        "date": "YYYY-MM-DD",
+        "school_emis_code": "string",
+        "received_bread": "number",
+        "received_egg": "number",
+        "received_banana": "number",
+        "problem_type": "enum",
+        "reason": "string",
+        "comments": "string"
+      }</RequestBody>
+      <Response>{ "success": true, "report": DistributionReport }</Response>
+    </Endpoint>
+
+    <Endpoint method="POST" path="/api/auth/logout" description="লগ আউট">
+      <Response>{ "success": true }</Response>
+    </Endpoint>
+  </API>
+
+  <!-- ═══════════════════════════════════════════════════ -->
+  <!-- ডিজাইন নোটস                                        -->
+  <!-- ═══════════════════════════════════════════════════ -->
+  <DesignNotes>
+    <Note>সম্পূর্ণ UI বাংলায় হবে</Note>
+    <Note>মোবাইল-ফার্স্ট রেসপন্সিভ ডিজাইন (প্রধান শিক্ষকরা সাধারণত মোবাইল থেকে ব্যবহার করবেন)</Note>
+    <Note>প্রাইমারি কালার: সবুজ (#0f6b55), সেকেন্ডারি: সাদা ব্যাকগ্রাউন্ড</Note>
+    <Note>ঘাটতি (shortage) লাল রঙে এবং অতিরিক্ত (excess) সবুজ রঙে দেখাতে হবে</Note>
+    <Note>স্ট্যাটাস ব্যাজ: new=হলুদ, under_review=নীল, resolved=সবুজ, cancelled=ধূসর</Note>
+    <Note>প্রতিটি ইউজার শুধু নিজের স্কুলের ডেটা দেখতে পাবে, অন্য স্কুলের নয়</Note>
+    <Note>রিপোর্ট একবার "resolved" হলে আর এডিট করা যাবে না</Note>
+    <Note>ফন্ট: Noto Sans Bengali বা সমতুল্য বাংলা ফন্ট</Note>
+  </DesignNotes>
+
+</App>

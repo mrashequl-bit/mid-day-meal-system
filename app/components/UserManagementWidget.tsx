@@ -8,14 +8,14 @@ import "./user-management.css";
 
 type ManagedUser = {
   id: number; username: string; name: string; role: string;
-  area_code?: string | null; area_name?: string | null; is_active: number;
+  area_code?: string | null; area_name?: string | null; school_emis_code?: string | null; school_name?: string | null; is_active: number;
   email?: string | null; phone?: string | null; bio?: string | null;
   address?: string | null; designation?: string | null; photo_base64?: string | null;
 };
 
 const emptyForm = {
   username: "", password: "", name: "", role: "area_manager",
-  area_code: "", is_active: 1, email: "", phone: "", bio: "",
+  area_code: "", school_emis_code: "", is_active: 1, email: "", phone: "", bio: "",
   address: "", designation: "",
 };
 
@@ -63,7 +63,7 @@ export function UserManagementWidget() {
     const needle = query.trim().toLocaleLowerCase("bn");
     if (!needle) return users;
     return users.filter((user) =>
-      [user.name, user.username, user.phone, user.email, user.area_name]
+      [user.name, user.username, user.phone, user.email, user.area_name, user.school_name]
         .filter(Boolean).some((value) => String(value).toLocaleLowerCase("bn").includes(needle)),
     );
   }, [query, users]);
@@ -132,7 +132,7 @@ export function UserManagementWidget() {
           <div className="managed-user-grid">{filteredUsers.map((user) => (
             <article key={user.id} className={user.is_active ? "" : "managed-user-disabled"}>
               <div className="managed-user-avatar">{userInitials(user.name)}</div>
-              <div className="managed-user-main"><div><h3>{user.name}</h3><span className={user.is_active ? "user-active" : "user-inactive"}>{user.is_active ? "সক্রিয়" : "নিষ্ক্রিয়"}</span></div><p>{displayRole(user.role)}</p><dl><div><dt>ইউজারনেম</dt><dd>{user.username}</dd></div><div><dt>অঞ্চল</dt><dd>{user.area_name || "সব অঞ্চল"}</dd></div><div><dt>মোবাইল</dt><dd>{user.phone || user.username}</dd></div></dl></div>
+              <div className="managed-user-main"><div><h3>{user.name}</h3><span className={user.is_active ? "user-active" : "user-inactive"}>{user.is_active ? "সক্রিয়" : "নিষ্ক্রিয়"}</span></div><p>{displayRole(user.role)}</p><dl><div><dt>ইউজারনেম</dt><dd>{user.username}</dd></div><div><dt>অঞ্চল</dt><dd>{user.area_name || "সব অঞ্চল"}</dd></div><div><dt>বিদ্যালয়</dt><dd>{user.school_name || "প্রযোজ্য নয়"}</dd></div><div><dt>মোবাইল</dt><dd>{user.phone || user.username}</dd></div></dl></div>
               <div className="managed-user-actions"><button type="button" onClick={() => startEdit(user)}>প্রোফাইল সম্পাদনা</button>{user.role !== "super_admin" && <button className="user-delete-button" type="button" onClick={() => deleteUser(user)}>ডিলেট</button>}</div>
             </article>
           ))}</div>

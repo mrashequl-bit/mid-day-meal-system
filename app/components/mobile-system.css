@@ -1,0 +1,590 @@
+/* Mobile-first system polish. Loaded last so every dashboard module shares one
+   predictable phone layout without changing desktop or print output. */
+@media (max-width: 800px) {
+  html,
+  body {
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+
+  body {
+    min-height: 100svh;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  .app-shell,
+  .app-main,
+  .app-main > *,
+  .panel,
+  .stock-workspace,
+  .distribution-layout,
+  .dashboard-columns,
+  .area-account-page,
+  .admin-expense-page {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .app-shell .app-main {
+    padding-inline: 12px;
+    padding-bottom: calc(92px + env(safe-area-inset-bottom));
+  }
+
+  .topbar {
+    margin-inline: -12px;
+    min-height: 66px;
+    padding-inline: 12px;
+  }
+
+  .topbar > div:first-child {
+    grid-template-columns: 36px minmax(0, 1fr);
+  }
+
+  .topbar .mobile-menu {
+    height: 36px;
+    min-height: 36px;
+    width: 36px;
+  }
+
+  .panel {
+    border-radius: 15px;
+  }
+
+  .dashboard-columns,
+  .stock-workspace,
+  .stock-lower-grid,
+  .distribution-layout,
+  .area-account-grid {
+    gap: 12px;
+  }
+
+  .chart-panel,
+  .dashboard-columns > .panel,
+  .action-panel,
+  .routine-panel,
+  .plan-panel,
+  .stock-planner,
+  .stock-entry-panel,
+  .stock-ledger,
+  .supplier-panel,
+  .areas-panel,
+  .distribution-exceptions,
+  .area-expense-form,
+  .area-account-ledger {
+    padding: 14px;
+  }
+
+  button,
+  input,
+  select,
+  textarea,
+  .button-primary,
+  .button-secondary,
+  .table-action {
+    min-height: 44px;
+  }
+
+  input,
+  select,
+  textarea,
+  .global-filters input,
+  .global-filters select,
+  .stock-form input,
+  .stock-form select,
+  .supplier-form input,
+  .supplier-form select,
+  .area-expense-form input,
+  .area-expense-form select,
+  .area-expense-form textarea {
+    font-size: 16px;
+  }
+
+  .metric-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  .metric-card {
+    min-height: 118px;
+    padding: 14px;
+  }
+
+  .metric-card strong {
+    font-size: clamp(23px, 7vw, 30px);
+    margin: 10px 0 5px;
+  }
+
+  .metric-card p,
+  .metric-card small {
+    line-height: 1.35;
+  }
+
+  .metric-mark {
+    height: 72px;
+    right: -18px;
+    top: -18px;
+    width: 72px;
+  }
+
+  .action-list,
+  .report-widget-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .action-list article,
+  .report-widget {
+    min-width: 0;
+  }
+
+  .areas-panel-head {
+    gap: 10px;
+    padding-bottom: 12px;
+  }
+
+  .areas-panel-head h2 {
+    font-size: 21px;
+  }
+
+  .areas-panel-head .status-badge {
+    padding: 6px 9px;
+  }
+
+  .area-grid {
+    gap: 10px;
+    margin-top: 14px;
+  }
+
+  .area-grid article {
+    border-radius: 15px;
+    min-height: 0;
+    padding: 15px;
+  }
+
+  .area-grid article::before {
+    height: 44px;
+    top: 16px;
+  }
+
+  .area-grid h3 {
+    font-size: 22px;
+    margin: 0 46px 10px 0;
+  }
+
+  .area-number {
+    height: 34px;
+    right: 14px;
+    top: 14px;
+    width: 34px;
+  }
+
+  .area-grid .area-manager {
+    gap: 3px;
+    grid-template-columns: minmax(0, 1fr);
+    margin-bottom: 9px;
+    padding: 11px 12px;
+  }
+
+  .area-manager > small,
+  .area-manager > strong,
+  .area-manager > a,
+  .area-manager > .button-secondary {
+    grid-column: 1;
+  }
+
+  .area-manager > small { grid-row: 1; }
+  .area-manager > strong { grid-row: 2; }
+  .area-manager > a { grid-row: 3; }
+
+  .area-manager > a {
+    align-items: center;
+    display: inline-flex;
+    min-height: 40px;
+  }
+
+  .area-manager > .button-secondary {
+    grid-row: 4;
+    min-height: 44px;
+    max-width: none;
+    place-self: stretch;
+    width: 100% !important;
+  }
+
+  .area-grid article > div:not(.area-manager) {
+    margin-bottom: 9px;
+    padding-block: 8px;
+  }
+
+  .area-grid article > button {
+    min-height: 44px;
+  }
+
+  /* The school directory becomes readable cards instead of a desktop-width
+     table that requires sideways scrolling. */
+  .table-panel .table-scroll {
+    overflow: visible;
+    padding: 0 10px 10px;
+  }
+
+  .table-panel .table-scroll > table,
+  .table-panel .table-scroll > table > tbody {
+    display: block;
+    min-width: 0;
+    width: 100%;
+  }
+
+  .table-panel .table-scroll > table > thead {
+    clip: rect(0 0 0 0);
+    clip-path: inset(50%);
+    height: 1px;
+    overflow: hidden;
+    position: absolute;
+    white-space: nowrap;
+    width: 1px;
+  }
+
+  .table-panel .table-scroll > table > tbody {
+    display: grid;
+    gap: 10px;
+  }
+
+  .table-panel .table-scroll > table > tbody > tr {
+    background: #fff;
+    border: 1px solid #dbe7e2;
+    border-radius: 13px;
+    box-shadow: 0 5px 16px rgba(16, 65, 54, .06);
+    display: grid;
+    gap: 4px 8px;
+    grid-template-columns: 46px minmax(0, 1fr) 92px;
+    padding: 10px;
+  }
+
+  .table-panel .table-scroll > table > tbody > tr > td {
+    border: 0;
+    min-width: 0;
+    padding: 4px;
+    text-align: left;
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+
+  .table-panel .table-scroll > table > tbody > tr > td::before {
+    color: var(--muted);
+    display: block;
+    font-size: 9px;
+    font-weight: 750;
+    line-height: 1.2;
+    margin-bottom: 2px;
+  }
+
+  .table-panel .table-scroll td:nth-child(1) { grid-column: 1; grid-row: 1; }
+  .table-panel .table-scroll td:nth-child(2) { grid-column: 2; grid-row: 1; }
+  .table-panel .table-scroll td:nth-child(3) { grid-column: 1 / 3; grid-row: 2; }
+  .table-panel .table-scroll td:nth-child(4) { grid-column: 3; grid-row: 2; }
+  .table-panel .table-scroll td:nth-child(5) { grid-column: 1 / 3; grid-row: 3; }
+  .table-panel .table-scroll td:nth-child(6) { grid-column: 3; grid-row: 1; text-align: right; }
+  .table-panel .table-scroll td:nth-child(7) { grid-column: 3; grid-row: 3; align-self: end; }
+
+  .table-panel .table-scroll td:nth-child(1)::before { content: "ক্রমিক"; }
+  .table-panel .table-scroll td:nth-child(2)::before { content: "বিদ্যালয়"; }
+  .table-panel .table-scroll td:nth-child(3)::before { content: "EMIS কোড"; }
+  .table-panel .table-scroll td:nth-child(4)::before { content: "অঞ্চল"; }
+  .table-panel .table-scroll td:nth-child(5)::before { content: "প্রধান শিক্ষক"; }
+  .table-panel .table-scroll td:nth-child(6)::before { content: "চাহিদা"; }
+  .table-panel .table-scroll td:nth-child(7)::before { content: "কাজ"; }
+
+  .table-panel .table-scroll td:nth-child(7) .table-action {
+    width: 100%;
+  }
+
+  .routine-list {
+    overscroll-behavior-inline: contain;
+    scroll-padding-inline: 8px;
+    scroll-snap-type: inline proximity;
+  }
+
+  .routine-list article {
+    scroll-snap-align: start;
+  }
+
+  .distribution-exception-filters,
+  .stock-ledger-toolbar {
+    min-width: 0;
+  }
+
+  .stock-ledger-toolbar input,
+  .stock-ledger-toolbar select,
+  .distribution-exception-filters input,
+  .distribution-exception-filters select {
+    font-size: 16px !important;
+    min-height: 44px !important;
+  }
+
+  .ledger-list article {
+    min-width: 0;
+    padding: 10px;
+  }
+
+  .ledger-edit,
+  .supplier-account .supplier-list .button-primary,
+  .supplier-account .supplier-list .button-secondary,
+  .responsive-adjustment-table td:nth-of-type(7) button {
+    min-height: 44px;
+  }
+
+  .distribution-exceptions-head > button,
+  .stock-ledger-pagination button {
+    min-height: 44px !important;
+  }
+
+  .supplier-account-grid,
+  .supplier-account .supplier-list {
+    gap: 10px;
+  }
+
+  .supplier-account {
+    border-radius: 14px;
+  }
+
+  .supplier-form-shell.is-open {
+    max-height: 1200px;
+  }
+
+  .area-account-page {
+    padding-top: 12px;
+  }
+
+  .area-account-metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 9px;
+  }
+
+  .area-account-metrics article {
+    padding: 13px;
+  }
+
+  .area-account-metrics article:last-child {
+    grid-column: 1 / -1;
+  }
+
+  .area-account-metrics strong {
+    font-size: 23px;
+  }
+
+  .area-ledger-list article {
+    grid-template-columns: 48px minmax(0, 1fr) auto;
+  }
+
+  .embedded-area-expense-workspace {
+    border-radius: 14px;
+    padding: 8px;
+  }
+
+  .embedded-area-expense-workspace .admin-expense-page {
+    padding-top: 10px;
+  }
+
+  .modal-backdrop {
+    align-items: flex-end;
+    padding: 10px;
+  }
+
+  .modal {
+    border-radius: 18px;
+    max-height: calc(100dvh - 90px - env(safe-area-inset-bottom));
+    overflow: auto;
+    padding: 18px;
+  }
+
+  .app-shell .sidebar:has(> .mobile-notification-launcher[aria-expanded="true"]) .sidebar-foot,
+  .app-shell .sidebar:has(> .account-user-card .account-profile-launcher[aria-expanded="true"]) .sidebar-foot {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .settings-modal {
+    height: 100dvh;
+    max-height: 100dvh;
+  }
+
+  .settings-modal > header {
+    padding-top: calc(13px + env(safe-area-inset-top));
+  }
+
+  .settings-modal > nav {
+    scroll-snap-type: inline proximity;
+  }
+
+  .settings-modal > nav button {
+    min-height: 44px;
+    scroll-snap-align: start;
+  }
+
+  .settings-modal input,
+  .settings-modal select,
+  .settings-modal textarea {
+    font-size: 16px;
+    min-height: 44px;
+  }
+
+  .settings-modal > footer {
+    padding-bottom: calc(9px + env(safe-area-inset-bottom));
+  }
+
+  .account-profile-card,
+  .notification-panel {
+    max-height: calc(100dvh - 88px - env(safe-area-inset-bottom));
+  }
+
+  .user-manager-layer,
+  .user-edit-layer {
+    padding: max(10px, env(safe-area-inset-top)) 10px
+      calc(10px + env(safe-area-inset-bottom));
+  }
+
+  .user-manager-dialog {
+    max-height: calc(100dvh - 20px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+  }
+}
+
+@media (max-width: 560px) {
+  .settings-modal .inline-form,
+  .settings-modal .inline-form.school {
+    grid-template-columns: 1fr;
+  }
+
+  .settings-modal .inline-form .primary {
+    grid-column: auto;
+  }
+
+  .settings-modal .security-note {
+    align-items: stretch;
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 360px) {
+  .metric-grid,
+  .action-list,
+  .report-widget-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .table-panel .table-scroll > table > tbody > tr {
+    grid-template-columns: 42px minmax(0, 1fr);
+  }
+
+  .table-panel .table-scroll td:nth-child(6),
+  .table-panel .table-scroll td:nth-child(4),
+  .table-panel .table-scroll td:nth-child(7) {
+    grid-column: 1 / -1;
+    grid-row: auto;
+    text-align: left;
+  }
+}
+
+@media (orientation: landscape) and (max-height: 520px) and (max-width: 900px) {
+  .app-shell .app-main {
+    padding-bottom: calc(78px + env(safe-area-inset-bottom));
+  }
+
+  .app-shell .sidebar nav button,
+  .app-shell .sidebar > .mobile-notification-launcher,
+  .app-shell .sidebar > .account-user-card,
+  .app-shell .sidebar > .account-user-card > .account-profile-launcher {
+    height: 54px;
+  }
+
+}
+
+@media (orientation: landscape) and (min-width: 801px) and (max-width: 900px) and (max-height: 520px) {
+  .stock-lower-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .app-shell .app-main {
+    margin-left: 84px;
+  }
+
+  .app-shell .sidebar {
+    align-items: center;
+    overflow-y: auto;
+    padding: 8px 10px;
+    scrollbar-width: none;
+    width: 84px;
+  }
+
+  .app-shell .sidebar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .app-shell .sidebar > .brand,
+  .app-shell .sidebar .nav-label {
+    display: none;
+  }
+
+  .app-shell .sidebar > .desktop-sidebar-toggle {
+    flex: 0 0 34px;
+    margin: 0 auto 4px;
+  }
+
+  .app-shell .sidebar > nav {
+    flex: 0 0 auto;
+    gap: 2px;
+    margin-top: 4px;
+    width: 100%;
+  }
+
+  .app-shell .sidebar > nav button {
+    justify-content: center;
+    height: 44px;
+    min-height: 44px;
+    padding: 3px;
+  }
+
+  .app-shell .sidebar > .sidebar-foot {
+    flex: 0 0 44px;
+    height: 44px;
+    justify-content: center;
+    margin-top: 4px;
+    padding: 3px;
+    width: 100%;
+  }
+
+  .app-shell .sidebar > .sidebar-foot > .live-dot,
+  .app-shell .sidebar > .sidebar-foot > p {
+    display: none;
+  }
+
+  .app-shell .sidebar > .account-user-card {
+    flex: 0 0 44px;
+    height: 44px;
+    justify-content: center;
+    margin-top: 4px;
+    padding: 3px;
+    width: 44px;
+  }
+
+  .app-shell .sidebar > .account-user-card .account-profile-launcher {
+    height: 44px;
+    margin: 0;
+    padding: 3px;
+    width: 44px;
+  }
+
+  .app-shell .sidebar > .account-user-card .account-launcher-avatar {
+    height: 36px;
+    width: 36px;
+  }
+
+  .app-shell .sidebar > .account-user-card .account-launcher-details,
+  .app-shell .sidebar > .account-user-card .mobile-profile-label,
+  .app-shell .sidebar > .account-user-card .account-profile-launcher > span:last-child {
+    display: none;
+  }
+}
+
+@media print {
+  .account-settings-button {
+    display: none !important;
+  }
+}

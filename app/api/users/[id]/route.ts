@@ -28,13 +28,17 @@ export async function PUT(
     if (nextRole !== "super_admin" && !isAssignableUserRole(nextRole)) {
       return NextResponse.json({ error: "সঠিক ইউজার রোল নির্বাচন করুন।" }, { status: 400 });
     }
+    const isSchoolRole = nextRole === "school_headmaster" || nextRole === "tiffin_manager";
+    if (isSchoolRole && !String(data.school_emis_code ?? "").trim()) {
+      return NextResponse.json({ error: "এই রোলের জন্য একটি বিদ্যালয় নির্বাচন করা আবশ্যক।" }, { status: 400 });
+    }
     if (nextRole === "area_manager" && !String(data.area_code ?? "").trim()) {
       return NextResponse.json({ error: "এরিয়া ম্যানেজারের জন্য অঞ্চল নির্বাচন করুন।" }, { status: 400 });
     }
     await db.prepare(
       `UPDATE users SET username = ?,
        password = COALESCE(NULLIF(?, ''), password), name = ?, role = ?,
-       area_code = ?, is_active = ?, email = ?, phone = ?, bio = ?,
+       area_code = ?, school_emis_code = ?, is_active = ?, email = ?, phone = ?, bio = ?,
        address = ?, designation = ?, updated_at = CURRENT_TIMESTAMP
        WHERE id = ?`
     ).bind(
@@ -43,6 +47,7 @@ export async function PUT(
       String(data.name ?? "").trim(),
       nextRole,
       nextRole === "area_manager" ? String(data.area_code ?? "") : null,
+      isSchoolRole ? String(data.school_emis_code ?? "") : null,
       data.is_active === 0 ? 0 : 1,
       String(data.email ?? "").trim(),
       String(data.phone ?? "").trim(),
@@ -51,7 +56,7 @@ export async function PUT(
       String(data.designation ?? "").trim(),
       id,
     ).run();
-    await writeAudit(actor.username, "user.updated", "user", id, existing, { username: data.username, name: data.name, role: nextRole, area_code: data.area_code, is_active: data.is_active });
+    await writeAudit(actor.username, "user.updated", "user", id, existing, { username: data.username, name: data.name, role: nextRole, area_code: data.area_code, school_emis_code: data.school_emis_code, is_active: data.is_active });
     return NextResponse.json({ success: true });
   } catch (error) {
     return NextResponse.json(
