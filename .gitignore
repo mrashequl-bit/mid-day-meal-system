@@ -12,6 +12,10 @@
 
 # testing
 /coverage
+/.tmp/
+/output/
+/tmp/pdfs/*.html
+/tmp/pdfs/*.png
 
 # next.js
 /.next/
@@ -45,5 +49,8 @@ next-env.d.ts
 /.wrangler/
 /outputs/
 /work/
+
+# local tool settings
+/.claude/
 
 Backup/

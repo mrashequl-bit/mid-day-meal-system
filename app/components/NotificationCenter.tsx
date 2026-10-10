@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { createPortal } from "react-dom";
-import { Banknote, Bell, CheckCircle2, ChevronRight, ClipboardCheck, ReceiptText } from "lucide-react";
+import { Banknote, Bell, CheckCheck, CheckCircle2, ChevronRight, ClipboardCheck, ReceiptText } from "lucide-react";
 import { formatDateTimeDMY } from "../lib/date-format";
 import "./notification-center.css";
 
@@ -51,6 +51,7 @@ export function NotificationCenter() {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [markingAllRead, setMarkingAllRead] = useState(false);
 
   const loadNotifications = useCallback(async () => {
     try {
@@ -79,7 +80,11 @@ export function NotificationCenter() {
   useEffect(() => {
     loadNotifications();
     const timer = window.setInterval(loadNotifications, 30_000);
-    return () => window.clearInterval(timer);
+    window.addEventListener("notifications-updated", loadNotifications);
+    return () => {
+      window.clearInterval(timer);
+      window.removeEventListener("notifications-updated", loadNotifications);
+    };
   }, [loadNotifications]);
 
   useEffect(() => {
@@ -121,6 +126,21 @@ export function NotificationCenter() {
       return response.ok;
     } catch {
       return false;
+    }
+  }
+
+  async function markAllRead() {
+    if (!notifications.length || markingAllRead) return;
+    setMarkingAllRead(true);
+    try {
+      const response = await fetch("/api/notifications", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ action: "mark_all_read" }),
+      });
+      if (response.ok) setNotifications([]);
+    } finally {
+      setMarkingAllRead(false);
     }
   }
 
@@ -188,7 +208,13 @@ export function NotificationCenter() {
     {target && open && createPortal(
       <div className="notification-layer" role="presentation" onClick={() => setOpen(false)}>
         <section className="notification-panel" role="dialog" aria-modal="true" aria-label="নোটিফিকেশন" onClick={(event) => event.stopPropagation()}>
-          <header><div><small>সাম্প্রতিক আপডেট</small><h2>নোটিফিকেশন</h2><p>{count}টি অপঠিত আপডেট</p></div><button type="button" aria-label="নোটিফিকেশন বন্ধ করুন" onClick={() => setOpen(false)}>×</button></header>
+          <header>
+            <div><small>সাম্প্রতিক আপডেট</small><h2>নোটিফিকেশন</h2><p>{count}টি অপঠিত আপডেট</p></div>
+            <div className="notification-header-actions">
+              {notifications.length > 0 && <button className="notification-mark-all" type="button" aria-label="সব নোটিফিকেশন পড়া হিসেবে চিহ্নিত করুন" disabled={markingAllRead} onClick={() => void markAllRead()}><CheckCheck aria-hidden="true" />{markingAllRead ? "অপেক্ষা করুন…" : "সব পড়া"}</button>}
+              <button className="notification-close" type="button" aria-label="নোটিফিকেশন বন্ধ করুন" onClick={() => setOpen(false)}>×</button>
+            </div>
+          </header>
           <div className="notification-list">
             {loading ? <p className="notification-empty">লোড হচ্ছে…</p> : notifications.length ? notifications.map((notification) => (
               <article key={`${notification.type}-${notification.id}`}>

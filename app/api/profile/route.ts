@@ -3,6 +3,7 @@ import { ensureDatabase } from "../../../db/bootstrap";
 import { getAuthUser } from "../../lib/auth";
 import { hashPassword } from "../../lib/password";
 import { validatePasswordPolicy } from "../../lib/admin-settings";
+import { internalApiError } from "../../lib/api-errors";
 
 export async function GET() {
   try {
@@ -21,10 +22,7 @@ export async function GET() {
 
     return NextResponse.json(user);
   } catch (error) {
-    return NextResponse.json(
-      { error: error instanceof Error ? error.message : "Profile unavailable" },
-      { status: 500 },
-    );
+    return internalApiError("profile.get", error, "প্রোফাইল পাওয়া যায়নি।");
   }
 }
 
@@ -68,9 +66,6 @@ export async function PUT(request: Request) {
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    return NextResponse.json(
-      { error: error instanceof Error ? error.message : "Profile update failed" },
-      { status: 500 },
-    );
+    return internalApiError("profile.update", error, "প্রোফাইল আপডেট করা যায়নি।");
   }
 }

@@ -54,7 +54,38 @@
   margin: 4px 0 0;
 }
 
-.notification-panel header > button {
+.notification-header-actions {
+  align-items: center;
+  display: flex;
+  gap: 7px;
+}
+
+.notification-mark-all {
+  align-items: center;
+  background: var(--green-soft);
+  border: 1px solid rgba(15, 107, 85, .16);
+  border-radius: 9px;
+  color: var(--green);
+  cursor: pointer;
+  display: inline-flex;
+  font-size: 10px;
+  font-weight: 800;
+  gap: 4px;
+  min-height: 31px;
+  padding: 6px 9px;
+}
+
+.notification-mark-all:disabled {
+  cursor: wait;
+  opacity: .6;
+}
+
+.notification-mark-all svg {
+  height: 14px;
+  width: 14px;
+}
+
+.notification-close {
   align-items: center;
   background: #f3f7f5;
   border: 0;
@@ -251,6 +282,14 @@
     right: 10px;
     top: auto;
     width: auto;
+  }
+
+  .notification-panel header {
+    gap: 10px;
+  }
+
+  .notification-mark-all {
+    padding-inline: 7px;
   }
 
   .notification-card {

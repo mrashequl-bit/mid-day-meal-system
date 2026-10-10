@@ -4,6 +4,7 @@ import { requireSuperAdmin } from "../../lib/auth";
 import { hashPassword } from "../../lib/password";
 import { isAssignableUserRole } from "../../lib/user-roles";
 import { validatePasswordPolicy, writeAudit } from "../../lib/admin-settings";
+import { internalApiError } from "../../lib/api-errors";
 
 export async function GET() {
   if (!(await requireSuperAdmin())) {
@@ -20,10 +21,7 @@ export async function GET() {
     ).all();
     return NextResponse.json(result.results);
   } catch (error) {
-    return NextResponse.json(
-      { error: error instanceof Error ? error.message : "Users unavailable" },
-      { status: 500 },
-    );
+    return internalApiError("users.list", error, "ইউজারের তালিকা পাওয়া যায়নি।");
   }
 }
 
@@ -75,9 +73,6 @@ export async function POST(request: Request) {
     await writeAudit(actor.username, "user.created", "user", String(inserted.meta.last_row_id || username), null, { username, name, role, area_code: data.area_code });
     return NextResponse.json({ success: true });
   } catch (error) {
-    return NextResponse.json(
-      { error: error instanceof Error ? error.message : "User save failed" },
-      { status: 500 },
-    );
+    return internalApiError("users.create", error, "ইউজার তৈরি করা যায়নি।");
   }
 }

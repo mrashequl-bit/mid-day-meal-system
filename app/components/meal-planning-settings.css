@@ -6,3 +6,238 @@
 .meal-period-summary{display:flex;align-items:center;gap:5px;flex-wrap:wrap;margin-right:auto}.meal-period-summary>span{white-space:nowrap;padding:5px 7px;border:1px solid #d4e6e0;border-radius:7px;background:#f0f8f5;color:#486a61;font-size:10px}.meal-period-summary strong{color:#08745e}
 @media(max-width:900px){.meal-period-summary{order:4;flex-basis:100%;margin-right:0}.meal-plan-toolbar>.meal-outline,.meal-plan-toolbar>.meal-danger{order:5}}
 @media(max-width:560px){.meal-calendar-grid>button,.meal-calendar-blank{min-height:62px}.meal-calendar-grid>button .meal-label,.meal-calendar-grid>button .meal-closed{font-size:7.5px}}
+
+.meal-price-settings{background:linear-gradient(145deg,#f7fbfa,#edf8f5);border:1px solid #bfddd4;border-radius:15px;padding:15px;box-shadow:0 8px 24px rgba(9,91,73,.055)}
+.meal-price-heading{display:flex;align-items:center;gap:11px;margin-bottom:13px}.meal-price-heading h3,.meal-price-heading p{margin:0}.meal-price-heading p{font-size:12px;color:#698079;margin-top:3px}
+.meal-price-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr)) auto;align-items:end;gap:10px;padding:12px;background:#fff;border:1px solid #d6e7e2;border-radius:12px}
+.meal-price-grid>label{display:grid;gap:6px;color:#315e53;font-size:12px;font-weight:850}.meal-price-grid>label span{display:flex;align-items:center;justify-content:space-between;gap:8px}.meal-price-grid>label small{color:#789089;font-size:10px;font-weight:700}
+.meal-price-input{display:grid;grid-template-columns:38px minmax(0,1fr);min-height:44px;border:1.5px solid #b8d3cb;border-radius:9px;overflow:hidden;background:#fff;box-shadow:0 2px 7px rgba(19,75,63,.045)}.meal-price-input:focus-within{border-color:#0a8a6e;box-shadow:0 0 0 3px rgba(10,138,110,.13)}.meal-price-input b{display:grid;place-items:center;background:#e6f4ef;color:#08745e;border-right:1px solid #cde2dc;font-size:15px}.meal-price-input input{border:0!important;outline:0!important;box-shadow:none!important;margin:0!important;min-width:0;width:100%;padding:9px 10px;background:#fff;color:#163b34;font:800 14px inherit}.meal-price-save{min-height:44px;white-space:nowrap}
+@media(max-width:900px){.meal-price-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.meal-price-save{grid-column:1/-1}}
+@media(max-width:560px){.meal-price-settings{padding:10px}.meal-price-grid{grid-template-columns:1fr;padding:10px}.meal-price-save{grid-column:auto;width:100%}.meal-price-heading{align-items:flex-start}}
+.meal-food-list label{grid-template-columns:auto 1fr}
+.meal-status.history{background:#e7edf0;color:#52666f}.meal-plan-toolbar optgroup{font-weight:900;color:#315e53}.meal-plan-toolbar option{font-weight:700;color:#163b34}
+
+.meal-config-disclosure {
+  padding: 0;
+  overflow: hidden;
+}
+
+.meal-config-disclosure > summary {
+  list-style: none;
+}
+
+.meal-config-disclosure > summary::-webkit-details-marker {
+  display: none;
+}
+
+.meal-disclosure-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  min-height: 68px;
+  padding: 12px 15px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.meal-disclosure-summary:hover {
+  background: rgba(231, 244, 239, .55);
+}
+
+.meal-disclosure-summary:focus-visible {
+  outline: 3px solid rgba(10, 138, 110, .18);
+  outline-offset: -3px;
+}
+
+.meal-disclosure-summary .meal-price-heading,
+.meal-disclosure-summary .meal-section-heading {
+  min-width: 0;
+  margin: 0;
+}
+
+.meal-disclosure-action {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 10px;
+  color: #08745e;
+  background: #fff;
+  border: 1px solid #c9ddd7;
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: 850;
+}
+
+.meal-disclosure-action svg {
+  width: 15px;
+  height: 15px;
+  transition: transform .2s ease;
+}
+
+.meal-disclosure-action .when-open {
+  display: none;
+}
+
+.meal-config-disclosure[open] .meal-disclosure-action .when-closed {
+  display: none;
+}
+
+.meal-config-disclosure[open] .meal-disclosure-action .when-open {
+  display: inline;
+}
+
+.meal-config-disclosure[open] .meal-disclosure-action svg {
+  transform: rotate(180deg);
+}
+
+.meal-disclosure-content {
+  padding: 0 15px 15px;
+  border-top: 1px solid rgba(210, 230, 223, .85);
+}
+
+.meal-disclosure-content > .meal-price-grid,
+.meal-disclosure-content > .meal-period-form {
+  margin-top: 13px;
+}
+
+@media (max-width: 560px) {
+  .meal-disclosure-summary {
+    min-height: 62px;
+    padding: 10px;
+  }
+
+  .meal-disclosure-summary p {
+    display: none;
+  }
+
+  .meal-disclosure-content {
+    padding: 0 10px 10px;
+  }
+}
+
+/* Clear hierarchy for choosing, reviewing and changing a monthly plan. */
+.meal-plan-toolbar {
+  display: grid;
+  grid-template-columns: minmax(245px, .9fr) minmax(0, 1.55fr) auto;
+  align-items: stretch;
+  gap: 12px;
+  min-height: 0;
+  padding: 12px;
+  background: linear-gradient(145deg, #f6faf9, #edf6f3);
+  border: 1px solid #d8e8e3;
+  border-radius: 13px;
+}
+
+.meal-plan-picker {
+  min-width: 0;
+}
+
+.meal-toolbar-eyebrow {
+  display: block;
+  margin-bottom: 6px;
+  color: #527168;
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: .02em;
+}
+
+.meal-plan-picker select {
+  display: block;
+  width: 100%;
+  min-height: 43px;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 8px 34px 8px 11px;
+  color: #163b34;
+  background: #fff;
+  border: 1.5px solid #bcd5ce;
+  border-radius: 9px;
+  font: 800 13px inherit;
+  box-shadow: 0 2px 7px rgba(19, 75, 63, .045);
+}
+
+.meal-plan-picker select:focus {
+  border-color: #0a8a6e;
+  outline: 3px solid rgba(10, 138, 110, .12);
+}
+
+.meal-plan-info {
+  display: grid;
+  align-content: center;
+  gap: 8px;
+  min-width: 0;
+  padding: 2px 12px;
+  border-left: 1px solid #d4e5df;
+}
+
+.meal-plan-state-row {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  min-width: 0;
+}
+
+.meal-period-dates {
+  margin: 0;
+  font-weight: 750;
+}
+
+.meal-period-summary {
+  margin: 0;
+}
+
+.meal-plan-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 7px;
+}
+
+.meal-plan-actions .meal-outline {
+  min-height: 43px;
+  white-space: nowrap;
+  background: #fff;
+}
+
+.meal-plan-actions .meal-danger {
+  display: grid;
+  place-items: center;
+  width: 43px;
+  min-width: 43px;
+  height: 43px;
+  padding: 0;
+}
+
+@media (max-width: 900px) {
+  .meal-plan-toolbar {
+    grid-template-columns: minmax(230px, .85fr) minmax(0, 1.15fr);
+  }
+
+  .meal-plan-actions {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 560px) {
+  .meal-plan-toolbar {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 10px;
+    padding: 10px;
+  }
+
+  .meal-plan-info {
+    padding: 10px 0 0;
+    border-top: 1px solid #d4e5df;
+    border-left: 0;
+  }
+
+  .meal-plan-actions {
+    grid-column: auto;
+  }
+
+  .meal-plan-actions .meal-outline {
+    flex: 1;
+  }
+}

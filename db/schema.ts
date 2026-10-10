@@ -31,6 +31,8 @@ export const schoolsTable = sqliteTable(
       .references(() => areasTable.code),
     headTeacher: text("head_teacher"),
     legacyMobile: text("legacy_mobile"),
+    unionName: text("union_name"),
+    clusterName: text("cluster_name"),
     serialNumber: integer("serial_number"),
     currentDailyDemand: integer("current_daily_demand").notNull(),
     isActive: integer("is_active", { mode: "boolean" }).notNull().default(true),
@@ -220,6 +222,19 @@ export const distributionReportsTable = sqliteTable(
     excessBanana: integer("excess_banana").notNull().default(0),
     problemType: text("problem_type").notNull(),
     reason: text("reason").notNull(),
+    resolutionReason: text("resolution_reason"),
+    confirmationSource: text("confirmation_source").notNull().default("manager"),
+    autoConfirmedAt: text("auto_confirmed_at"),
+    resolutionAction: text("resolution_action"),
+    resolutionNote: text("resolution_note"),
+    resolvedBy: text("resolved_by"),
+    resolvedAt: text("resolved_at"),
+    managerSubmissionCount: integer("manager_submission_count").notNull().default(1),
+    managerReopenAllowed: integer("manager_reopen_allowed", { mode: "boolean" }).notNull().default(false),
+    managerReopenAction: text("manager_reopen_action"),
+    managerReopenAuthorizedBy: text("manager_reopen_authorized_by"),
+    managerReopenAuthorizedAt: text("manager_reopen_authorized_at"),
+    managerReopenUsedAt: text("manager_reopen_used_at"),
     comments: text("comments"),
     proofUrl: text("proof_url"),
     status: text("status", {
@@ -239,6 +254,85 @@ export const distributionReportsTable = sqliteTable(
     index("dist_rep_area_idx").on(table.areaCode),
     index("dist_rep_date_idx").on(table.date),
   ],
+);
+
+export const distributionReportSubmissionsTable = sqliteTable(
+  "distribution_report_submissions",
+  {
+    id: integer("id").primaryKey({ autoIncrement: true }),
+    reportId: integer("report_id")
+      .notNull()
+      .references(() => distributionReportsTable.id, { onDelete: "cascade" }),
+    submissionNumber: integer("submission_number").notNull(),
+    receivedBread: integer("received_bread").notNull().default(0),
+    receivedEgg: integer("received_egg").notNull().default(0),
+    receivedBanana: integer("received_banana").notNull().default(0),
+    shortageBread: integer("shortage_bread").notNull().default(0),
+    shortageEgg: integer("shortage_egg").notNull().default(0),
+    shortageBanana: integer("shortage_banana").notNull().default(0),
+    excessBread: integer("excess_bread").notNull().default(0),
+    excessEgg: integer("excess_egg").notNull().default(0),
+    excessBanana: integer("excess_banana").notNull().default(0),
+    problemType: text("problem_type").notNull(),
+    reason: text("reason").notNull(),
+    comments: text("comments"),
+    submittedBy: text("submitted_by").notNull(),
+    submittedAt: text("submitted_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+    authorizationAction: text("authorization_action"),
+    authorizationBy: text("authorization_by"),
+    authorizationAt: text("authorization_at"),
+  },
+  (table) => [
+    uniqueIndex("dist_report_submission_unique").on(table.reportId, table.submissionNumber),
+    index("dist_report_submission_report_idx").on(table.reportId),
+  ],
+);
+
+export const distributionAdjustmentsTable = sqliteTable(
+  "distribution_adjustments",
+  {
+    id: integer("id").primaryKey({ autoIncrement: true }),
+    schoolEmisCode: text("school_emis_code")
+      .notNull()
+      .references(() => schoolsTable.emisCode),
+    planMonth: text("plan_month").notNull(),
+    itemCode: text("item_code", { enum: ["bun", "egg", "banana"] }).notNull(),
+    shortageReportId: integer("shortage_report_id")
+      .notNull()
+      .references(() => distributionReportsTable.id, { onDelete: "cascade" }),
+    excessReportId: integer("excess_report_id")
+      .notNull()
+      .references(() => distributionReportsTable.id, { onDelete: "cascade" }),
+    quantity: integer("quantity").notNull(),
+    createdBy: text("created_by").notNull().default("System"),
+    createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+  },
+  (table) => [
+    uniqueIndex("dist_adj_report_item_unique").on(
+      table.shortageReportId,
+      table.excessReportId,
+      table.itemCode,
+    ),
+    index("dist_adj_school_month_idx").on(table.schoolEmisCode, table.planMonth),
+  ],
+);
+
+export const distributionResolutionItemsTable = sqliteTable(
+  "distribution_resolution_items",
+  {
+    id: integer("id").primaryKey({ autoIncrement: true }),
+    reportId: integer("report_id")
+      .notNull()
+      .references(() => distributionReportsTable.id, { onDelete: "cascade" }),
+    action: text("action").notNull(),
+    itemCode: text("item_code", { enum: ["bun", "egg", "banana"] }).notNull(),
+    direction: text("direction", { enum: ["shortage", "excess"] }).notNull(),
+    quantity: integer("quantity").notNull(),
+    createdBy: text("created_by").notNull(),
+    note: text("note"),
+    createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+  },
+  (table) => [index("dist_resolution_report_idx").on(table.reportId)],
 );
 
 export const notificationsTable = sqliteTable(
@@ -295,6 +389,29 @@ export const backupRunsTable = sqliteTable("backup_runs", {
   startedAt: text("started_at").notNull().default(sql`CURRENT_TIMESTAMP`),
   completedAt: text("completed_at"),
 });
+
+export const reportDeliveryRunsTable = sqliteTable(
+  "report_delivery_runs",
+  {
+    id: integer("id").primaryKey({ autoIncrement: true }),
+    reportDate: text("report_date").notNull(),
+    channel: text("channel").notNull(),
+    recipient: text("recipient").notNull(),
+    status: text("status").notNull(),
+    providerMessageId: text("provider_message_id"),
+    errorMessage: text("error_message"),
+    isTest: integer("is_test", { mode: "boolean" }).notNull().default(false),
+    createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+  },
+  (table) => [
+    index("report_delivery_lookup_idx").on(
+      table.reportDate,
+      table.channel,
+      table.recipient,
+      table.status,
+    ),
+  ],
+);
 
 export const sessionsTable = sqliteTable(
   "sessions",

@@ -1,4 +1,5 @@
 import { ensureDatabase } from "../../db/bootstrap";
+import { unseal } from "./secret-box";
 
 export const SETTINGS_KEYS = [
   "institution_name", "project_name", "address", "support_email", "support_phone",
@@ -6,6 +7,8 @@ export const SETTINGS_KEYS = [
   "password_require_uppercase", "password_require_lowercase", "password_require_number",
   "backup_enabled", "backup_frequency", "backup_day", "backup_time", "sms_enabled",
   "sms_provider", "email_enabled", "email_provider",
+  "daily_report_enabled", "daily_report_time", "daily_report_emails",
+  "daily_report_sender", "telegram_enabled", "telegram_destinations",
 ] as const;
 
 export const PERMISSION_MODULES = ["dashboard", "areas", "distribution", "expenses", "stock", "suppliers", "reports", "users"] as const;
@@ -14,6 +17,15 @@ export async function getSettings() {
   const db = await ensureDatabase();
   const rows = await db.prepare("SELECT setting_key, setting_value FROM system_settings WHERE is_secret = 0").all<{ setting_key: string; setting_value: string }>();
   return Object.fromEntries(rows.results.map((row) => [row.setting_key, row.setting_value]));
+}
+
+export async function getSecretSetting(key: string) {
+  const db = await ensureDatabase();
+  const row = await db.prepare(
+    "SELECT setting_value FROM system_settings WHERE setting_key = ? AND is_secret = 1",
+  ).bind(key).first<{ setting_value: string }>();
+  if (!row?.setting_value) return "";
+  return unseal(row.setting_value);
 }
 
 export async function validatePasswordPolicy(password: string, username = "") {

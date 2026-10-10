@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { ensureDatabase } from "../../../db/bootstrap";
 import { getAuthUser } from "../../lib/auth";
+import { internalApiError } from "../../lib/api-errors";
 
 export async function GET() {
   try {
@@ -92,8 +93,8 @@ export async function GET() {
     }
 
     return NextResponse.json({ notifications: [] });
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  } catch (error) {
+    return internalApiError("notifications.list", error, "নোটিফিকেশন পাওয়া যায়নি।");
   }
 }
 
@@ -104,8 +105,31 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { id, type } = (await request.json()) as { id: number, type: string };
+    const payload = (await request.json()) as { action?: string; id?: number; type?: string };
     const db = await ensureDatabase();
+
+    if (payload.action === "mark_all_read") {
+      if (authUser.role === "super_admin") {
+        await db.batch([
+          db.prepare("UPDATE area_expenses SET is_read = 1 WHERE is_read = 0"),
+          db.prepare("UPDATE notifications SET is_read = 1 WHERE is_read = 0 AND area_code IS NULL"),
+        ]);
+      } else if (authUser.areaCode) {
+        await db.batch([
+          db.prepare("UPDATE area_payments SET is_read = 1 WHERE is_read = 0 AND area_code = ?").bind(authUser.areaCode),
+          db.prepare("UPDATE notifications SET is_read = 1 WHERE is_read = 0 AND area_code = ?").bind(authUser.areaCode),
+        ]);
+      } else {
+        return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+      }
+      return NextResponse.json({ success: true });
+    }
+
+    const id = Number(payload.id);
+    const type = String(payload.type || "").trim();
+    if (!Number.isInteger(id) || id <= 0 || !String(type || "").trim()) {
+      return NextResponse.json({ error: "সঠিক নোটিফিকেশন নির্বাচন করুন।" }, { status: 400 });
+    }
 
     if (type === 'expense' && authUser.role === 'super_admin') {
       await db.prepare("UPDATE area_expenses SET is_read = 1 WHERE id = ?").bind(id).run();
@@ -122,7 +146,7 @@ export async function POST(request: Request) {
     }
 
     return NextResponse.json({ success: true });
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  } catch (error) {
+    return internalApiError("notifications.mark-read", error, "নোটিফিকেশন আপডেট করা যায়নি।");
   }
 }

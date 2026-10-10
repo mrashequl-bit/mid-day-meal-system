@@ -15,6 +15,10 @@ const { d1, r2 } = hostingConfig as HostingConfig;
 
 // macOS Seatbelt blocks FSEvents, so Codex previews need polling for HMR.
 const isCodexSeatbeltSandbox = process.env.CODEX_SANDBOX === "seatbelt";
+const isLocalDevCommand = process.argv.some((argument) => argument === "dev");
+const localSettingsEncryptionKey = isLocalDevCommand
+  ? process.env.SETTINGS_ENCRYPTION_KEY?.trim()
+  : undefined;
 
 const localBindingConfig = {
   main: "./worker/index.ts",
@@ -24,9 +28,25 @@ const localBindingConfig = {
     enabled: true,
     head_sampling_rate: 1,
   },
+  triggers: {
+    crons: ["0 8 * * *", "0 10 * * *"],
+  },
+  browser: {
+    binding: "BROWSER",
+    remote: true,
+  },
+  send_email: [
+    {
+      name: "EMAIL",
+      remote: true,
+    },
+  ],
   vars: {
     CLOUDFLARE_ACCOUNT_ID: "40c8dfca597e104fca80ba959b292f10",
     CLOUDFLARE_D1_DATABASE_ID: SITE_CREATOR_PLACEHOLDER_DATABASE_ID,
+    ...(localSettingsEncryptionKey
+      ? { SETTINGS_ENCRYPTION_KEY: localSettingsEncryptionKey }
+      : {}),
   },
   routes: [
     {

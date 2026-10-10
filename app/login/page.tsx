@@ -25,7 +25,7 @@ export default function LoginPage() {
       const data = (await res.json()) as any;
 
       if (res.ok) {
-        window.location.href = "/";
+        window.location.replace("/");
       } else {
         if (data.twoFactorRequired) setTwoFactorRequired(true);
         setError(data.error || "লগইন ব্যর্থ হয়েছে");
@@ -59,9 +59,13 @@ export default function LoginPage() {
               required
               value={username}
               onChange={(e) => setUsername(e.target.value)}
+              autoCapitalize="none"
+              autoComplete="username"
+              spellCheck={false}
               className="bg-[var(--canvas)] border border-[var(--line)] rounded-lg px-4 py-3 text-sm text-[var(--ink)] focus:outline-none focus:border-[var(--green)] focus:ring-2 focus:ring-[var(--green-soft)] transition-all"
-              placeholder="ইউজারনেম দিন"
+              placeholder="ইউজারনেম বা EMIS কোড দিন"
             />
+            <small className="font-normal text-[var(--muted)]">বিদ্যালয়ের জন্য ১১ সংখ্যার EMIS কোড বাংলা বা ইংরেজি অঙ্কে দেওয়া যাবে।</small>
           </label>
 
           {twoFactorRequired && <label className="flex flex-col gap-1.5 text-xs font-bold text-[var(--muted)]">
@@ -76,6 +80,7 @@ export default function LoginPage() {
               required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              autoComplete="current-password"
               className="bg-[var(--canvas)] border border-[var(--line)] rounded-lg px-4 py-3 text-sm text-[var(--ink)] focus:outline-none focus:border-[var(--green)] focus:ring-2 focus:ring-[var(--green-soft)] transition-all"
               placeholder="••••••••"
             />

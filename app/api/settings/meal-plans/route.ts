@@ -2,9 +2,10 @@ import { NextResponse } from "next/server";
 import { ensureDatabase } from "../../../../db/bootstrap";
 import { requireSuperAdmin } from "../../../lib/auth";
 import { writeAudit } from "../../../lib/admin-settings";
+import { MEAL_PRICE_SETTING_KEYS, getMealUnitPrices, validateMealUnitPrices } from "../../../lib/meal-prices";
 
 const isoDate = /^\d{4}-\d{2}-\d{2}$/;
-type Period = { id:number; name:string; start_date:string; end_date:string; status:"draft"|"active"; created_by:string; created_at:string; updated_at:string };
+type Period = { id:number; name:string; start_date:string; end_date:string; status:"draft"|"active"; lifecycle?:"draft"|"active"|"history"; created_by:string; created_at:string; updated_at:string };
 
 function validDate(value: unknown) {
   const date = String(value || "");
@@ -23,14 +24,18 @@ export async function GET(request: Request) {
   if (!user) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   const db = await ensureDatabase();
   const periodId = Number(new URL(request.url).searchParams.get("periodId") || 0);
-  const [periods, foods] = await Promise.all([
-    db.prepare("SELECT * FROM meal_plan_periods ORDER BY start_date DESC, id DESC").all<Period>(),
+  const [periods, foods, prices] = await Promise.all([
+    db.prepare(`SELECT *, CASE
+      WHEN status='active' AND end_date < date('now','+6 hours') THEN 'history'
+      ELSE status END AS lifecycle
+      FROM meal_plan_periods ORDER BY start_date DESC, id DESC`).all<Period>(),
     foodCodes(db),
+    getMealUnitPrices(db),
   ]);
   const days = periodId > 0
     ? await db.prepare("SELECT id, period_id, plan_date, items_json, updated_by, updated_at FROM meal_plan_days WHERE period_id=? ORDER BY plan_date").bind(periodId).all()
     : { results: [] };
-  return NextResponse.json({ periods: periods.results, foods, days: days.results });
+  return NextResponse.json({ periods: periods.results, foods, days: days.results, prices });
 }
 
 export async function POST(request: Request) {
@@ -61,9 +66,22 @@ export async function PUT(request: Request) {
   try {
     const data = await request.json() as Record<string, unknown>;
     const action = String(data.action || "");
+    const db = await ensureDatabase();
+
+    if (action === "save-prices") {
+      const before = await getMealUnitPrices(db);
+      const prices = validateMealUnitPrices(data.prices);
+      await db.batch(Object.entries(MEAL_PRICE_SETTING_KEYS).map(([code, key]) =>
+        db.prepare(`INSERT INTO system_settings (setting_key,setting_value,updated_by,updated_at) VALUES (?,?,?,CURRENT_TIMESTAMP)
+          ON CONFLICT(setting_key) DO UPDATE SET setting_value=excluded.setting_value,updated_by=excluded.updated_by,updated_at=CURRENT_TIMESTAMP`)
+          .bind(key, String(prices[code as keyof typeof prices]), user.username)
+      ));
+      await writeAudit(user.username, "meal_prices.updated", "system_settings", "meal_unit_prices", before, prices);
+      return NextResponse.json({ success: true, prices });
+    }
+
     const periodId = Number(data.periodId || 0);
     if (!Number.isInteger(periodId) || periodId < 1) throw new Error("পরিকল্পনা নির্বাচন করুন।");
-    const db = await ensureDatabase();
     const period = await db.prepare("SELECT * FROM meal_plan_periods WHERE id=?").bind(periodId).first<Period>();
     if (!period) return NextResponse.json({ error: "পরিকল্পনা পাওয়া যায়নি।" }, { status: 404 });
 
@@ -92,15 +110,19 @@ export async function PUT(request: Request) {
     if (action === "activate") {
       const planned = await db.prepare("SELECT COUNT(*) AS total FROM meal_plan_days WHERE period_id=?").bind(periodId).first<{total:number}>();
       if (!planned?.total) throw new Error("কমপক্ষে এক দিনের খাবার নির্ধারণ করুন।");
-      await db.batch([
-        db.prepare("UPDATE meal_plan_periods SET status='draft',updated_at=CURRENT_TIMESTAMP WHERE status='active' AND id<>?").bind(periodId),
-        db.prepare("UPDATE meal_plan_periods SET status='active',updated_at=CURRENT_TIMESTAMP WHERE id=?").bind(periodId),
-      ]);
+      const overlapping = await db.prepare(`SELECT id,name,start_date,end_date FROM meal_plan_periods
+        WHERE status='active' AND id<>? AND start_date<=? AND end_date>=? LIMIT 1`)
+        .bind(periodId, period.end_date, period.start_date).first<{id:number;name:string;start_date:string;end_date:string}>();
+      if (overlapping) return NextResponse.json({ error: `এই সময়সীমায় “${overlapping.name}” ইতিমধ্যে Active আছে। আগে তারিখ পরিবর্তন বা পরিকল্পনাটি Draft করুন।` }, { status: 409 });
+      await db.prepare("UPDATE meal_plan_periods SET status='active',updated_at=CURRENT_TIMESTAMP WHERE id=?").bind(periodId).run();
       await writeAudit(user.username, "meal_plan.activated", "meal_plan_period", String(periodId), period, { ...period, status: "active" });
       return NextResponse.json({ success: true });
     }
 
     if (action === "draft") {
+      if (period.status === "active" && period.end_date < new Date(Date.now() + 6 * 60 * 60 * 1000).toISOString().slice(0, 10)) {
+        throw new Error("ইতিহাসে থাকা পরিকল্পনা Draft করা যাবে না।");
+      }
       await db.prepare("UPDATE meal_plan_periods SET status='draft',updated_at=CURRENT_TIMESTAMP WHERE id=?").bind(periodId).run();
       await writeAudit(user.username, "meal_plan.draft", "meal_plan_period", String(periodId), period, { ...period, status: "draft" });
       return NextResponse.json({ success: true });

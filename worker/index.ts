@@ -1,9 +1,13 @@
 /** Cloudflare Worker entry point for the vinext-starter template. */
 import { handleImageOptimization, DEFAULT_DEVICE_SIZES, DEFAULT_IMAGE_SIZES } from "vinext/server/image-optimization";
 import handler from "vinext/server/app-router-entry";
+import { deliverDailyDistributionReport, getDhakaReportDate } from "../app/lib/daily-distribution-delivery";
+import { autoConfirmDistributionReports } from "../app/lib/distribution-adjustments";
 
 type WorkerEnv = Env & {
   ASSETS: Fetcher;
+  BROWSER?: BrowserRun;
+  EMAIL?: SendEmail;
   INITIAL_ADMIN_PASSWORD?: string;
   SETTINGS_ENCRYPTION_KEY?: string;
   IMAGES: ImagesBinding;
@@ -50,6 +54,24 @@ const worker = {
       await handler.fetch(request, env, ctx),
       url.pathname.startsWith("/api/"),
     );
+  },
+  async scheduled(controller: ScheduledController, env: WorkerEnv, ctx: ExecutionContext): Promise<void> {
+    const date = getDhakaReportDate(controller.scheduledTime);
+    if (controller.cron === "0 8 * * *") {
+      ctx.waitUntil(autoConfirmDistributionReports(date).then((result) => {
+        console.log(JSON.stringify({ event: "distribution_auto_confirm", ...result }));
+      }).catch((error) => {
+        console.error(JSON.stringify({ event: "distribution_auto_confirm_failed", message: String(error) }));
+        throw error;
+      }));
+      return;
+    }
+    ctx.waitUntil(deliverDailyDistributionReport(env, { date }).then((result) => {
+      console.log(JSON.stringify({ event: "daily_distribution_report_delivery", result }));
+    }).catch((error) => {
+      console.error(JSON.stringify({ event: "daily_distribution_report_delivery_failed", message: String(error) }));
+      throw error;
+    }));
   },
 } satisfies ExportedHandler<WorkerEnv>;
 

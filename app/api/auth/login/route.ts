@@ -6,6 +6,7 @@ import { verifyPassword } from "../../../lib/password";
 import { verifyTotp } from "../../../lib/totp";
 import { unseal } from "../../../lib/secret-box";
 import { writeAudit } from "../../../lib/admin-settings";
+import { normalizeLoginCredentials } from "../../../lib/login-normalization";
 
 const MAX_LOGIN_FAILURES = 5;
 const LOGIN_WINDOW_MINUTES = 15;
@@ -62,8 +63,10 @@ export async function POST(request: Request) {
   let loginStage = "parse_request";
   try {
     const payload = (await request.json()) as Record<string, unknown>;
-    const username = String(payload.username ?? "").trim();
-    const password = String(payload.password ?? "");
+    const { username, password } = normalizeLoginCredentials(
+      payload.username,
+      payload.password,
+    );
     const otp = String(payload.otp ?? "").trim();
 
     if (!username || !password) {

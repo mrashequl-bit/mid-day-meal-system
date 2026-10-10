@@ -9,8 +9,10 @@
 .account-profile-launcher small { color: var(--green); font-size: 9px; font-weight: 800; margin-top: 2px; }
 .account-launcher-avatar { align-items: center; background: var(--green); border-radius: 10px; color: #fff; display: flex; flex: 0 0 auto; font-size: 12px; font-weight: 850; height: 34px; justify-content: center; object-fit: cover; overflow: hidden; width: 34px; }
 
-/* The layer is transparent on desktop, bottom-left */
-.account-profile-layer { align-items: flex-end; background: transparent; display: flex; inset: 0; justify-content: flex-start; padding: 12px 12px 76px; position: fixed; z-index: 40; pointer-events: auto; }
+/* Desktop fallback; JS anchors the card to whichever launcher is active. */
+.account-profile-layer { align-items: flex-start; background: transparent; display: flex; inset: 0; justify-content: flex-end; padding: 72px 30px 12px; position: fixed; z-index: 40; pointer-events: auto; }
+.account-profile-layer.is-launcher-anchored { align-items: initial; justify-content: initial; padding: 0; }
+.account-profile-layer.is-launcher-anchored .account-profile-card { margin: 0; position: fixed; }
 /* Compact Card */
 .account-profile-card { background: #fff; border: 1px solid var(--line); border-radius: 12px; box-shadow: 0 10px 32px rgba(0, 0, 0, .12); margin: 0; max-height: calc(100vh - 100px); max-width: 282px; overflow: auto; position: relative; width: min(282px, calc(100vw - 24px)); }
 .account-close-button { align-items: center; aspect-ratio: 1; background: rgba(255,255,255,.94); border: 0; border-radius: 50%; color: #31564b; cursor: pointer; display: flex; flex: 0 0 22px; font-size: 16px; height: 22px; justify-content: center; min-height: 22px; min-width: 22px; position: absolute; right: 8px; top: 8px; width: 22px; z-index: 2; }
@@ -55,6 +57,11 @@
 
 .account-card-footer { align-items: center; border-top: 1px solid var(--line); display: flex; justify-content: space-between; gap: 6px; flex-wrap: wrap; margin-top: 8px; padding-top: 8px; }
 .account-card-footer > span { color: var(--muted); font-size: 9px; }
+.account-icon-credit { border-top: 1px solid var(--line); color: var(--muted); font-size: 9px; margin-top: 8px; padding-top: 7px; }
+.account-icon-credit summary { cursor: pointer; font-weight: 700; }
+.account-icon-credit p { margin: 5px 0 0; }
+.account-icon-credit a { color: var(--green); text-decoration: none; }
+.account-icon-credit a:hover { text-decoration: underline; }
 .account-logout-button { background: #fff2ef; border: 1px solid #efc4ba; border-radius: 6px; color: #a33c27; cursor: pointer; font-size: 10px; font-weight: 700; padding: 5px 10px; transition: background .16s ease; }
 .account-logout-button:hover { background: #fbe4df; }
 .account-logout-button:disabled { cursor: wait; opacity: .6; }
@@ -71,7 +78,7 @@
   .account-launcher-avatar { border: 2px solid var(--amber); border-radius: 11px; height: 40px; width: 40px; }
   
   /* Mobile Layer */
-  .account-profile-layer { justify-content: flex-end; padding: 12px 12px 68px; }
+  .account-profile-layer { align-items: flex-end; justify-content: flex-end; padding: 12px 12px 68px; }
   .account-profile-card { max-height: calc(100vh - 84px); max-width: 300px; width: min(300px, 100%); }
   .account-user-card .account-settings-button { display: none; }
   .account-modal-settings-btn { display: flex; }

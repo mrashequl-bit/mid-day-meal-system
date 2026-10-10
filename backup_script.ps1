@@ -1,2 +1,3 @@
-Set-Location "C:\Users\Sunny\Desktop\Mid Day Meal"
+$ErrorActionPreference = "Stop"
+Set-Location -LiteralPath $PSScriptRoot
 npm.cmd run backup

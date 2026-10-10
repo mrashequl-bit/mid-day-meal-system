@@ -1,7 +1,7 @@
 const BACKUP_FORMAT = "midday-meal-d1-backup";
 const BACKUP_VERSION = 1;
 
-export const BACKUP_TABLES = [
+const BACKUP_TABLES = [
   "areas",
   "stock_balances",
   "suppliers",
@@ -13,17 +13,26 @@ export const BACKUP_TABLES = [
   "backup_runs",
   "audit_logs",
   "notifications",
+  "report_delivery_runs",
   "area_expenses",
   "area_payments",
   "supplier_ledgers",
   "stock_transactions",
   "school_demand_history",
   "distribution_reports",
+  "distribution_adjustments",
+  "distribution_resolution_items",
+  "distribution_report_submissions",
   "meal_plan_days",
 ] as const;
 
 type BackupTable = typeof BACKUP_TABLES[number];
 type BackupRow = Record<string, unknown>;
+const LEGACY_OPTIONAL_LEDGER_TABLES = new Set<BackupTable>([
+  "distribution_adjustments",
+  "distribution_resolution_items",
+  "distribution_report_submissions",
+]);
 
 export type SystemBackup = {
   format: typeof BACKUP_FORMAT;
@@ -70,7 +79,8 @@ function assertBackup(value: unknown): asserts value is SystemBackup {
   }
   let totalRows = 0;
   for (const table of BACKUP_TABLES) {
-    const rows = backup.tables[table];
+    const rows = backup.tables[table] as BackupRow[] | undefined;
+    if (rows === undefined && LEGACY_OPTIONAL_LEDGER_TABLES.has(table)) continue;
     if (!Array.isArray(rows) || rows.some((row) => !row || typeof row !== "object" || Array.isArray(row))) {
       throw new Error(`Backup-এর ${table} table সঠিক নয়।`);
     }
@@ -87,7 +97,7 @@ export async function restoreSystemBackup(db: D1Database, value: unknown) {
     statements.push(db.prepare(`DELETE FROM ${quoteIdentifier(table)}`));
   }
   for (const table of BACKUP_TABLES) {
-    const rows = value.tables[table];
+    const rows = value.tables[table] || [];
     if (!rows.length) continue;
     const columns = Object.keys(rows[0]);
     if (

@@ -10,1574 +10,31 @@ import "./index.css";
 import "./mobile-system.css";
 import * as React from "react";
 import * as JSXRuntime from "react/jsx-runtime";
-import { ClipboardList, Ban, House } from "lucide-react";
+import {
+  Boxes,
+  CalendarRange,
+  ClipboardList,
+  FileChartColumn,
+  Handshake,
+  House,
+  MapPinned,
+} from "lucide-react";
 import { SchoolDistributionAdjustment } from "./SchoolDistributionAdjustment";
 import { ErrorBoundary } from "./ErrorBoundary";
+import { areas, schools } from "../data/schools";
 import { formatDateDMY } from "../lib/date-format";
 import { printDesktopLayout } from "../lib/desktop-print";
 import { getDhakaClock } from "../lib/distribution-reporting-window";
-const t = () => React;
-const n = () => JSXRuntime;
-const e = (obj, _) => obj;
-
-var r = (...e) =>
-    e
-      .filter((e, t, n) => !!e && e.trim() !== `` && n.indexOf(e) === t)
-      .join(` `)
-      .trim(),
-  i = (e) => e.replace(/([a-z0-9])([A-Z])/g, `$1-$2`).toLowerCase(),
-  a = (e) =>
-    e.replace(/^([A-Z])|[\s-_]+(\w)/g, (e, t, n) =>
-      n ? n.toUpperCase() : t.toLowerCase(),
-    ),
-  o = (e) => {
-    let t = a(e);
-    return t.charAt(0).toUpperCase() + t.slice(1);
-  },
-  s = {
-    xmlns: `http://www.w3.org/2000/svg`,
-    width: 24,
-    height: 24,
-    viewBox: `0 0 24 24`,
-    fill: `none`,
-    stroke: `currentColor`,
-    strokeWidth: 2,
-    strokeLinecap: `round`,
-    strokeLinejoin: `round`,
-  },
-  c = (e) => {
-    for (let t in e)
-      if (t.startsWith(`aria-`) || t === `role` || t === `title`) return !0;
-    return !1;
-  },
-  l = e(t(), 1),
-  u = (0, l.createContext)({}),
-  d = () => (0, l.useContext)(u),
-  f = (0, l.forwardRef)(
-    (
-      {
-        color: e,
-        size: t,
-        strokeWidth: n,
-        absoluteStrokeWidth: i,
-        className: a = ``,
-        children: o,
-        iconNode: u,
-        ...f
-      },
-      p,
-    ) => {
-      let {
-          size: m = 24,
-          strokeWidth: h = 2,
-          absoluteStrokeWidth: g = !1,
-          color: _ = `currentColor`,
-          className: v = ``,
-        } = d() ?? {},
-        y = (i ?? g) ? (Number(n ?? h) * 24) / Number(t ?? m) : (n ?? h);
-      return (0, l.createElement)(
-        `svg`,
-        {
-          ref: p,
-          ...s,
-          width: t ?? m ?? s.width,
-          height: t ?? m ?? s.height,
-          stroke: e ?? _,
-          strokeWidth: y,
-          className: r(`lucide`, v, a),
-          ...(!o && !c(f) && { "aria-hidden": `true` }),
-          ...f,
-        },
-        [
-          ...u.map(([e, t]) => (0, l.createElement)(e, t)),
-          ...(Array.isArray(o) ? o : [o]),
-        ],
-      );
-    },
-  ),
-  p = (e, t) => {
-    let n = (0, l.forwardRef)(({ className: n, ...a }, s) =>
-      (0, l.createElement)(f, {
-        ref: s,
-        iconNode: t,
-        className: r(`lucide-${i(o(e))}`, `lucide-${e}`, n),
-        ...a,
-      }),
-    );
-    return ((n.displayName = o(e)), n);
-  },
-  m = p(`boxes`, [
-    [
-      `path`,
-      {
-        d: `M2.97 12.92A2 2 0 0 0 2 14.63v3.24a2 2 0 0 0 .97 1.71l3 1.8a2 2 0 0 0 2.06 0L12 19v-5.5l-5-3-4.03 2.42Z`,
-        key: `lc1i9w`,
-      },
-    ],
-    [`path`, { d: `m7 16.5-4.74-2.85`, key: `1o9zyk` }],
-    [`path`, { d: `m7 16.5 5-3`, key: `va8pkn` }],
-    [`path`, { d: `M7 16.5v5.17`, key: `jnp8gn` }],
-    [
-      `path`,
-      {
-        d: `M12 13.5V19l3.97 2.38a2 2 0 0 0 2.06 0l3-1.8a2 2 0 0 0 .97-1.71v-3.24a2 2 0 0 0-.97-1.71L17 10.5l-5 3Z`,
-        key: `8zsnat`,
-      },
-    ],
-    [`path`, { d: `m17 16.5-5-3`, key: `8arw3v` }],
-    [`path`, { d: `m17 16.5 4.74-2.85`, key: `8rfmw` }],
-    [`path`, { d: `M17 16.5v5.17`, key: `k6z78m` }],
-    [
-      `path`,
-      {
-        d: `M7.97 4.42A2 2 0 0 0 7 6.13v4.37l5 3 5-3V6.13a2 2 0 0 0-.97-1.71l-3-1.8a2 2 0 0 0-2.06 0l-3 1.8Z`,
-        key: `1xygjf`,
-      },
-    ],
-    [`path`, { d: `M12 8 7.26 5.15`, key: `1vbdud` }],
-    [`path`, { d: `m12 8 4.74-2.85`, key: `3rx089` }],
-    [`path`, { d: `M12 13.5V8`, key: `1io7kd` }],
-  ]),
-  h = p(`calendar-range`, [
-    [
-      `rect`,
-      { width: `18`, height: `18`, x: `3`, y: `4`, rx: `2`, key: `1hopcy` },
-    ],
-    [`path`, { d: `M16 2v4`, key: `4m81vk` }],
-    [`path`, { d: `M3 10h18`, key: `8toen8` }],
-    [`path`, { d: `M8 2v4`, key: `1cmpym` }],
-    [`path`, { d: `M17 14h-6`, key: `bkmgh3` }],
-    [`path`, { d: `M13 18H7`, key: `bb0bb7` }],
-    [`path`, { d: `M7 14h.01`, key: `1qa3f1` }],
-    [`path`, { d: `M17 18h.01`, key: `1bdyru` }],
-  ]),
-  g = p(`calendar-x-2`, [
-    [`path`, { d: `M8 2v4`, key: `1cmpym` }],
-    [`path`, { d: `M16 2v4`, key: `4m81vk` }],
-    [
-      `path`,
-      {
-        d: `M21 13V6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h8`,
-        key: `3spt84`,
-      },
-    ],
-    [`path`, { d: `M3 10h18`, key: `8toen8` }],
-    [`path`, { d: `m17 22 5-5`, key: `1k6ppv` }],
-    [`path`, { d: `m17 17 5 5`, key: `p7ous7` }],
-  ]),
-  v = p(`clipboard-check`, [
-    [
-      `rect`,
-      {
-        width: `8`,
-        height: `4`,
-        x: `8`,
-        y: `2`,
-        rx: `1`,
-        ry: `1`,
-        key: `tgr4d6`,
-      },
-    ],
-    [
-      `path`,
-      {
-        d: `M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2`,
-        key: `116196`,
-      },
-    ],
-    [`path`, { d: `m9 14 2 2 4-4`, key: `df797q` }],
-  ]),
-  y = p(`file-chart-column`, [
-    [
-      `path`,
-      {
-        d: `M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z`,
-        key: `1oefj6`,
-      },
-    ],
-    [`path`, { d: `M14 2v5a1 1 0 0 0 1 1h5`, key: `wfsgrz` }],
-    [`path`, { d: `M8 18v-1`, key: `zg0ygc` }],
-    [`path`, { d: `M12 18v-6`, key: `17g6i2` }],
-    [`path`, { d: `M16 18v-3`, key: `j5jt4h` }],
-  ]),
-  b = p(`handshake`, [
-    [`path`, { d: `m11 17 2 2a1 1 0 1 0 3-3`, key: `efffak` }],
-    [
-      `path`,
-      {
-        d: `m14 14 2.5 2.5a1 1 0 1 0 3-3l-3.88-3.88a3 3 0 0 0-4.24 0l-.88.88a1 1 0 1 1-3-3l2.81-2.81a5.79 5.79 0 0 1 7.06-.87l.47.28a2 2 0 0 0 1.42.25L21 4`,
-        key: `9pr0kb`,
-      },
-    ],
-    [`path`, { d: `m21 3 1 11h-2`, key: `1tisrp` }],
-    [`path`, { d: `M3 3 2 14l6.5 6.5a1 1 0 1 0 3-3`, key: `1uvwmv` }],
-    [`path`, { d: `M3 4h8`, key: `1ep09j` }],
-  ]),
-  x = p(`layout-dashboard`, [
-    [
-      `rect`,
-      { width: `7`, height: `9`, x: `3`, y: `3`, rx: `1`, key: `10lvy0` },
-    ],
-    [
-      `rect`,
-      { width: `7`, height: `5`, x: `14`, y: `3`, rx: `1`, key: `16une8` },
-    ],
-    [
-      `rect`,
-      { width: `7`, height: `9`, x: `14`, y: `12`, rx: `1`, key: `1hutg5` },
-    ],
-    [
-      `rect`,
-      { width: `7`, height: `5`, x: `3`, y: `16`, rx: `1`, key: `ldoo1y` },
-    ],
-  ]),
-  S = p(`map-pinned`, [
-    [
-      `path`,
-      {
-        d: `M18 8c0 3.613-3.869 7.429-5.393 8.795a1 1 0 0 1-1.214 0C9.87 15.429 6 11.613 6 8a6 6 0 0 1 12 0`,
-        key: `11u0oz`,
-      },
-    ],
-    [`circle`, { cx: `12`, cy: `8`, r: `2`, key: `1822b1` }],
-    [
-      `path`,
-      {
-        d: `M8.714 14h-3.71a1 1 0 0 0-.948.683l-2.004 6A1 1 0 0 0 3 22h18a1 1 0 0 0 .948-1.316l-2-6a1 1 0 0 0-.949-.684h-3.712`,
-        key: `q8zwxj`,
-      },
-    ],
-  ]),
-  w = [
-    {
-      code: `AR-CND-71`,
-      name: `চন্ডিগড়`,
-      schoolCount: 17,
-      dailyDemand: 2135,
-      managerName: `ছাদেক আহমেদ (সোহেল)`,
-      managerMobile: `01762598041`,
-    },
-    {
-      code: `AR-PSV-24`,
-      name: `পৌরসভা`,
-      schoolCount: 12,
-      dailyDemand: 1989,
-      managerName: `মোঃ মারুফ মিয়া`,
-      managerMobile: `01764530725`,
-    },
-    {
-      code: `AR-DGP-83`,
-      name: `দুর্গাপুর`,
-      schoolCount: 13,
-      dailyDemand: 1954,
-      managerName: `মোঃ জালাল উদ্দিন`,
-      managerMobile: `01345726989`,
-    },
-    {
-      code: `AR-GKD-46`,
-      name: `গাঁওকান্দিয়া`,
-      schoolCount: 18,
-      dailyDemand: 1655,
-      managerName: `মোঃ আঃ সেলিম`,
-      managerMobile: `01624405829`,
-    },
-    {
-      code: `AR-JNJ-59`,
-      name: `ঝাঞ্জাইল`,
-      schoolCount: 20,
-      dailyDemand: 3742,
-      managerName: `মোঃ নজরুল ইসলাম`,
-      managerMobile: `01710510546`,
-    },
-    {
-      code: `AR-SBG-32`,
-      name: `শিবগঞ্জ`,
-      schoolCount: 18,
-      dailyDemand: 2199,
-      managerName: `মোঃ আলী হোসেন`,
-      managerMobile: `01717692232`,
-    },
-    {
-      code: `AR-BRS-68`,
-      name: `বিরিশিরি`,
-      schoolCount: 10,
-      dailyDemand: 1242,
-      managerName: `আবুল বাসার বাদসা`,
-      managerMobile: `01834554703`,
-    },
-    {
-      code: `AR-BKJ-17`,
-      name: `বাকলজোড়া`,
-      schoolCount: 18,
-      dailyDemand: 2474,
-      managerName: `শহিদুল ইসালাম (সোহাগ)`,
-      managerMobile: `01301101531`,
-    },
-  ],
-  T = [
-    {
-      serial: 1,
-      name: `ভাদুয়া সপ্রাবি`,
-      emisCode: `91304040102`,
-      headTeacher: `মোঃ তোফায়েল হোসেন`,
-      legacyMobile: `1710586342`,
-      dailyDemand: 138,
-      areaName: `গাঁওকান্দিয়া`,
-      areaCode: `AR-GKD-46`,
-    },
-    {
-      serial: 2,
-      name: `মুন্সিপাড়া সপ্রাবি`,
-      emisCode: `91304040101`,
-      headTeacher: `মোঃ শফিকুল ইসলাম`,
-      legacyMobile: `1711026017`,
-      dailyDemand: 82,
-      areaName: `গাঁওকান্দিয়া`,
-      areaCode: `AR-GKD-46`,
-    },
-    {
-      serial: 3,
-      name: `শংকরপুর সপ্রাবি`,
-      emisCode: `91304040109`,
-      headTeacher: `মোঃ মোতাহার হোসেন(চঃদাঃ)`,
-      legacyMobile: `1716944909`,
-      dailyDemand: 232,
-      areaName: `ঝাঞ্জাইল`,
-      areaCode: `AR-JNJ-59`,
-    },
-    {
-      serial: 4,
-      name: `দুবরাজপুর সপ্রাবি`,
-      emisCode: `91304040104`,
-      headTeacher: `সোহানা খোশনিহার(ভার)`,
-      legacyMobile: `1731909314`,
-      dailyDemand: 113,
-      areaName: `শিবগঞ্জ`,
-      areaCode: `AR-SBG-32`,
-    },
-    {
-      serial: 5,
-      name: `জাগিরপাড়া সপ্রাবি`,
-      emisCode: `91304040103`,
-      headTeacher: `মোঃ সেলিম (ভার)`,
-      legacyMobile: `1712386441`,
-      dailyDemand: 94,
-      areaName: `গাঁওকান্দিয়া`,
-      areaCode: `AR-GKD-46`,
-    },
-    {
-      serial: 6,
-      name: `দক্ষিণ জাগিরপাড়া সপ্রাবি`,
-      emisCode: `91304040113`,
-      headTeacher: `মো: এনামোল হক(ভার)`,
-      legacyMobile: `1303804451`,
-      dailyDemand: 72,
-      areaName: `গাঁওকান্দিয়া`,
-      areaCode: `AR-GKD-46`,
-    },
-    {
-      serial: 7,
-      name: `গাঁওকান্দিয়া সপ্রাবি`,
-      emisCode: `91304040116`,
-      headTeacher: `মুহাম্মদ হযরত আলী(চঃদাঃ)`,
-      legacyMobile: `1719913066`,
-      dailyDemand: 149,
-      areaName: `গাঁওকান্দিয়া`,
-      areaCode: `AR-GKD-46`,
-    },
-    {
-      serial: 8,
-      name: `মুন্সিপাড়া ভাদুয়া সপ্রাবি`,
-      emisCode: `91304040115`,
-      headTeacher: `মো: আফজাল হোসেন(ভার)`,
-      legacyMobile: `1911691515`,
-      dailyDemand: 73,
-      areaName: `গাঁওকান্দিয়া`,
-      areaCode: `AR-GKD-46`,
-    },
-    {
-      serial: 9,
-      name: `বন্দকাটুয়ারী সপ্রাবি`,
-      emisCode: `91304040609`,
-      headTeacher: `দুলাল মিয়া`,
-      legacyMobile: `1913871991`,
-      dailyDemand: 100,
-      areaName: `শিবগঞ্জ`,
-      areaCode: `AR-SBG-32`,
-    },
-    {
-      serial: 10,
-      name: `কাকড়াকান্দা সপ্রাবি`,
-      emisCode: `91304040610`,
-      headTeacher: `আজহারুল হক (ভারঃ)`,
-      legacyMobile: `1924818919`,
-      dailyDemand: 88,
-      areaName: `শিবগঞ্জ`,
-      areaCode: `AR-SBG-32`,
-    },
-    {
-      serial: 11,
-      name: `শশারপাড় সপ্রাবি,`,
-      emisCode: `91304040611`,
-      headTeacher: `সঞ্জয় চন্দ্র সরকার(ভারঃ)`,
-      legacyMobile: `1911563470`,
-      dailyDemand: 76,
-      areaName: `শিবগঞ্জ`,
-      areaCode: `AR-SBG-32`,
-    },
-    {
-      serial: 12,
-      name: `১২ নং কুল্লাগড়া সপ্রাবি`,
-      emisCode: `91304040603`,
-      headTeacher: `রমা রাণী সরকার`,
-      legacyMobile: `1729587160`,
-      dailyDemand: 236,
-      areaName: `শিবগঞ্জ`,
-      areaCode: `AR-SBG-32`,
-    },
-    {
-      serial: 13,
-      name: `রাণীখং সপ্রাবি,`,
-      emisCode: `91304040612`,
-      headTeacher: `তাহমিনা বেগম(ভার)`,
-      legacyMobile: `1984798890`,
-      dailyDemand: 175,
-      areaName: `শিবগঞ্জ`,
-      areaCode: `AR-SBG-32`,
-    },
-    {
-      serial: 14,
-      name: `কাঁঠালখালী সপ্রাবি`,
-      emisCode: `91304040601`,
-      headTeacher: `মাজহারুল আনোয়ার`,
-      legacyMobile: `1710672758`,
-      dailyDemand: 95,
-      areaName: `শিবগঞ্জ`,
-      areaCode: `AR-SBG-32`,
-    },
-    {
-      serial: 15,
-      name: `নন্দের গোপ সপ্রাবি`,
-      emisCode: `91304040613`,
-      headTeacher: `মোঃ মুসলেম উদ্দিন`,
-      legacyMobile: `1818876543`,
-      dailyDemand: 136,
-      areaName: `শিবগঞ্জ`,
-      areaCode: `AR-SBG-32`,
-    },
-    {
-      serial: 16,
-      name: `ফারংপাড়া সপ্রাবি`,
-      emisCode: `91304040205`,
-      headTeacher: `শামছুন্নাহার বেগম`,
-      legacyMobile: `1721860102`,
-      dailyDemand: 180,
-      areaName: `দুর্গাপুর`,
-      areaCode: `AR-DGP-83`,
-    },
-    {
-      serial: 17,
-      name: `দুর্গাপুর সপ্রাবি`,
-      emisCode: `91304040206`,
-      headTeacher: `শামছুন্নাহার বেগম`,
-      legacyMobile: `1818837497`,
-      dailyDemand: 427,
-      areaName: `পৌরসভা`,
-      areaCode: `AR-PSV-24`,
-    },
-    {
-      serial: 18,
-      name: `সুসং সপ্রাবি`,
-      emisCode: `91304040208`,
-      headTeacher: `এমদাদ হোসেন চৌধুরী(চঃদাঃ)`,
-      legacyMobile: `1865028959`,
-      dailyDemand: 233,
-      areaName: `পৌরসভা`,
-      areaCode: `AR-PSV-24`,
-    },
-    {
-      serial: 19,
-      name: `মাকড়াইল সপ্রাবি`,
-      emisCode: `91304040204`,
-      headTeacher: `মোঃ মতিউর রহমান`,
-      legacyMobile: `1957903454`,
-      dailyDemand: 158,
-      areaName: `দুর্গাপুর`,
-      areaCode: `AR-DGP-83`,
-    },
-    {
-      serial: 20,
-      name: `২০ নং মেনকী সপ্রাবি`,
-      emisCode: `91304040214`,
-      headTeacher: `দুলাল চক্রবর্তী`,
-      legacyMobile: `1716987675`,
-      dailyDemand: 153,
-      areaName: `দুর্গাপুর`,
-      areaCode: `AR-DGP-83`,
-    },
-    {
-      serial: 21,
-      name: `কালিকাপুর সপ্রাবি`,
-      emisCode: `91304040201`,
-      headTeacher: `মোঃ নাজমুল হক(চঃদাঃ)`,
-      legacyMobile: `1720018092`,
-      dailyDemand: 164,
-      areaName: `দুর্গাপুর`,
-      areaCode: `AR-DGP-83`,
-    },
-    {
-      serial: 22,
-      name: `নলুয়াপাড়া সপ্রাবি`,
-      emisCode: `91304040209`,
-      headTeacher: `স্বপ্না দেবী রায়`,
-      legacyMobile: `1718769456`,
-      dailyDemand: 212,
-      areaName: `দুর্গাপুর`,
-      areaCode: `AR-DGP-83`,
-    },
-    {
-      serial: 23,
-      name: `গোপালপুর(উত্তর)সঃ প্রাঃ বিঃ`,
-      emisCode: `91304040210`,
-      headTeacher: `নকুল চন্দ্র কর্মকার`,
-      legacyMobile: `1735050848`,
-      dailyDemand: 175,
-      areaName: `দুর্গাপুর`,
-      areaCode: `AR-DGP-83`,
-    },
-    {
-      serial: 24,
-      name: `বারমারী সপ্রাবি`,
-      emisCode: `91304040211`,
-      headTeacher: `নাজমা আক্তার(ভার)`,
-      legacyMobile: `1911248036`,
-      dailyDemand: 185,
-      areaName: `দুর্গাপুর`,
-      areaCode: `AR-DGP-83`,
-    },
-    {
-      serial: 25,
-      name: `ধানশিরা সপ্রাবি`,
-      emisCode: `91304040706`,
-      headTeacher: `মাজেদা বেগম`,
-      legacyMobile: `1912438465`,
-      dailyDemand: 160,
-      areaName: `পৌরসভা`,
-      areaCode: `AR-PSV-24`,
-    },
-    {
-      serial: 26,
-      name: `চন্ডিগড় সপ্রাবি`,
-      emisCode: `91304040707`,
-      headTeacher: `কামরুন্নাহার খানম`,
-      legacyMobile: `1986974580`,
-      dailyDemand: 192,
-      areaName: `চন্ডিগড়`,
-      areaCode: `AR-CND-71`,
-    },
-    {
-      serial: 27,
-      name: `মউ সপ্রাবি`,
-      emisCode: `91304040703`,
-      headTeacher: `আশিষ কুমার দে`,
-      legacyMobile: `1761602225`,
-      dailyDemand: 78,
-      areaName: `চন্ডিগড়`,
-      areaCode: `AR-CND-71`,
-    },
-    {
-      serial: 28,
-      name: `নাগেরগাতী সপ্রাবি`,
-      emisCode: `91304040708`,
-      headTeacher: `সুমন চন্দ্র পন্ডিত (ভারঃ)`,
-      legacyMobile: `1722788273`,
-      dailyDemand: 154,
-      areaName: `চন্ডিগড়`,
-      areaCode: `AR-CND-71`,
-    },
-    {
-      serial: 29,
-      name: `২৯ নং ফেচিয়া সপ্রাবি`,
-      emisCode: `91304040704`,
-      headTeacher: `মোঃ মোফাজ্জল হোসেন`,
-      legacyMobile: `1924560880`,
-      dailyDemand: 137,
-      areaName: `চন্ডিগড়`,
-      areaCode: `AR-CND-71`,
-    },
-    {
-      serial: 30,
-      name: `নোয়াগাঁও সপ্রাবি`,
-      emisCode: `91304040709`,
-      headTeacher: `হাসিনা মমতাজ`,
-      legacyMobile: `1747065667`,
-      dailyDemand: 137,
-      areaName: `চন্ডিগড়`,
-      areaCode: `AR-CND-71`,
-    },
-    {
-      serial: 31,
-      name: `সাতাশি সপ্রাবি`,
-      emisCode: `91304040710`,
-      headTeacher: `মোঃ আবু বকর সিদ্দিক`,
-      legacyMobile: `1925032980`,
-      dailyDemand: 170,
-      areaName: `চন্ডিগড়`,
-      areaCode: `AR-CND-71`,
-    },
-    {
-      serial: 32,
-      name: `চৈতাটি সপ্রাবি`,
-      emisCode: `91304040403`,
-      headTeacher: `মোঃ আমিনুল ইসলাম`,
-      legacyMobile: `1718223830`,
-      dailyDemand: 108,
-      areaName: `বিরিশিরি`,
-      areaCode: `AR-BRS-68`,
-    },
-    {
-      serial: 33,
-      name: `দক্ষিণ ভবানীপুর সপ্রাবি`,
-      emisCode: `91304040212`,
-      headTeacher: `মোঃ রফিকুল ইসলাম`,
-      legacyMobile: `1714794557`,
-      dailyDemand: 188,
-      areaName: `শিবগঞ্জ`,
-      areaCode: `AR-SBG-32`,
-    },
-    {
-      serial: 34,
-      name: `খালিশাপাড়া সপ্রাবি`,
-      emisCode: `91304040406`,
-      headTeacher: `মোস্তফা কামাল`,
-      legacyMobile: `1721436700`,
-      dailyDemand: 96,
-      areaName: `বিরিশিরি`,
-      areaCode: `AR-BRS-68`,
-    },
-    {
-      serial: 35,
-      name: `নওয়াপাড়া সপ্রাবি`,
-      emisCode: `91304040407`,
-      headTeacher: `দিপীকা রানী বর্মন`,
-      legacyMobile: `1710152898`,
-      dailyDemand: 142,
-      areaName: `বিরিশিরি`,
-      areaCode: `AR-BRS-68`,
-    },
-    {
-      serial: 36,
-      name: `রামপুর সপ্রাবি`,
-      emisCode: `91304040408`,
-      headTeacher: `মো: রফিকুল ইসলাম (ভারঃ)`,
-      legacyMobile: `1719961050`,
-      dailyDemand: 191,
-      areaName: `বিরিশিরি`,
-      areaCode: `AR-BRS-68`,
-    },
-    {
-      serial: 37,
-      name: `বিরিশিরি সঃ প্রাঃ বাঃ বিঃ`,
-      emisCode: `91304040213`,
-      headTeacher: `সাজেদা খাতুন`,
-      legacyMobile: `1731403881`,
-      dailyDemand: 77,
-      areaName: `পৌরসভা`,
-      areaCode: `AR-PSV-24`,
-    },
-    {
-      serial: 38,
-      name: `বিরিশিরি মডেল সঃ প্রাঃ বাঃ বিঃ`,
-      emisCode: `91304040401`,
-      headTeacher: `মিল্কা দেবী`,
-      legacyMobile: `1814787817`,
-      dailyDemand: 170,
-      areaName: `পৌরসভা`,
-      areaCode: `AR-PSV-24`,
-    },
-    {
-      serial: 39,
-      name: `কৃষ্ণেরচর সপ্রাবি`,
-      emisCode: `91304040513`,
-      headTeacher: `মির্জা মাসুদুর রহমান বেগ`,
-      legacyMobile: `1717114513`,
-      dailyDemand: 347,
-      areaName: `ঝাঞ্জাইল`,
-      areaCode: `AR-JNJ-59`,
-    },
-    {
-      serial: 40,
-      name: `রামবাড়ী সপ্রাবি`,
-      emisCode: `91304040509`,
-      headTeacher: `রেজাউল ইসলাম`,
-      legacyMobile: `1718915060`,
-      dailyDemand: 198,
-      areaName: `ঝাঞ্জাইল`,
-      areaCode: `AR-JNJ-59`,
-    },
-    {
-      serial: 41,
-      name: `৪১ নং ঝানজাইল সপ্রাবি`,
-      emisCode: `91304040510`,
-      headTeacher: `মোঃ বজলুল কাদের`,
-      legacyMobile: `1913159453`,
-      dailyDemand: 446,
-      areaName: `ঝাঞ্জাইল`,
-      areaCode: `AR-JNJ-59`,
-    },
-    {
-      serial: 42,
-      name: `পূর্ব কাকৈর গড়া সপ্রাবি`,
-      emisCode: `91304040503`,
-      headTeacher: `এ, কে, এম মঞ্জুরুল হক(চঃদাঃ)`,
-      legacyMobile: `1754484329`,
-      dailyDemand: 266,
-      areaName: `ঝাঞ্জাইল`,
-      areaCode: `AR-JNJ-59`,
-    },
-    {
-      serial: 43,
-      name: `দক্ষিণ গোপালপুর সপ্রাবি`,
-      emisCode: `91304040511`,
-      headTeacher: `সরকার জসীম উদ্দিন`,
-      legacyMobile: `1917857554`,
-      dailyDemand: 130,
-      areaName: `ঝাঞ্জাইল`,
-      areaCode: `AR-JNJ-59`,
-    },
-    {
-      serial: 44,
-      name: `৪৪ নং নগুয়া সপ্রাবি`,
-      emisCode: `91304040508`,
-      headTeacher: `মোঃ এমদাদুল হক`,
-      legacyMobile: `1912533263`,
-      dailyDemand: 228,
-      areaName: `ঝাঞ্জাইল`,
-      areaCode: `AR-JNJ-59`,
-    },
-    {
-      serial: 45,
-      name: `বায়রাউড়া সপ্রাবি`,
-      emisCode: `91304040506`,
-      headTeacher: `রৌশন আখতার খানম(চঃদাঃ)`,
-      legacyMobile: `1911142350`,
-      dailyDemand: 191,
-      areaName: `ঝাঞ্জাইল`,
-      areaCode: `AR-JNJ-59`,
-    },
-    {
-      serial: 46,
-      name: `বড়বাট্টা সপ্রাবি`,
-      emisCode: `91304040512`,
-      headTeacher: `সৈয়দা ফারজানা ইয়াসমিন(ভার)`,
-      legacyMobile: `1739915990`,
-      dailyDemand: 184,
-      areaName: `ঝাঞ্জাইল`,
-      areaCode: `AR-JNJ-59`,
-    },
-    {
-      serial: 47,
-      name: `শ্রীরামখিলা সপ্রাবি`,
-      emisCode: `91304040303`,
-      headTeacher: `মোঃ আমিনুল ইসলাম`,
-      legacyMobile: `1713564054`,
-      dailyDemand: 111,
-      areaName: `বাকলজোড়া`,
-      areaCode: `AR-BKJ-17`,
-    },
-    {
-      serial: 48,
-      name: `গুজিরকোণা সপ্রাবি`,
-      emisCode: `91304040302`,
-      headTeacher: `মমতাজ বেগম`,
-      legacyMobile: `1913926918`,
-      dailyDemand: 311,
-      areaName: `বাকলজোড়া`,
-      areaCode: `AR-BKJ-17`,
-    },
-    {
-      serial: 49,
-      name: `কুমুদগঞ্জ সপ্রাবি`,
-      emisCode: `91304040306`,
-      headTeacher: `মুহাম্মদ তরিকুল ইসলাম (চঃদাঃ)`,
-      legacyMobile: `1920610857`,
-      dailyDemand: 331,
-      areaName: `বাকলজোড়া`,
-      areaCode: `AR-BKJ-17`,
-    },
-    {
-      serial: 50,
-      name: `নগরসিংহা সপ্রাবি`,
-      emisCode: `91304040304`,
-      headTeacher: `মোছাঃ মাহমুদা খাতুন(চঃদাঃ)`,
-      legacyMobile: `1721271275`,
-      dailyDemand: 208,
-      areaName: `বাকলজোড়া`,
-      areaCode: `AR-BKJ-17`,
-    },
-    {
-      serial: 51,
-      name: `বাকলজোড়া সপ্রাবি`,
-      emisCode: `91304040305`,
-      headTeacher: `শাহান আরা বেগম(চঃদাঃ)`,
-      legacyMobile: `1925002492`,
-      dailyDemand: 95,
-      areaName: `বাকলজোড়া`,
-      areaCode: `AR-BKJ-17`,
-    },
-    {
-      serial: 52,
-      name: `নয়াপাড়া সপ্রাবি`,
-      emisCode: `91304040313`,
-      headTeacher: `নূরুন্নাহার(ভার)`,
-      legacyMobile: `1736825509`,
-      dailyDemand: 147,
-      areaName: `বাকলজোড়া`,
-      areaCode: `AR-BKJ-17`,
-    },
-    {
-      serial: 53,
-      name: `পাইকপাড়া সপ্রাবি`,
-      emisCode: `91304040301`,
-      headTeacher: `মো: সোহরাব হোসেন খান`,
-      legacyMobile: `1625489909`,
-      dailyDemand: 105,
-      areaName: `বাকলজোড়া`,
-      areaCode: `AR-BKJ-17`,
-    },
-    {
-      serial: 54,
-      name: `নলজোড়া সপ্রাবি`,
-      emisCode: `91304040604`,
-      headTeacher: `নজরুল ইসলাম`,
-      legacyMobile: `1916331257`,
-      dailyDemand: 87,
-      areaName: `শিবগঞ্জ`,
-      areaCode: `AR-SBG-32`,
-    },
-    {
-      serial: 55,
-      name: `কান্দাপাড়া সপ্রাবি`,
-      emisCode: `91304040114`,
-      headTeacher: `হাবিবুর রহমান(চঃদাঃ)`,
-      legacyMobile: `1913832351`,
-      dailyDemand: 98,
-      areaName: `গাঁওকান্দিয়া`,
-      areaCode: `AR-GKD-46`,
-    },
-    {
-      serial: 56,
-      name: `ফুলপুর সপ্রাবি`,
-      emisCode: `91304040711`,
-      headTeacher: `মো: আব্দুল হান্নান (ভার)`,
-      legacyMobile: `1923902837`,
-      dailyDemand: 83,
-      areaName: `চন্ডিগড়`,
-      areaCode: `AR-CND-71`,
-    },
-    {
-      serial: 57,
-      name: `আড়াপাড়া সপ্রাবি`,
-      emisCode: `91304040614`,
-      headTeacher: `মো: নজরুল ইসলাম (ভার)`,
-      legacyMobile: `1916311597`,
-      dailyDemand: 152,
-      areaName: `শিবগঞ্জ`,
-      areaCode: `AR-SBG-32`,
-    },
-    {
-      serial: 58,
-      name: `শ্যামনগর সপ্রাবি`,
-      emisCode: `91304040307`,
-      headTeacher: `দীপিকা দালবৎ(চঃদাঃ)`,
-      legacyMobile: `1813621043`,
-      dailyDemand: 163,
-      areaName: `দুর্গাপুর`,
-      areaCode: `AR-DGP-83`,
-    },
-    {
-      serial: 59,
-      name: `উত্তর কেট্টা সপ্রাবি।`,
-      emisCode: `99304040407`,
-      headTeacher: `বিউটি দাস(চঃদাঃ)`,
-      legacyMobile: `1838854410`,
-      dailyDemand: 88,
-      areaName: `বাকলজোড়া`,
-      areaCode: `AR-BKJ-17`,
-    },
-    {
-      serial: 60,
-      name: `গোদারিয়া সপ্রাবি`,
-      emisCode: `99304040302`,
-      headTeacher: `মুহাম্মদ আসাদুল্লাহ খান(চঃদাঃ)`,
-      legacyMobile: `1812147444`,
-      dailyDemand: 118,
-      areaName: `ঝাঞ্জাইল`,
-      areaCode: `AR-JNJ-59`,
-    },
-    {
-      serial: 61,
-      name: `মাইজপাড়া সপ্রাবি`,
-      emisCode: `99304040703`,
-      headTeacher: `হীরেন কুমার দাস(চঃদাঃ)`,
-      legacyMobile: `1918249529`,
-      dailyDemand: 135,
-      areaName: `শিবগঞ্জ`,
-      areaCode: `AR-SBG-32`,
-    },
-    {
-      serial: 62,
-      name: `নন্দেরছটি সপ্রাবি`,
-      emisCode: `99304040702`,
-      headTeacher: `মো: রফিক উদ্দিন`,
-      legacyMobile: `1746944419`,
-      dailyDemand: 88,
-      areaName: `গাঁওকান্দিয়া`,
-      areaCode: `AR-GKD-46`,
-    },
-    {
-      serial: 63,
-      name: `ডেউটুকোন সপ্রাবি`,
-      emisCode: `99304040405`,
-      headTeacher: `তারা মিয়া তালুকদার(ভারঃ)`,
-      legacyMobile: `1724834267`,
-      dailyDemand: 120,
-      areaName: `ঝাঞ্জাইল`,
-      areaCode: `AR-JNJ-59`,
-    },
-    {
-      serial: 64,
-      name: `কেরনখলা সপ্রাবি`,
-      emisCode: `99304040603`,
-      headTeacher: `মোঃ শামছুল হক`,
-      legacyMobile: `1715732191`,
-      dailyDemand: 150,
-      areaName: `পৌরসভা`,
-      areaCode: `AR-PSV-24`,
-    },
-    {
-      serial: 65,
-      name: `চাড়িয়া সপ্রাবি`,
-      emisCode: `99304040404`,
-      headTeacher: `মোঃ জহিরুল হক`,
-      legacyMobile: `1713539144`,
-      dailyDemand: 204,
-      areaName: `দুর্গাপুর`,
-      areaCode: `AR-DGP-83`,
-    },
-    {
-      serial: 66,
-      name: `আমড়াতলা সপ্রাবি`,
-      emisCode: `99304040307`,
-      headTeacher: `মর্জিনা বেগম`,
-      legacyMobile: `1820558071`,
-      dailyDemand: 113,
-      areaName: `শিবগঞ্জ`,
-      areaCode: `AR-SBG-32`,
-    },
-    {
-      serial: 67,
-      name: `গৌরাখালীকান্দা সপ্রাবি`,
-      emisCode: `99304040604`,
-      headTeacher: `হালেমা বেগম`,
-      legacyMobile: `1736635121`,
-      dailyDemand: 73,
-      areaName: `বিরিশিরি`,
-      areaCode: `AR-BRS-68`,
-    },
-    {
-      serial: 68,
-      name: `চারিখাল সপ্রাবি`,
-      emisCode: `99304040205`,
-      headTeacher: `মোঃ শহিদুল ইসলাম (ভার:)`,
-      legacyMobile: `1911078860`,
-      dailyDemand: 103,
-      areaName: `চন্ডিগড়`,
-      areaCode: `AR-CND-71`,
-    },
-    {
-      serial: 69,
-      name: `বুরুঙ্গাসঃ প্রাঃ বিঃ`,
-      emisCode: `99304040607`,
-      headTeacher: `রেহেনা খাতুন (ভার:)`,
-      legacyMobile: `1721549027`,
-      dailyDemand: 110,
-      areaName: `পৌরসভা`,
-      areaCode: `AR-PSV-24`,
-    },
-    {
-      serial: 70,
-      name: `পূর্ব রামনগর সপ্রাবি`,
-      emisCode: `99304040304`,
-      headTeacher: `মোঃ নজরুল ইসলাম (ভার)`,
-      legacyMobile: `1834204900`,
-      dailyDemand: 111,
-      areaName: `চন্ডিগড়`,
-      areaCode: `AR-CND-71`,
-    },
-    {
-      serial: 71,
-      name: `৭১ নং কেট্রা সপ্রাবি`,
-      emisCode: `99304040301`,
-      headTeacher: `মো: হাবিবুর রহমান (ভার:)`,
-      legacyMobile: `1918572674`,
-      dailyDemand: 82,
-      areaName: `বাকলজোড়া`,
-      areaCode: `AR-BKJ-17`,
-    },
-    {
-      serial: 72,
-      name: `আলমপুর সপ্রাবি`,
-      emisCode: `99304040501`,
-      headTeacher: `ছাবিকুন্নাহার বেগম`,
-      legacyMobile: `1932235582`,
-      dailyDemand: 140,
-      areaName: `চন্ডিগড়`,
-      areaCode: `AR-CND-71`,
-    },
-    {
-      serial: 73,
-      name: `শান্তিপুর সপ্রাবি।`,
-      emisCode: `99304040502`,
-      headTeacher: `আব্দুল জব্বার (দায়িত্বে আছে)`,
-      legacyMobile: `1924818926`,
-      dailyDemand: 95,
-      areaName: `ঝাঞ্জাইল`,
-      areaCode: `AR-JNJ-59`,
-    },
-    {
-      serial: 74,
-      name: `তেলীপাড়া সপ্রাবি`,
-      emisCode: `99304040408`,
-      headTeacher: `মুহাম্মদ আবুল কাশেম(চঃদাঃ)`,
-      legacyMobile: `1914201730`,
-      dailyDemand: 135,
-      areaName: `চন্ডিগড়`,
-      areaCode: `AR-CND-71`,
-    },
-    {
-      serial: 75,
-      name: `খুজিউড়া সপ্রাবি`,
-      emisCode: `99304040602`,
-      headTeacher: `সুলতানা নাসরিন`,
-      legacyMobile: `1712750935`,
-      dailyDemand: 180,
-      areaName: `শিবগঞ্জ`,
-      areaCode: `AR-SBG-32`,
-    },
-    {
-      serial: 76,
-      name: `পূর্ব গোদারিয়া সপ্রাবি`,
-      emisCode: `99304040706`,
-      headTeacher: `মানিক চন্দ্র দে(চঃদাঃ)`,
-      legacyMobile: `1733253480`,
-      dailyDemand: 205,
-      areaName: `ঝাঞ্জাইল`,
-      areaCode: `AR-JNJ-59`,
-    },
-    {
-      serial: 77,
-      name: `গাড়াউন্দ সপ্রাবি`,
-      emisCode: `99304040505`,
-      headTeacher: `শাহানাজ পারভীন(চঃদাঃ)`,
-      legacyMobile: `1725605272`,
-      dailyDemand: 86,
-      areaName: `শিবগঞ্জ`,
-      areaCode: `AR-SBG-32`,
-    },
-    {
-      serial: 78,
-      name: `বিলাশপুর সপ্রাবি`,
-      emisCode: `99304040402`,
-      headTeacher: `শেখ নাজিম উদ্দিন`,
-      legacyMobile: `1626073550`,
-      dailyDemand: 171,
-      areaName: `ঝাঞ্জাইল`,
-      areaCode: `AR-JNJ-59`,
-    },
-    {
-      serial: 79,
-      name: `চন্দ্রকোণা মায়ানগর সঃপ্রাঃবিঃ`,
-      emisCode: `99304040705`,
-      headTeacher: `ছবি রানী সিংহ রায়(চঃদাঃ)`,
-      legacyMobile: `1716747483`,
-      dailyDemand: 82,
-      areaName: `দুর্গাপুর`,
-      areaCode: `AR-DGP-83`,
-    },
-    {
-      serial: 80,
-      name: `দশাল সপ্রাবি`,
-      emisCode: `99304040106`,
-      headTeacher: `ইসমত আরা বেগম`,
-      legacyMobile: `1920381732`,
-      dailyDemand: 97,
-      areaName: `দুর্গাপুর`,
-      areaCode: `AR-DGP-83`,
-    },
-    {
-      serial: 81,
-      name: `হারিয়াউন্দ সপ্রাবি`,
-      emisCode: `99304040203`,
-      headTeacher: `মো: আবু সাঈদ (ভারঃ)`,
-      legacyMobile: `1745416283`,
-      dailyDemand: 152,
-      areaName: `গাঁওকান্দিয়া`,
-      areaCode: `AR-GKD-46`,
-    },
-    {
-      serial: 82,
-      name: `সাগরদীঘিরপাড় সপ্রাবি`,
-      emisCode: `99304040606`,
-      headTeacher: `মো: আব্দুল মোতালেব`,
-      legacyMobile: `1715625234`,
-      dailyDemand: 127,
-      areaName: `বিরিশিরি`,
-      areaCode: `AR-BRS-68`,
-    },
-    {
-      serial: 83,
-      name: `৮৩ নং নাথপাড়া সপ্রাবি`,
-      emisCode: `99304040101`,
-      headTeacher: `প্রনব কুমার পন্ডিত(চঃদাঃ)`,
-      legacyMobile: `1721083322`,
-      dailyDemand: 142,
-      areaName: `চন্ডিগড়`,
-      areaCode: `AR-CND-71`,
-    },
-    {
-      serial: 84,
-      name: `৮৪ নং কৈলাটি সপ্রাবি`,
-      emisCode: `99304040504`,
-      headTeacher: `মোঃ আজিজুল ইসলাম খান`,
-      legacyMobile: `1718659211`,
-      dailyDemand: 159,
-      areaName: `ঝাঞ্জাইল`,
-      areaCode: `AR-JNJ-59`,
-    },
-    {
-      serial: 85,
-      name: `বালিচান্দা আলাউদ্দিন সপ্রাবি`,
-      emisCode: `99304049001`,
-      headTeacher: `মোঃ আঃ বারী`,
-      legacyMobile: `1734226492`,
-      dailyDemand: 111,
-      areaName: `বাকলজোড়া`,
-      areaCode: `AR-BKJ-17`,
-    },
-    {
-      serial: 86,
-      name: `পলাশকান্দি সপ্রাবি`,
-      emisCode: `99304040108`,
-      headTeacher: `মোঃ মোশারফ হোসেন`,
-      legacyMobile: `1813920180`,
-      dailyDemand: 104,
-      areaName: `বিরিশিরি`,
-      areaCode: `AR-BRS-68`,
-    },
-    {
-      serial: 87,
-      name: `বড়ইউন্দ সপ্রাবি`,
-      emisCode: `99304040503`,
-      headTeacher: `নূরে জান্নাত খানম(চঃদাঃ)`,
-      legacyMobile: `1739655166`,
-      dailyDemand: 149,
-      areaName: `চন্ডিগড়`,
-      areaCode: `AR-CND-71`,
-    },
-    {
-      serial: 88,
-      name: `ছোট কাটুরী সপ্রাবি`,
-      emisCode: `99304040105`,
-      headTeacher: `শাহিদুর রহমান বেগ`,
-      legacyMobile: `1924031450`,
-      dailyDemand: 85,
-      areaName: `বাকলজোড়া`,
-      areaCode: `AR-BKJ-17`,
-    },
-    {
-      serial: 89,
-      name: `জাঙ্গালিয়াকান্দা সপ্রাবি`,
-      emisCode: `99304040701`,
-      headTeacher: `মোঃ ইদিছ আলী`,
-      legacyMobile: `1731208960`,
-      dailyDemand: 83,
-      areaName: `গাঁওকান্দিয়া`,
-      areaCode: `AR-GKD-46`,
-    },
-    {
-      serial: 90,
-      name: `ছনগড়া টংক শহীদ স্মৃতি সপ্রাবি`,
-      emisCode: `99304040403`,
-      headTeacher: `আজহারুল হক(চঃদাঃ)`,
-      legacyMobile: `1710012506`,
-      dailyDemand: 60,
-      areaName: `শিবগঞ্জ`,
-      areaCode: `AR-SBG-32`,
-    },
-    {
-      serial: 91,
-      name: `পূর্ব বিলাসপুর সপ্রাবি`,
-      emisCode: `99304040712`,
-      headTeacher: `মোঃ আমিনুর রহমান তালুকদার`,
-      legacyMobile: `1915421344`,
-      dailyDemand: 126,
-      areaName: `বাকলজোড়া`,
-      areaCode: `AR-BKJ-17`,
-    },
-    {
-      serial: 92,
-      name: `কালিকাবর সপ্রাবি`,
-      emisCode: `99304040305`,
-      headTeacher: `মোঃ আঃ সাহিদ`,
-      legacyMobile: `1739536266`,
-      dailyDemand: 109,
-      areaName: `গাঁওকান্দিয়া`,
-      areaCode: `AR-GKD-46`,
-    },
-    {
-      serial: 93,
-      name: `শিরবির সপ্রাবি`,
-      emisCode: `99304050904`,
-      headTeacher: `খলিলুর রহমান`,
-      legacyMobile: `1712383576`,
-      dailyDemand: 182,
-      areaName: `বিরিশিরি`,
-      areaCode: `AR-BRS-68`,
-    },
-    {
-      serial: 94,
-      name: `কুলুঞ্জা সপ্রাবি`,
-      emisCode: `99304051101`,
-      headTeacher: `ববিতা রানী সরকার`,
-      legacyMobile: `1706471354`,
-      dailyDemand: 122,
-      areaName: `ঝাঞ্জাইল`,
-      areaCode: `AR-JNJ-59`,
-    },
-    {
-      serial: 95,
-      name: `পূর্ব নন্দেরছটি সপ্রাবি`,
-      emisCode: `99304051302`,
-      headTeacher: `শাহজাহান মিয়া(ভারঃ)`,
-      legacyMobile: `1791953625`,
-      dailyDemand: 99,
-      areaName: `গাঁওকান্দিয়া`,
-      areaCode: `AR-GKD-46`,
-    },
-    {
-      serial: 96,
-      name: `গাভিনা শেখ তোফা হো স প্রা বি`,
-      emisCode: `99304050402`,
-      headTeacher: `চম্পা রানী দে`,
-      legacyMobile: `1914070237`,
-      dailyDemand: 142,
-      areaName: `বিরিশিরি`,
-      areaCode: `AR-BRS-68`,
-    },
-    {
-      serial: 97,
-      name: `কৃষ্ণপুর সপ্রাবি`,
-      emisCode: `99304050603`,
-      headTeacher: `মোঃ মাসুদুজ্জামান`,
-      legacyMobile: `1865009558`,
-      dailyDemand: 110,
-      areaName: `শিবগঞ্জ`,
-      areaCode: `AR-SBG-32`,
-    },
-    {
-      serial: 98,
-      name: `পশ্চিম কোনাপাড়া সপ্রাবি`,
-      emisCode: `99304050101`,
-      headTeacher: `মনোয়ারা বেগম`,
-      legacyMobile: `1761919422`,
-      dailyDemand: 118,
-      areaName: `বাকলজোড়া`,
-      areaCode: `AR-BKJ-17`,
-    },
-    {
-      serial: 99,
-      name: `বানিয়াপাড়া সপ্রাবি`,
-      emisCode: `99304051005`,
-      headTeacher: `মাকসুদা বেগম`,
-      legacyMobile: `1916255737`,
-      dailyDemand: 98,
-      areaName: `চন্ডিগড়`,
-      areaCode: `AR-CND-71`,
-    },
-    {
-      serial: 100,
-      name: `১০০ নং মাদুরপাড় সপ্রাবি`,
-      emisCode: `99304051403`,
-      headTeacher: `মোঃ মজিবুর রহমান আকনজি`,
-      legacyMobile: `1727718880`,
-      dailyDemand: 98,
-      areaName: `বাকলজোড়া`,
-      areaCode: `AR-BKJ-17`,
-    },
-    {
-      serial: 101,
-      name: `সুসঙ্গ আদর্শ বিদ্যা স প্রা বি`,
-      emisCode: `99304051201`,
-      headTeacher: `আলেয়া শারমীন(চঃদাঃ)`,
-      legacyMobile: `1981246554`,
-      dailyDemand: 144,
-      areaName: `পৌরসভা`,
-      areaCode: `AR-PSV-24`,
-    },
-    {
-      serial: 102,
-      name: `পশ্চিম কাকড়াকান্দা সপ্রাবি`,
-      emisCode: `99304051505`,
-      headTeacher: `মোঃ আনোয়ার হোসেন`,
-      legacyMobile: `1947107383`,
-      dailyDemand: 69,
-      areaName: `শিবগঞ্জ`,
-      areaCode: `AR-SBG-32`,
-    },
-    {
-      serial: 103,
-      name: `১০৩ নং বকেরচর সপ্রাবি`,
-      emisCode: `99304041509`,
-      headTeacher: `মোঃ আমিনুল ইসলাম(চঃদাঃ)`,
-      legacyMobile: `1667365700`,
-      dailyDemand: 134,
-      areaName: `ঝাঞ্জাইল`,
-      areaCode: `AR-JNJ-59`,
-    },
-    {
-      serial: 104,
-      name: `১০৪ নং সাংসা সপ্রাবি।`,
-      emisCode: `99304041506`,
-      headTeacher: `আঃ রব চৌধুরী(চঃদাঃ)`,
-      legacyMobile: `1726868778`,
-      dailyDemand: 126,
-      areaName: `বাকলজোড়া`,
-      areaCode: `AR-BKJ-17`,
-    },
-    {
-      serial: 105,
-      name: `উত্তর নোয়াগাঁও সপ্রাবি`,
-      emisCode: `99304041508`,
-      headTeacher: `আবুল হোসেন আনুয়ারী`,
-      legacyMobile: `1729634061`,
-      dailyDemand: 112,
-      areaName: `চন্ডিগড়`,
-      areaCode: `AR-CND-71`,
-    },
-    {
-      serial: 106,
-      name: `দক্ষিণ চারিগাঁওপাড়া সপ্রাবি`,
-      emisCode: `99304041507`,
-      headTeacher: `নাজমা বেগম`,
-      legacyMobile: `1719960233`,
-      dailyDemand: 84,
-      areaName: `বাকলজোড়া`,
-      areaCode: `AR-BKJ-17`,
-    },
-    {
-      serial: 107,
-      name: `পূর্ব বাকলজোড়া সপ্রাবি`,
-      emisCode: `99304041510`,
-      headTeacher: `মোঃ ফারুক মোল্লাহ(চঃদাঃ)`,
-      legacyMobile: `1713158966`,
-      dailyDemand: 135,
-      areaName: `বাকলজোড়া`,
-      areaCode: `AR-BKJ-17`,
-    },
-    {
-      serial: 108,
-      name: `বিরিশিরি পৌর সপ্রাবি`,
-      emisCode: `99304049201`,
-      headTeacher: `খাদিজা আক্তার পাপড়ী(চঃদাঃ)`,
-      legacyMobile: `1919288664`,
-      dailyDemand: 75,
-      areaName: `পৌরসভা`,
-      areaCode: `AR-PSV-24`,
-    },
-    {
-      serial: 109,
-      name: `মাঝিয়াইল সপ্রাবি`,
-      emisCode: `99304049202`,
-      headTeacher: `মোস্তাক আহাম্মদ(দায়িত্বে)`,
-      legacyMobile: `1721144290`,
-      dailyDemand: 182,
-      areaName: `পৌরসভা`,
-      areaCode: `AR-PSV-24`,
-    },
-    {
-      serial: 110,
-      name: `সাহাপুর সপ্রাবি`,
-      emisCode: `99304049203`,
-      headTeacher: `মো: রোকন উদ্দিন(ভারঃ)`,
-      legacyMobile: `1736837202`,
-      dailyDemand: 82,
-      areaName: `গাঁওকান্দিয়া`,
-      areaCode: `AR-GKD-46`,
-    },
-    {
-      serial: 111,
-      name: `চুকাইখালী সপ্রাবি`,
-      emisCode: `99304049204`,
-      headTeacher: `সুমন চন্দ্র পন্ডিত (ভারঃ)`,
-      legacyMobile: `1718734701`,
-      dailyDemand: 97,
-      areaName: `গাঁওকান্দিয়া`,
-      areaCode: `AR-GKD-46`,
-    },
-    {
-      serial: 112,
-      name: `বনগ্রাম সপ্রাবি`,
-      emisCode: `99304049205`,
-      headTeacher: `রফিক আহাম্মদ(ভারঃ)`,
-      legacyMobile: `1834037671`,
-      dailyDemand: 95,
-      areaName: `চন্ডিগড়`,
-      areaCode: `AR-CND-71`,
-    },
-    {
-      serial: 113,
-      name: `পূর্ব জাঙ্গালিয়াকান্দা সঃপ্রাঃবিঃ`,
-      emisCode: `99304049206`,
-      headTeacher: `উম্মে আছমা(ভার:)`,
-      legacyMobile: `1779986726`,
-      dailyDemand: 72,
-      areaName: `গাঁওকান্দিয়া`,
-      areaCode: `AR-GKD-46`,
-    },
-    {
-      serial: 114,
-      name: `কানাইল সপ্রাবি`,
-      emisCode: `99304049207`,
-      headTeacher: `আবুল কাশেম(চঃদাঃ)`,
-      legacyMobile: `1916621582`,
-      dailyDemand: 77,
-      areaName: `বিরিশিরি`,
-      areaCode: `AR-BRS-68`,
-    },
-    {
-      serial: 115,
-      name: `আগার সপ্রাবি`,
-      emisCode: `99304049208`,
-      headTeacher: `মোস্তফা কামালুর রশিদ(চঃদাঃ)`,
-      legacyMobile: `1710012321`,
-      dailyDemand: 83,
-      areaName: `দুর্গাপুর`,
-      areaCode: `AR-DGP-83`,
-    },
-    {
-      serial: 116,
-      name: `শুকনাকুড়ি সপ্রাবি`,
-      emisCode: `99304049209`,
-      headTeacher: `প্রীতিলতা দেবনাথ(চঃদাঃ)`,
-      legacyMobile: `1715247139`,
-      dailyDemand: 199,
-      areaName: `ঝাঞ্জাইল`,
-      areaCode: `AR-JNJ-59`,
-    },
-    {
-      serial: 117,
-      name: `নাওদ্বারা সপ্রাবি`,
-      emisCode: `99304049210`,
-      headTeacher: `মমতাজ বেগম(ভারঃ)`,
-      legacyMobile: `1737484128`,
-      dailyDemand: 40,
-      areaName: `গাঁওকান্দিয়া`,
-      areaCode: `AR-GKD-46`,
-    },
-    {
-      serial: 118,
-      name: `মজিব নগর সপ্রাবি`,
-      emisCode: `99304049211`,
-      headTeacher: `মো: শাহজাহান মিয়া(দায়িত্বে)`,
-      legacyMobile: `1725427495`,
-      dailyDemand: 137,
-      areaName: `পৌরসভা`,
-      areaCode: `AR-PSV-24`,
-    },
-    {
-      serial: 119,
-      name: `চরমোক্তার পাড়া সপ্রাবি`,
-      emisCode: `99304049212`,
-      headTeacher: `নাসরিন রহমান(চঃদাঃ)`,
-      legacyMobile: `1742779857`,
-      dailyDemand: 124,
-      areaName: `পৌরসভা`,
-      areaCode: `AR-PSV-24`,
-    },
-    {
-      serial: 120,
-      name: `তিতারজান সপ্রাবি`,
-      emisCode: `99304049213`,
-      headTeacher: `অনিমা দাস(চ:দা)`,
-      legacyMobile: `1718711260`,
-      dailyDemand: 102,
-      areaName: `ঝাঞ্জাইল`,
-      areaCode: `AR-JNJ-59`,
-    },
-    {
-      serial: 121,
-      name: `উত্তর ফারংপাড়া সপ্রাবি`,
-      emisCode: `99304049214`,
-      headTeacher: `শিঊলী সোম(চঃদাঃ)`,
-      legacyMobile: `1710582311`,
-      dailyDemand: 98,
-      areaName: `দুর্গাপুর`,
-      areaCode: `AR-DGP-83`,
-    },
-    {
-      serial: 122,
-      name: `হরচাপটাবিল সপ্রাবি`,
-      emisCode: `99304049215`,
-      headTeacher: `মোঃ অলি উল্লাহ্(ভারঃ)`,
-      legacyMobile: `1794609033`,
-      dailyDemand: 60,
-      areaName: `গাঁওকান্দিয়া`,
-      areaCode: `AR-GKD-46`,
-    },
-    {
-      serial: 123,
-      name: `দক্ষিণ ছোট কাঠুরী স প্রা বি`,
-      emisCode: `99304049302`,
-      headTeacher: `সালমা আক্তার(চঃদাঃ)`,
-      legacyMobile: `1981466428`,
-      dailyDemand: 113,
-      areaName: `বাকলজোড়া`,
-      areaCode: `AR-BKJ-17`,
-    },
-    {
-      serial: 124,
-      name: `লোহারগাঁও সপ্রাবি`,
-      emisCode: `99304049301`,
-      headTeacher: `সামিনা ইয়াসমিন(চঃদাঃ)`,
-      legacyMobile: `1745480941`,
-      dailyDemand: 99,
-      areaName: `চন্ডিগড়`,
-      areaCode: `AR-CND-71`,
-    },
-    {
-      serial: 125,
-      name: `গন্ডাবেড় সপ্রাবি`,
-      emisCode: `99304049303`,
-      headTeacher: `শাহানারা সেলিনা(চঃদাঃ)`,
-      legacyMobile: `1721858943`,
-      dailyDemand: 95,
-      areaName: `ঝাঞ্জাইল`,
-      areaCode: `AR-JNJ-59`,
-    },
-    {
-      serial: 126,
-      name: `আটলা সপ্রাবি`,
-      emisCode: `99304049304`,
-      headTeacher: `ফাহিমা খাতুন্(ভারঃ)`,
-      legacyMobile: `1775484621`,
-      dailyDemand: 67,
-      areaName: `গাঁওকান্দিয়া`,
-      areaCode: `AR-GKD-46`,
-    },
-  ],
-  E = n(),
-  D = new Intl.NumberFormat(`bn-BD`),
+const l = React;
+const E = JSXRuntime;
+const m = Boxes;
+const h = CalendarRange;
+const y = FileChartColumn;
+const b = Handshake;
+const S = MapPinned;
+const w = areas;
+const T = schools;
+const D = new Intl.NumberFormat(`bn-BD`),
   O = new Intl.NumberFormat(`bn-BD`, {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
@@ -1685,13 +142,14 @@ function z({ label: e, value: t, note: n, tone: r = `green` }) {
     ],
   });
 }
-function B({ userName: e, userEmail: t, userRole: accountRole, userAreaCode: userAreaCode }) {
+function B({ userName: e, userEmail: t, userRole: accountRole, userAreaCode: userAreaCode, userSchoolEmis }) {
   let [n, r] = (0, l.useState)(`dashboard`), [cssReady, setCssReady] = (0, l.useState)(!1),
     [sidebarCollapsed, setSidebarCollapsed] = (0, l.useState)(!1),
     [isMounted, setIsMounted] = (0, l.useState)(!1),
     _mountEffect = (0, l.useEffect)(() => {
       let savedTab = sessionStorage.getItem('activeTab');
-      if (savedTab && savedTab !== 'dashboard') r(savedTab);
+      let canOpenSavedTab = accountRole !== 'tiffin_manager' || savedTab === 'dashboard' || savedTab === 'distribution';
+      if (savedTab && savedTab !== 'dashboard' && canOpenSavedTab) r(savedTab);
       let savedSidebar = sessionStorage.getItem('sidebarCollapsed');
       if (savedSidebar === 'true') setSidebarCollapsed(!0);
       setIsMounted(!0); setTimeout(() => setCssReady(!0), 50);
@@ -1715,13 +173,14 @@ function B({ userName: e, userEmail: t, userRole: accountRole, userAreaCode: use
           let response = await fetch(`/api/schools`, { cache: `no-store` });
           if (!response.ok) return;
           let payload = await response.json(), rows = payload.schools ?? [];
-          if (!cancelled && rows.length) {
+          if (!cancelled && Array.isArray(rows)) {
             g(rows.map((school, index) => ({
               serial: Number(school.serial_number ?? index + 1),
               name: school.name_bn,
               emisCode: school.emis_code,
               headTeacher: school.head_teacher ?? ``,
               legacyMobile: school.legacy_mobile ?? ``,
+              unionName: school.union_name ?? ``,
               dailyDemand: Number(school.current_daily_demand ?? 0),
               areaName: school.area_name ?? w.find((area) => area.code === school.area_code)?.name ?? ``,
               areaCode: school.area_code,
@@ -1742,6 +201,7 @@ function B({ userName: e, userEmail: t, userRole: accountRole, userAreaCode: use
     [monthlyRemainingCounts, setMonthlyRemainingCounts] = (0, l.useState)(null),
     [monthlyPlanDays, setMonthlyPlanDays] = (0, l.useState)(null),
     [monthlyPlanName, setMonthlyPlanName] = (0, l.useState)(``),
+    [monthlyUnitPrices, setMonthlyUnitPrices] = (0, l.useState)({ bun: 13.5, egg: 10, banana: 6 }),
     _monthlyPlanEffect = (0, l.useEffect)(() => {
       let cancelled = !1;
       async function loadMonthlyPlan() {
@@ -1751,6 +211,7 @@ function B({ userName: e, userEmail: t, userRole: accountRole, userAreaCode: use
           if (!response.ok) throw Error(`monthly plan unavailable`);
           let payload = await response.json();
           if (cancelled) return;
+          setMonthlyUnitPrices(payload.unitPrices ?? { bun: 13.5, egg: 10, banana: 6 });
           if (payload.source !== `configured`) {
             setMonthlyPlanCounts(null);
             setMonthlyRemainingCounts(null);
@@ -1789,8 +250,6 @@ function B({ userName: e, userEmail: t, userRole: accountRole, userAreaCode: use
         window.removeEventListener(`meal-plan-updated`, loadMonthlyPlan);
       };
     }, [c]),
-    [_, v] = (0, l.useState)(null),
-    [y, b] = (0, l.useState)(``),
     [x, S] = (0, l.useState)(``),
     O = (0, l.useMemo)(() => {
       let e = d.trim().toLocaleLowerCase(`bn`);
@@ -1800,7 +259,9 @@ function B({ userName: e, userEmail: t, userRole: accountRole, userAreaCode: use
             !e ||
             t.name.toLocaleLowerCase(`bn`).includes(e) ||
             t.emisCode.includes(e) ||
-            t.headTeacher.toLocaleLowerCase(`bn`).includes(e);
+            t.headTeacher.toLocaleLowerCase(`bn`).includes(e) ||
+            (t.legacyMobile ?? ``).includes(e) ||
+            (t.unionName ?? ``).toLocaleLowerCase(`bn`).includes(e);
         return n && r;
       });
     }, [i, d, h]),
@@ -1839,6 +300,7 @@ function B({ userName: e, userEmail: t, userRole: accountRole, userAreaCode: use
     R = Math.max(1, Math.ceil(O.length / 12)),
     z = O.slice((Math.min(p, R) - 1) * 12, Math.min(p, R) * 12);
   function B(e) {
+    if (accountRole === `tiffin_manager` && e !== `dashboard` && e !== `distribution`) return;
     (r(e), S(``));
   }
   function J(e) {
@@ -1851,7 +313,9 @@ function B({ userName: e, userEmail: t, userRole: accountRole, userAreaCode: use
           `অঞ্চল`,
           `বিদ্যালয়ের নাম`,
           `EMIS কোড`,
+          `ইউনিয়ন`,
           `প্রধান শিক্ষক`,
+          `মোবাইল নম্বর`,
           `একদিনের এক আইটেমের চাহিদা`,
         ],
         ...e.map((e) => [
@@ -1859,7 +323,9 @@ function B({ userName: e, userEmail: t, userRole: accountRole, userAreaCode: use
           e.areaName,
           e.name,
           e.emisCode,
+          e.unionName || ``,
           e.headTeacher,
+          formatSchoolMobile(e.legacyMobile),
           e.dailyDemand,
         ]),
       ].map((e) =>
@@ -1873,40 +339,6 @@ function B({ userName: e, userEmail: t, userRole: accountRole, userAreaCode: use
       (i.download = `school-demand-report.csv`),
       i.click(),
       URL.revokeObjectURL(r));
-  }
-  async function X() {
-    if (!_) return;
-    let e = Number(y);
-    if (!Number.isInteger(e) || e <= 0) {
-      S(`চাহিদা অবশ্যই শূন্যের চেয়ে বড় পূর্ণ সংখ্যা হতে হবে।`);
-      return;
-    }
-    try {
-      if (
-        !(
-          await fetch(`/api/schools/${_.emisCode}/demand`, {
-            method: `PATCH`,
-            headers: { "content-type": `application/json` },
-            body: JSON.stringify({
-              dailyDemand: e,
-              reason: `ম্যানুয়াল সংশোধন`,
-            }),
-          })
-        ).ok
-      )
-        throw Error(`save failed`);
-      (g((t) =>
-        t.map((t) =>
-          t.emisCode === _.emisCode ? { ...t, dailyDemand: e } : t,
-        ),
-      ),
-        v(null),
-        S(`একদিনের এক আইটেমের চাহিদা সফলভাবে হালনাগাদ হয়েছে।`));
-    } catch {
-      S(
-        `Local preview-তে পরিবর্তনটি সংরক্ষণ করা যায়নি। প্রকাশিত সংস্করণে database সক্রিয় থাকবে।`,
-      );
-    }
   }
   return (0, E.jsxs)(`div`, {
     suppressHydrationWarning: !0, style: { visibility: isMounted ? "visible" : "hidden", opacity: isMounted ? 1 : 0 }, className: (sidebarCollapsed ? `app-shell sidebar-is-collapsed` : `app-shell`) + (cssReady ? `` : ` no-transition`),
@@ -1938,9 +370,11 @@ function B({ userName: e, userEmail: t, userRole: accountRole, userAreaCode: use
           }),
           (0, E.jsx)(`nav`, {
             "aria-label": `প্রধান মেনু`,
-            children: (accountRole === `area_manager`
-              ? j
-              : j.filter((e) => e.id !== `account`)).map((e) => {
+            children: (accountRole === `tiffin_manager`
+              ? j.filter((e) => e.id === `dashboard` || e.id === `distribution`)
+              : accountRole === `area_manager`
+                ? j
+                : j.filter((e) => e.id !== `account`)).map((e) => {
               let t = e.icon;
               return (0, E.jsxs)(
                 `button`,
@@ -1975,14 +409,14 @@ function B({ userName: e, userEmail: t, userRole: accountRole, userAreaCode: use
           (0, E.jsxs)(`div`, {
             className: `sidebar-foot`,
             role: `status`,
-            title: `সিস্টেম সচল — সর্বশেষ ডেটা: ১২৬ বিদ্যালয়`,
+            title: `সিস্টেম সচল — সর্বশেষ ডেটা: ${D.format(h.length)} বিদ্যালয়`,
             children: [
               (0, E.jsx)(`span`, { className: `live-dot` }),
               (0, E.jsxs)(`p`, {
                 children: [
                   (0, E.jsx)(`strong`, { children: `সিস্টেম সচল` }),
                   (0, E.jsx)(`small`, {
-                    children: `সর্বশেষ ডেটা: ১২৬ বিদ্যালয়`,
+                    children: `সর্বশেষ ডেটা: ${D.format(h.length)} বিদ্যালয়`,
                   }),
                 ],
               }),
@@ -2107,6 +541,8 @@ function B({ userName: e, userEmail: t, userRole: accountRole, userAreaCode: use
               monthlyPlanCounts,
               monthlyRemainingCounts,
               areaFilter: i,
+              schools: h,
+              unitPrices: monthlyUnitPrices,
             }),
           n === `areas` &&
             (0, E.jsxs)(E.Fragment, {
@@ -2134,9 +570,6 @@ function B({ userName: e, userEmail: t, userRole: accountRole, userAreaCode: use
                     page: Math.min(p, R),
                     pageCount: R,
                     setPage: m,
-                    onEdit: (e) => {
-                      (v(e), b(String(e.dailyDemand)));
-                    },
                     onExport: () => Y(O),
                   }),
                 }),
@@ -2150,6 +583,7 @@ function B({ userName: e, userEmail: t, userRole: accountRole, userAreaCode: use
               areaFilter: i,
               accountRole,
               userAreaCode,
+              userSchoolEmis,
             }),
           n === `stock` &&
             (0, E.jsx)(G, {
@@ -2167,55 +601,6 @@ function B({ userName: e, userEmail: t, userRole: accountRole, userAreaCode: use
           n === `suppliers` && (0, E.jsx)(q, {}),
         ],
       }),
-      _ &&
-        (0, E.jsx)(`div`, {
-          className: `modal-backdrop`,
-          role: `presentation`,
-          children: (0, E.jsxs)(`section`, {
-            className: `modal`,
-            role: `dialog`,
-            "aria-modal": `true`,
-            children: [
-              (0, E.jsx)(`p`, {
-                className: `eyebrow`,
-                children: `চাহিদা সংশোধন`,
-              }),
-              (0, E.jsx)(`h2`, { children: _.name }),
-              (0, E.jsxs)(`p`, {
-                children: [`EMIS: `, _.emisCode, ` · `, _.areaName],
-              }),
-              (0, E.jsxs)(`label`, {
-                children: [
-                  `একদিনের এক আইটেমের চাহিদা`,
-                  (0, E.jsx)(`input`, {
-                    type: `number`,
-                    min: `1`,
-                    value: y,
-                    onChange: (e) => b(e.target.value),
-                    autoFocus: !0,
-                  }),
-                ],
-              }),
-              (0, E.jsxs)(`div`, {
-                className: `modal-actions`,
-                children: [
-                  (0, E.jsx)(`button`, {
-                    className: `button-secondary`,
-                    type: `button`,
-                    onClick: () => v(null),
-                    children: `বাতিল`,
-                  }),
-                  (0, E.jsx)(`button`, {
-                    className: `button-primary`,
-                    type: `button`,
-                    onClick: X,
-                    children: `সংরক্ষণ করুন`,
-                  }),
-                ],
-              }),
-            ],
-          }),
-        }),
     ],
   });
 }
@@ -2264,10 +649,11 @@ function V({
   monthlyPlanCounts,
   monthlyRemainingCounts,
   areaFilter: r,
+  schools,
+  unitPrices,
 }) {
   let i = t.length > 0 ? t.join(` ও `) : `আজ বিতরণ নেই`,
     a = Math.max(...w.map((e) => e.dailyDemand)),
-    unitPrices = { bun: 13.5, egg: 10, banana: 6 },
     remainingItemCosts = {
       bun: e * (monthlyRemainingCounts?.bun ?? 0) * unitPrices.bun,
       egg: e * (monthlyRemainingCounts?.egg ?? 0) * unitPrices.egg,
@@ -2288,10 +674,10 @@ function V({
             label: `মোট বিদ্যালয়`,
             value: D.format(
               r === `সব অঞ্চল`
-                ? 126
-                : (w.find((e) => e.name === r)?.schoolCount ?? 0),
+                ? schools.length
+                : schools.filter((school) => school.areaName === r).length,
             ),
-            note: `Excel থেকে যাচাইকৃত`,
+            note: `শিক্ষা অফিস থেকে যাচাইকৃত`,
             tone: `navy`,
           }),
           (0, E.jsx)(z, {
@@ -2801,6 +1187,12 @@ function H({ onAreaSelect: e }) {
     ],
   });
 }
+function formatSchoolMobile(value) {
+  let mobile = String(value ?? ``).trim();
+  if (!mobile) return ``;
+  return /^1\d{9}$/.test(mobile) ? `0${mobile}` : mobile;
+}
+
 function U({
   query: e,
   setQuery: t,
@@ -2809,7 +1201,6 @@ function U({
   page: i,
   pageCount: a,
   setPage: o,
-  onEdit: s,
   onExport: c,
 }) {
   return (0, E.jsxs)(`section`, {
@@ -2825,7 +1216,7 @@ function U({
               (0, E.jsx)(`input`, {
                 value: e,
                 onChange: (e) => t(e.target.value),
-                placeholder: `বিদ্যালয়, EMIS বা প্রধান শিক্ষকের নাম`,
+                placeholder: `বিদ্যালয়, EMIS, প্রধান শিক্ষক, মোবাইল বা ইউনিয়ন`,
               }),
             ],
           }),
@@ -2856,12 +1247,13 @@ function U({
                   (0, E.jsx)(`th`, { children: `বিদ্যালয়` }),
                   (0, E.jsx)(`th`, { children: `EMIS কোড` }),
                   (0, E.jsx)(`th`, { children: `অঞ্চল` }),
+                  (0, E.jsx)(`th`, { children: `ইউনিয়ন` }),
                   (0, E.jsx)(`th`, { children: `প্রধান শিক্ষক` }),
+                  (0, E.jsx)(`th`, { children: `মোবাইল নম্বর` }),
                   (0, E.jsx)(`th`, {
                     className: `number-cell`,
                     children: `একদিনের চাহিদা`,
                   }),
-                  (0, E.jsx)(`th`, { className: `no-print`, children: `কাজ` }),
                 ],
               }),
             }),
@@ -2888,7 +1280,12 @@ function U({
                           children: e.areaName,
                         }),
                       }),
+                      (0, E.jsx)(`td`, { children: e.unionName || `—` }),
                       (0, E.jsx)(`td`, { children: e.headTeacher }),
+                      (0, E.jsx)(`td`, {
+                        className: `mono`,
+                        children: formatSchoolMobile(e.legacyMobile) || `—`,
+                      }),
                       (0, E.jsxs)(`td`, {
                         className: `number-cell`,
                         children: [
@@ -2897,15 +1294,6 @@ function U({
                           }),
                           ` পিস`,
                         ],
-                      }),
-                      (0, E.jsx)(`td`, {
-                        className: `no-print`,
-                        children: (0, E.jsx)(`button`, {
-                          className: `table-action`,
-                          type: `button`,
-                          onClick: () => s(e),
-                          children: `সংশোধন`,
-                        }),
                       }),
                     ],
                   },
@@ -2946,6 +1334,7 @@ function W({
   areaFilter: r,
   accountRole,
   userAreaCode,
+  userSchoolEmis,
 }) {
   let [selectedDailyDate, setSelectedDailyDate] = (0, l.useState)(M(new Date(e))),
     [dailyPlanCodes, setDailyPlanCodes] = (0, l.useState)(null),
@@ -3010,27 +1399,12 @@ function W({
     weeklyItemsByDate = new Map(weeklyPlanDays.map((day) => [day.date, day.items ?? []])),
     routineDays = weekDates.map((date, index) => {
       let items = weeklyItemsByDate.get(date) ?? [],
-        photos = {
-          bun: [`/food-thumbnails/bread-roll.png`, `বনরুটি`],
-          egg: [`/food-thumbnails/boiled-egg.png`, `সিদ্ধ ডিম`],
-          banana: [`/food-thumbnails/banana.png`, `কলা`],
-        },
-        validItems = items.filter((code) => I[code]),
-        icon = validItems.length
-          ? (0, E.jsx)(`div`, {
-              className: `routine-food-photo-pair`,
-              children: validItems.map((code) => (0, E.jsx)(`img`, {
-                src: photos[code][0],
-                alt: photos[code][1],
-                className: `routine-food-photo`,
-              }, code)),
-            })
-          : (0, E.jsx)(Ban, { size: 16, color: `#dc2626`, fill: `#fecaca` });
+        validItems = items.filter((code) => I[code]);
       return [
         [`রবিবার`, `সোমবার`, `মঙ্গলবার`, `বুধবার`, `বৃহস্পতিবার`, `শুক্রবার`, `শনিবার`][index],
         validItems.length ? validItems.map((code) => I[code].routineName).join(` + `) : `বিদ্যালয় বন্ধ`,
-        icon,
         date,
+        validItems.length > 0,
       ];
     }),
     dailyItems = dailyPlanCodes === null ? n : mealCodesToRoutineNames(dailyPlanCodes),
@@ -3047,11 +1421,6 @@ function W({
           (0, E.jsxs)(`div`, {
             className: `panel-head distribution-panel-head`,
             children: [
-              (0, E.jsx)(`span`, {
-                className: `distribution-section-icon`,
-                "aria-hidden": `true`,
-                children: (0, E.jsx)(h, {}),
-              }),
               (0, E.jsxs)(`div`, {
                 children: [
                   
@@ -3062,26 +1431,23 @@ function W({
           }),
           (0, E.jsx)(`div`, {
             className: `routine-list`,
-            children: routineDays.map(([e, t, n, date]) =>
+            children: routineDays.map(([e, t, date, hasFood]) =>
               (0, E.jsxs)(
                 `article`,
                 {
-                  className: `routine-day-card`,
+                  className: `routine-day-card ${hasFood ? `is-planned` : `is-closed`}`,
                   children: [
-                    (0, E.jsx)(`strong`, {
-                      className: `routine-day`,
-                      children: e,
-                    }),
                     (0, E.jsxs)(`div`, {
-                      className: `routine-food`,
+                      className: `routine-day-meta`,
                       children: [
-                        (0, E.jsx)(`div`, {
-                          className: `routine-food-icon`,
-                          children: n,
+                        (0, E.jsx)(`strong`, {
+                          className: `routine-day`,
+                          children: e,
                         }),
-                        (0, E.jsx)(`p`, { children: t }),
+                        (0, E.jsx)(`span`, { children: Number(date.slice(-2)) }),
                       ],
                     }),
+                    (0, E.jsx)(`p`, { className: `routine-food`, children: t }),
                   ],
                 },
                 date,
@@ -3096,11 +1462,6 @@ function W({
           (0, E.jsxs)(`div`, {
             className: `panel-head distribution-panel-head`,
             children: [
-              (0, E.jsx)(`span`, {
-                className: `distribution-section-icon distribution-section-icon-amber`,
-                "aria-hidden": `true`,
-                children: (0, E.jsx)(v, {}),
-              }),
               (0, E.jsxs)(`div`, {
                 children: [
                   (0, E.jsx)(`p`, {
@@ -3109,10 +1470,6 @@ function W({
                   }),
                   (0, E.jsx)(`h2`, { children: k.format(dailyDate) }),
                 ],
-              }),
-              (0, E.jsx)(`span`, {
-                className: `status-badge status-good`,
-                children: r,
               }),
             ],
           }),
@@ -3135,7 +1492,6 @@ function W({
                         `article`,
                         {
                           children: [
-                            (0, E.jsx)(`span`, { children: e.slice(0, 1) }),
                             (0, E.jsxs)(`div`, {
                               children: [
                                 (0, E.jsx)(`p`, { children: e }),
@@ -3166,11 +1522,6 @@ function W({
             : (0, E.jsxs)(`div`, {
                 className: `empty-state`,
                 children: [
-                  (0, E.jsx)(`span`, {
-                    className: `distribution-empty-icon`,
-                    "aria-hidden": `true`,
-                    children: (0, E.jsx)(g, {}),
-                  }),
                   (0, E.jsx)(`strong`, {
                     children: `এই দিনে কোনো বিতরণ নির্ধারিত নেই`,
                   }),
@@ -3187,6 +1538,7 @@ function W({
         children: (0, E.jsx)(SchoolDistributionAdjustment, {
           accountRole: accountRole,
           userAreaCode: userAreaCode,
+          userSchoolEmis: userSchoolEmis,
           onDateChange: setSelectedDailyDate,
         })
       }),

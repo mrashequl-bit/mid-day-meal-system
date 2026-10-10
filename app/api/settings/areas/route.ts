@@ -10,10 +10,19 @@ async function save(request: Request, editing: boolean) {
   if (!user) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   try {
     const data = await request.json() as Record<string, unknown>;
-    const code = String(data.code || "").trim().toUpperCase();
+    let code = editing ? String(data.code || "").trim().toUpperCase() : "";
     const name = String(data.name_bn || "").trim();
-    if (!/^[A-Z0-9_-]{2,20}$/.test(code) || !name) throw new Error("সঠিক অঞ্চল কোড ও নাম দিন।");
+    if (!name) throw new Error("অঞ্চলের নাম দিন।");
+    if (editing && !/^[A-Z0-9_-]{2,20}$/.test(code)) throw new Error("অঞ্চল পাওয়া যায়নি।");
     const db = await ensureDatabase();
+    if (!editing) {
+      for (let attempt = 0; attempt < 5 && !code; attempt += 1) {
+        const candidate = `AR-${crypto.randomUUID().replaceAll("-", "").slice(0, 10).toUpperCase()}`;
+        const duplicate = await db.prepare("SELECT 1 FROM areas WHERE code=?").bind(candidate).first();
+        if (!duplicate) code = candidate;
+      }
+      if (!code) throw new Error("অঞ্চলের পরিচিতি তৈরি করা যায়নি। আবার চেষ্টা করুন।");
+    }
     const before = await db.prepare("SELECT * FROM areas WHERE code=?").bind(code).first();
     if (editing && !before) throw new Error("অঞ্চল পাওয়া যায়নি।");
     if (!editing && before) throw new Error("অঞ্চল কোড আগে থেকেই আছে।");
@@ -26,17 +35,54 @@ async function save(request: Request, editing: boolean) {
     return NextResponse.json({ success: true });
   } catch (error) { return NextResponse.json({ error: error instanceof Error ? error.message : "অঞ্চল সংরক্ষণ করা যায়নি।" }, { status: 400 }); }
 }
+export async function PATCH(request: Request) {
+  const user = await requireSuperAdmin();
+  if (!user) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  try {
+    const data = await request.json() as Record<string, unknown>;
+    const sourceCode = String(data.source_code || "").trim().toUpperCase();
+    const targetCode = String(data.target_code || "").trim().toUpperCase();
+    if (!sourceCode || !targetCode || sourceCode === targetCode) throw new Error("ভিন্ন একটি লক্ষ্য অঞ্চল নির্বাচন করুন।");
+    const db = await ensureDatabase();
+    const [source, target, schoolCount, userCount] = await Promise.all([
+      db.prepare("SELECT * FROM areas WHERE code=? AND is_active=1").bind(sourceCode).first(),
+      db.prepare("SELECT * FROM areas WHERE code=? AND is_active=1").bind(targetCode).first(),
+      db.prepare("SELECT COUNT(*) AS count FROM schools WHERE area_code=?").bind(sourceCode).first<{ count: number }>(),
+      db.prepare("SELECT COUNT(*) AS count FROM users WHERE area_code=?").bind(sourceCode).first<{ count: number }>(),
+    ]);
+    if (!source) return NextResponse.json({ error: "উৎস অঞ্চল পাওয়া যায়নি।" }, { status: 404 });
+    if (!target) return NextResponse.json({ error: "লক্ষ্য অঞ্চল পাওয়া যায়নি।" }, { status: 404 });
+    const movedSchools = Number(schoolCount?.count || 0);
+    const movedUsers = Number(userCount?.count || 0);
+    await db.batch([
+      db.prepare("UPDATE schools SET area_code=?, updated_at=CURRENT_TIMESTAMP WHERE area_code=?").bind(targetCode, sourceCode),
+      db.prepare("UPDATE users SET area_code=?, updated_at=CURRENT_TIMESTAMP WHERE area_code=?").bind(targetCode, sourceCode),
+    ]);
+    await writeAudit(user.username, "area.assignments_transferred", "area", sourceCode, { source, movedSchools, movedUsers }, { targetCode });
+    return NextResponse.json({ success: true, movedSchools, movedUsers });
+  } catch (error) {
+    return NextResponse.json({ error: error instanceof Error ? error.message : "স্থানান্তর করা যায়নি।" }, { status: 400 });
+  }
+}
 export async function DELETE(request: Request) {
   const user = await requireSuperAdmin();
   if (!user) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   const code = new URL(request.url).searchParams.get("code") || "";
   const db = await ensureDatabase();
-  const school = await db.prepare("SELECT emis_code FROM schools WHERE area_code=? AND is_active=1 LIMIT 1").bind(code).first();
-  const assignedUser = await db.prepare("SELECT id FROM users WHERE area_code=? AND is_active=1 LIMIT 1").bind(code).first();
-  if (school || assignedUser) return NextResponse.json({ error: "সক্রিয় বিদ্যালয় বা ইউজার থাকা অবস্থায় অঞ্চলটি মুছতে পারবেন না। আগে স্থানান্তর করুন।" }, { status: 409 });
   const before = await db.prepare("SELECT * FROM areas WHERE code=?").bind(code).first();
   if (!before) return NextResponse.json({ error: "অঞ্চল পাওয়া যায়নি।" }, { status: 404 });
-  await db.prepare("UPDATE areas SET is_active=0, updated_at=CURRENT_TIMESTAMP WHERE code=?").bind(code).run();
-  await writeAudit(user.username, "area.deactivated", "area", code, before, { is_active: 0 });
+  const school = await db.prepare("SELECT emis_code FROM schools WHERE area_code=? LIMIT 1").bind(code).first();
+  const assignedUser = await db.prepare("SELECT id FROM users WHERE area_code=? LIMIT 1").bind(code).first();
+  if (school || assignedUser) return NextResponse.json({ error: "বিদ্যালয় বা ইউজার এসাইন থাকা অবস্থায় অঞ্চলটি ডিলেট করা যাবে না। আগে অন্য অঞ্চলে স্থানান্তর করুন।" }, { status: 409 });
+  const historicalReference = await db.prepare(`SELECT 1 FROM (
+    SELECT area_code FROM area_expenses WHERE area_code=?
+    UNION ALL SELECT area_code FROM area_payments WHERE area_code=?
+    UNION ALL SELECT area_code FROM stock_transactions WHERE area_code=?
+    UNION ALL SELECT area_code FROM distribution_reports WHERE area_code=?
+    UNION ALL SELECT area_code FROM notifications WHERE area_code=?
+  ) LIMIT 1`).bind(code, code, code, code, code).first();
+  if (historicalReference) return NextResponse.json({ error: "এই অঞ্চলের পূর্ববর্তী লেনদেন বা রিপোর্ট আছে, তাই ডিলেট করা যাবে না।" }, { status: 409 });
+  await db.prepare("DELETE FROM areas WHERE code=?").bind(code).run();
+  await writeAudit(user.username, "area.deleted", "area", code, before, null);
   return NextResponse.json({ success: true });
 }

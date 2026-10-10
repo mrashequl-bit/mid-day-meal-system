@@ -3,6 +3,19 @@ import { areas, schools } from "../app/data/schools";
 import { hashPassword } from "../app/lib/password";
 
 let ready = false;
+const RUNTIME_BOOTSTRAP_VERSION = "0012";
+
+async function hasCurrentRuntimeBootstrap(db: D1Database) {
+  const settingsTable = await db.prepare(
+    "SELECT 1 AS present FROM sqlite_master WHERE type = 'table' AND name = 'system_settings' LIMIT 1",
+  ).first<{ present: number }>();
+  if (!settingsTable) return false;
+
+  const marker = await db.prepare(
+    "SELECT setting_value FROM system_settings WHERE setting_key = 'runtime_bootstrap_version'",
+  ).first<{ setting_value: string }>();
+  return marker?.setting_value === RUNTIME_BOOTSTRAP_VERSION;
+}
 
 export async function ensureDatabase() {
   if (ready) return env.DB;
@@ -11,6 +24,11 @@ export async function ensureDatabase() {
   }
 
   const db = env.DB;
+  if (await hasCurrentRuntimeBootstrap(db)) {
+    ready = true;
+    return db;
+  }
+
   await db.batch([
     db
       .prepare(
@@ -108,6 +126,8 @@ export async function ensureDatabase() {
           area_code TEXT NOT NULL REFERENCES areas(code),
           head_teacher TEXT,
           legacy_mobile TEXT,
+          union_name TEXT,
+          cluster_name TEXT,
           serial_number INTEGER,
           current_daily_demand INTEGER NOT NULL CHECK(current_daily_demand > 0),
           is_active INTEGER NOT NULL DEFAULT 1,
@@ -216,6 +236,19 @@ export async function ensureDatabase() {
           excess_banana INTEGER NOT NULL DEFAULT 0,
           problem_type TEXT NOT NULL,
           reason TEXT NOT NULL,
+          resolution_reason TEXT,
+          confirmation_source TEXT NOT NULL DEFAULT 'manager',
+          auto_confirmed_at TEXT,
+          resolution_action TEXT,
+          resolution_note TEXT,
+          resolved_by TEXT,
+          resolved_at TEXT,
+          manager_submission_count INTEGER NOT NULL DEFAULT 1,
+          manager_reopen_allowed INTEGER NOT NULL DEFAULT 0,
+          manager_reopen_action TEXT,
+          manager_reopen_authorized_by TEXT,
+          manager_reopen_authorized_at TEXT,
+          manager_reopen_used_at TEXT,
           comments TEXT,
           proof_url TEXT,
           status TEXT NOT NULL DEFAULT 'new',
@@ -223,6 +256,61 @@ export async function ensureDatabase() {
           created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
           updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
           UNIQUE(date, school_emis_code)
+        )`,
+      ),
+    db
+      .prepare(
+        `CREATE TABLE IF NOT EXISTS distribution_report_submissions (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          report_id INTEGER NOT NULL REFERENCES distribution_reports(id) ON DELETE CASCADE,
+          submission_number INTEGER NOT NULL CHECK(submission_number IN (1, 2)),
+          received_bread INTEGER NOT NULL DEFAULT 0,
+          received_egg INTEGER NOT NULL DEFAULT 0,
+          received_banana INTEGER NOT NULL DEFAULT 0,
+          shortage_bread INTEGER NOT NULL DEFAULT 0,
+          shortage_egg INTEGER NOT NULL DEFAULT 0,
+          shortage_banana INTEGER NOT NULL DEFAULT 0,
+          excess_bread INTEGER NOT NULL DEFAULT 0,
+          excess_egg INTEGER NOT NULL DEFAULT 0,
+          excess_banana INTEGER NOT NULL DEFAULT 0,
+          problem_type TEXT NOT NULL,
+          reason TEXT NOT NULL,
+          comments TEXT,
+          submitted_by TEXT NOT NULL,
+          submitted_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+          authorization_action TEXT,
+          authorization_by TEXT,
+          authorization_at TEXT,
+          UNIQUE(report_id, submission_number)
+        )`,
+      ),
+    db
+      .prepare(
+        `CREATE TABLE IF NOT EXISTS distribution_adjustments (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          school_emis_code TEXT NOT NULL REFERENCES schools(emis_code),
+          plan_month TEXT NOT NULL,
+          item_code TEXT NOT NULL CHECK(item_code IN ('bun', 'egg', 'banana')),
+          shortage_report_id INTEGER NOT NULL REFERENCES distribution_reports(id) ON DELETE CASCADE,
+          excess_report_id INTEGER NOT NULL REFERENCES distribution_reports(id) ON DELETE CASCADE,
+          quantity INTEGER NOT NULL CHECK(quantity > 0),
+          created_by TEXT NOT NULL DEFAULT 'System',
+          created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+          UNIQUE(shortage_report_id, excess_report_id, item_code)
+        )`,
+      ),
+    db
+      .prepare(
+        `CREATE TABLE IF NOT EXISTS distribution_resolution_items (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          report_id INTEGER NOT NULL REFERENCES distribution_reports(id) ON DELETE CASCADE,
+          action TEXT NOT NULL,
+          item_code TEXT NOT NULL CHECK(item_code IN ('bun', 'egg', 'banana')),
+          direction TEXT NOT NULL CHECK(direction IN ('shortage', 'excess')),
+          quantity INTEGER NOT NULL CHECK(quantity > 0),
+          created_by TEXT NOT NULL,
+          note TEXT,
+          created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
         )`,
       ),
     db
@@ -287,6 +375,19 @@ export async function ensureDatabase() {
       )`,
     ),
     db.prepare(
+      `CREATE TABLE IF NOT EXISTS report_delivery_runs (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        report_date TEXT NOT NULL,
+        channel TEXT NOT NULL,
+        recipient TEXT NOT NULL,
+        status TEXT NOT NULL,
+        provider_message_id TEXT,
+        error_message TEXT,
+        is_test INTEGER NOT NULL DEFAULT 0,
+        created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+      )`,
+    ),
+    db.prepare(
       "CREATE INDEX IF NOT EXISTS schools_area_code_idx ON schools(area_code)",
     ),
     db.prepare(
@@ -320,7 +421,19 @@ export async function ensureDatabase() {
       "CREATE INDEX IF NOT EXISTS dist_rep_date_idx ON distribution_reports(date)",
     ),
     db.prepare(
+      "CREATE INDEX IF NOT EXISTS dist_adj_school_month_idx ON distribution_adjustments(school_emis_code, plan_month)",
+    ),
+    db.prepare(
+      "CREATE INDEX IF NOT EXISTS dist_resolution_report_idx ON distribution_resolution_items(report_id)",
+    ),
+    db.prepare(
+      "CREATE INDEX IF NOT EXISTS dist_report_submission_report_idx ON distribution_report_submissions(report_id)",
+    ),
+    db.prepare(
       "CREATE INDEX IF NOT EXISTS notifications_is_read_idx ON notifications(is_read)",
+    ),
+    db.prepare(
+      "CREATE INDEX IF NOT EXISTS report_delivery_lookup_idx ON report_delivery_runs(report_date, channel, recipient, status)",
     ),
   ]);
 
@@ -380,7 +493,10 @@ export async function ensureDatabase() {
              name_bn = excluded.name_bn,
              manager_name = COALESCE(excluded.manager_name, areas.manager_name),
              manager_mobile = COALESCE(excluded.manager_mobile, areas.manager_mobile),
-             updated_at = CURRENT_TIMESTAMP`,
+             updated_at = CURRENT_TIMESTAMP
+           WHERE areas.name_bn IS NOT excluded.name_bn
+              OR areas.manager_name IS NOT COALESCE(excluded.manager_name, areas.manager_name)
+              OR areas.manager_mobile IS NOT COALESCE(excluded.manager_mobile, areas.manager_mobile)`,
         )
         .bind(
           area.code,
@@ -407,8 +523,16 @@ export async function ensureDatabase() {
   ]);
 
   const schoolColumns = await db.prepare("PRAGMA table_info(schools)").all<{ name: string }>();
-  if (!schoolColumns.results.some((column) => column.name === "serial_number")) {
-    await db.prepare("ALTER TABLE schools ADD COLUMN serial_number INTEGER").run();
+  const existingSchoolColumns = new Set(schoolColumns.results.map((column) => column.name));
+  const missingSchoolColumns = [
+    ["serial_number", "INTEGER"],
+    ["union_name", "TEXT"],
+    ["cluster_name", "TEXT"],
+  ] as const;
+  for (const [column, definition] of missingSchoolColumns) {
+    if (!existingSchoolColumns.has(column)) {
+      await db.prepare(`ALTER TABLE schools ADD COLUMN ${column} ${definition}`).run();
+    }
   }
 
   await db.batch(
@@ -497,7 +621,16 @@ export async function ensureDatabase() {
     sms_enabled: "0",
     sms_provider: "",
     email_enabled: "0",
-    email_provider: "",
+    email_provider: "cloudflare",
+    daily_report_enabled: "1",
+    daily_report_time: "16:00",
+    daily_report_emails: '["mr.ashequl@gmail.com"]',
+    daily_report_sender: "reports@middaymeal.xyz",
+    telegram_enabled: "0",
+    telegram_destinations: "[]",
+    meal_price_bun: "13.5",
+    meal_price_egg: "10",
+    meal_price_banana: "6",
   };
   await db.batch(Object.entries(defaultSettings).map(([key, value]) =>
     db.prepare("INSERT OR IGNORE INTO system_settings (setting_key, setting_value) VALUES (?, ?)").bind(key, value)
@@ -564,6 +697,60 @@ export async function ensureDatabase() {
   ) {
     await db.prepare("ALTER TABLE notifications ADD COLUMN area_code TEXT").run();
   }
+
+  const distributionReportCols = await db
+    .prepare("PRAGMA table_info(distribution_reports)")
+    .all<{ name: string }>();
+  if (!distributionReportCols.results.some((column) => column.name === "resolution_reason")) {
+    await db.prepare("ALTER TABLE distribution_reports ADD COLUMN resolution_reason TEXT").run();
+  }
+  const distributionReportColumnNames = new Set(distributionReportCols.results.map((column) => column.name));
+  const distributionReportColumnMigrations = [
+    ["confirmation_source", "ALTER TABLE distribution_reports ADD COLUMN confirmation_source TEXT NOT NULL DEFAULT 'manager'"],
+    ["auto_confirmed_at", "ALTER TABLE distribution_reports ADD COLUMN auto_confirmed_at TEXT"],
+    ["resolution_action", "ALTER TABLE distribution_reports ADD COLUMN resolution_action TEXT"],
+    ["resolution_note", "ALTER TABLE distribution_reports ADD COLUMN resolution_note TEXT"],
+    ["resolved_by", "ALTER TABLE distribution_reports ADD COLUMN resolved_by TEXT"],
+    ["resolved_at", "ALTER TABLE distribution_reports ADD COLUMN resolved_at TEXT"],
+    ["manager_submission_count", "ALTER TABLE distribution_reports ADD COLUMN manager_submission_count INTEGER NOT NULL DEFAULT 1"],
+    ["manager_reopen_allowed", "ALTER TABLE distribution_reports ADD COLUMN manager_reopen_allowed INTEGER NOT NULL DEFAULT 0"],
+    ["manager_reopen_action", "ALTER TABLE distribution_reports ADD COLUMN manager_reopen_action TEXT"],
+    ["manager_reopen_authorized_by", "ALTER TABLE distribution_reports ADD COLUMN manager_reopen_authorized_by TEXT"],
+    ["manager_reopen_authorized_at", "ALTER TABLE distribution_reports ADD COLUMN manager_reopen_authorized_at TEXT"],
+    ["manager_reopen_used_at", "ALTER TABLE distribution_reports ADD COLUMN manager_reopen_used_at TEXT"],
+  ] as const;
+  for (const [columnName, statement] of distributionReportColumnMigrations) {
+    if (!distributionReportColumnNames.has(columnName)) await db.prepare(statement).run();
+  }
+  await db.prepare(`UPDATE distribution_reports
+    SET confirmation_source = 'system', auto_confirmed_at = COALESCE(auto_confirmed_at, created_at)
+    WHERE (reported_by = 'System' OR comments = 'অটো-রিসিভড (২ টার পর)')
+      AND (COALESCE(confirmation_source, '') <> 'system' OR auto_confirmed_at IS NULL)`).run();
+  await db.prepare(`INSERT OR IGNORE INTO distribution_report_submissions (
+      report_id, submission_number,
+      received_bread, received_egg, received_banana,
+      shortage_bread, shortage_egg, shortage_banana,
+      excess_bread, excess_egg, excess_banana,
+      problem_type, reason, comments, submitted_by, submitted_at
+    )
+    SELECT id, 1,
+      received_bread, received_egg, received_banana,
+      shortage_bread, shortage_egg, shortage_banana,
+      excess_bread, excess_egg, excess_banana,
+      problem_type, reason, comments, reported_by, created_at
+    FROM distribution_reports
+    WHERE confirmation_source = 'manager'`).run();
+
+  await db.prepare(`INSERT INTO system_settings
+      (setting_key, setting_value, updated_by, updated_at)
+    VALUES ('runtime_bootstrap_version', ?, 'System', CURRENT_TIMESTAMP)
+    ON CONFLICT(setting_key) DO UPDATE SET
+      setting_value = excluded.setting_value,
+      updated_by = excluded.updated_by,
+      updated_at = CURRENT_TIMESTAMP
+    WHERE system_settings.setting_value <> excluded.setting_value`)
+    .bind(RUNTIME_BOOTSTRAP_VERSION)
+    .run();
 
   ready = true;
   return db;

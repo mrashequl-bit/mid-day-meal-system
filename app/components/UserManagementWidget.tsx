@@ -35,6 +35,7 @@ export function UserManagementWidget() {
   const [editorMode, setEditorMode] = useState<"create" | "edit" | null>(null);
   const [form, setForm] = useState(emptyForm);
   const [query, setQuery] = useState("");
+  const [roleFilter, setRoleFilter] = useState("all");
   const [message, setMessage] = useState("");
   const [saving, setSaving] = useState(false);
 
@@ -53,12 +54,13 @@ export function UserManagementWidget() {
 
   const filteredUsers = useMemo(() => {
     const needle = query.trim().toLocaleLowerCase("bn");
-    if (!needle) return users;
-    return users.filter((user) =>
-      [user.name, user.username, user.phone, user.email, user.area_name]
-        .filter(Boolean).some((value) => String(value).toLocaleLowerCase("bn").includes(needle)),
-    );
-  }, [query, users]);
+    return users.filter((user) => {
+      if (roleFilter !== "all" && user.role !== roleFilter) return false;
+      if (!needle) return true;
+      return [user.name, user.username, user.phone, user.email, user.area_name]
+        .filter(Boolean).some((value) => String(value).toLocaleLowerCase("bn").includes(needle));
+    });
+  }, [query, roleFilter, users]);
 
   function closeEditor() { setEditing(null); setEditorMode(null); setForm(emptyForm); }
 
@@ -119,7 +121,7 @@ export function UserManagementWidget() {
       <div className="user-manager-layer" role="presentation" onClick={() => setOpen(false)}>
         <section className="user-manager-dialog" role="dialog" aria-modal="true" aria-label="ইউজার ম্যানেজমেন্ট" onClick={(event) => event.stopPropagation()}>
           <header><div><small>সুপার অ্যাডমিন কন্ট্রোল</small><h2>ইউজার ম্যানেজমেন্ট</h2><p>সিস্টেমের সকল প্রোফাইল ও অ্যাকাউন্ট স্ট্যাটাস পরিচালনা করুন</p></div><button type="button" aria-label="বন্ধ করুন" onClick={() => setOpen(false)}>×</button></header>
-          <div className="user-manager-toolbar"><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="নাম, মোবাইল, ইউজারনেম বা অঞ্চল দিয়ে খুঁজুন" /><span>{filteredUsers.length}টি অ্যাকাউন্ট</span><button className="button-primary user-add-button" type="button" onClick={startCreate}>নতুন ইউজার যোগ করুন</button></div>
+          <div className="user-manager-toolbar"><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="নাম, মোবাইল, ইউজারনেম বা অঞ্চল দিয়ে খুঁজুন" /><select className="user-role-filter" aria-label="ইউজার রোল অনুযায়ী ফিল্টার" value={roleFilter} onChange={(event) => setRoleFilter(event.target.value)}><option value="all">সব রোল</option>{Object.entries(USER_ROLE_LABELS).map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select><span>{filteredUsers.length}টি অ্যাকাউন্ট</span><button className="button-primary user-add-button" type="button" onClick={startCreate}>নতুন ইউজার যোগ করুন</button></div>
           {message && <p className="user-manager-message" role="status">{message}</p>}
           <div className="managed-user-grid">{filteredUsers.map((user) => (
             <article key={user.id} className={user.is_active ? "" : "managed-user-disabled"}>

@@ -7,6 +7,7 @@ import { SettingsModule } from "./components/SettingsModule";
 import { SystemBrandSync } from "./components/SystemBrandSync";
 import { AreaAccountPage } from "./components/AreaAccountPage";
 import { EmbeddedAreaExpenseWorkspace } from "./components/EmbeddedAreaExpenseWorkspace";
+import { TiffinManagerPortal } from "./components/TiffinManagerPortal";
 import { areas } from "./data/schools";
 import { getAuthUser } from "./lib/auth";
 
@@ -43,13 +44,21 @@ export default async function Home() {
         showSettings={user.role === "super_admin"}
       />
       <SystemBrandSync />
-      <DashboardApp
-        userName={user.name || "User"}
-        userEmail={user.mobile || ""}
-        userRole={user.role || ""}
-        userAreaCode={user.areaCode || ""}
-      />
-      {user.role !== "area_manager" && <EmbeddedAreaExpenseWorkspace />}
+      {user.role === "tiffin_manager" ? (
+        <TiffinManagerPortal
+          userName={user.name || "টিফিন ম্যানেজার"}
+          schoolEmis={user.username}
+        />
+      ) : (
+        <DashboardApp
+          userName={user.name || "User"}
+          userEmail={user.mobile || ""}
+          userRole={user.role || ""}
+          userAreaCode={user.areaCode || ""}
+          userSchoolEmis=""
+        />
+      )}
+      {user.role !== "area_manager" && user.role !== "tiffin_manager" && <EmbeddedAreaExpenseWorkspace />}
       <ReportDashboardWidgets
         accountRole={user.role || ""}
         userAreaCode={user.areaCode || ""}

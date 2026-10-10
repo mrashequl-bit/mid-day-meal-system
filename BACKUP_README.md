@@ -1,50 +1,47 @@
-# Mid Day Meal System Backup
+# Mid Day Meal System Full Backup
 
-Each backup folder contains the editable application source, package lockfile,
-database migrations, Sites/Cloudflare configuration, public assets, build
-support files, and a snapshot of the current local D1 database. The folder also
-contains `instructions.rtf` with the complete restore and agent handoff guide.
-
-## Run on another computer
-
-1. Extract the ZIP to a normal writable folder.
-2. Install Node.js 22.13 or newer.
-3. Open a terminal in the extracted `Mid Day Meal` folder.
-4. Run `npm install`.
-5. Run `npm run dev`.
-6. Open the local URL printed by the development server.
-
-The `.wrangler/state` folder contains the backed-up local database. Keep that
-folder with the project if the existing local records are needed. The `build`
-folder is also included because `vite.config.ts` depends on its plugin file.
-
-## Production-style local check
-
-Run:
+Run the timestamped full-backup workflow from the project root:
 
 ```powershell
-npm run build
-npm run start
+npm.cmd run backup
 ```
 
-For a completely new empty database, provide `INITIAL_ADMIN_PASSWORD` as a
-secret environment binding during the first startup. Existing backed-up users
-do not need to be recreated.
+Or run `backup_script.ps1`. The wrapper uses its own folder, so the project can
+move to another drive or computer without editing the script.
 
-## Continue editing with an agent
+Every successful run creates this structure under `Backup`:
 
-Open the extracted project folder as the agent workspace. Before handing off
-changes, run:
+```text
+MidDayMeal_Full_Backup_YYYY-MM-DD_HH-mm-ss/
+  project/                         editable source snapshot
+  database/production-d1-full.sql full production Cloudflare D1 export
+  database/production-d1.sqlite   verified portable production snapshot
+  database/restore-local-d1.mjs   local restore helper
+  database/local-wrangler-state/  local D1 state when available
+  metadata/                        Git, runtime and Cloudflare inventory
+  instructions.rtf                restore and plug-and-play guide
+  backup-manifest.json            machine-readable description
+  checksums.sha256                 integrity hashes
+  BACKUP_COMPLETE                 completion marker
+```
+
+The snapshot excludes `node_modules`, generated builds, caches, `.git`, and
+previous backups. Cloudflare secret values cannot be exported; source environment
+files may contain secrets, so keep the entire backup private. `package-lock.json` recreates dependencies,
+while `metadata/repository.bundle` preserves committed Git history and `project`
+preserves the exact working tree, including uncommitted files.
+
+Local SQLite files are captured using the online backup API rather than copying
+open database/WAL files. Production table counts, integrity checks, configuration,
+and exact Node.js/npm versions are recorded in metadata and the restore guide.
+Cloudflare bindings still require credentials and internet access on another PC.
+
+Verify a completed backup from the project root:
 
 ```powershell
-npm test
-npx tsc --noEmit
-npm run lint
-npx drizzle-kit check
+node verify_backup.mjs "C:\path\to\MidDayMeal_Full_Backup_TIMESTAMP"
 ```
 
-## Security
-
-This backup can contain local operational records, user profiles, session
-metadata, and password hashes. Store and transfer the ZIP as a private file.
-Do not upload it to a public repository or public file-sharing location.
+The command fails when the production D1 export is missing or incomplete. A
+failed folder keeps `BACKUP_IN_PROGRESS` and writes `BACKUP_FAILED.txt`; only a
+folder containing `BACKUP_COMPLETE` is a valid restore point.

@@ -1,0 +1,2779 @@
+.tiffin-portal {
+  --tm-primary: #07586b;
+  --tm-primary-dark: #003f50;
+  --tm-teal: #087b78;
+  --tm-bg: #f4f8fb;
+  --tm-card: #fff;
+  --tm-line: #d8e3e8;
+  --tm-text: #102d36;
+  --tm-muted: #607780;
+  background:
+    radial-gradient(circle at 95% 0, rgba(7, 88, 107, 0.1), transparent 26rem),
+    var(--tm-bg);
+  color: var(--tm-text);
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+.tiffin-topbar {
+  align-items: center;
+  background: rgba(255, 255, 255, 0.94);
+  border-bottom: 1px solid var(--tm-line);
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  min-height: 68px;
+  padding: 0 max(24px, calc((100vw - 1200px) / 2));
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  backdrop-filter: blur(14px);
+}
+.tiffin-brand {
+  align-items: center;
+  display: flex;
+  gap: 10px;
+}
+.tiffin-brand > span {
+  align-items: center;
+  background: var(--tm-primary);
+  border-radius: 12px;
+  color: #fff;
+  display: flex;
+  height: 42px;
+  justify-content: center;
+  width: 42px;
+}
+.tiffin-brand svg {
+  height: 22px;
+  width: 22px;
+}
+.tiffin-brand strong,
+.tiffin-brand small {
+  display: block;
+}
+.tiffin-brand strong {
+  font-size: 16px;
+}
+.tiffin-brand small {
+  color: var(--tm-muted);
+  font-size: 11px;
+}
+.tiffin-topbar > nav {
+  display: flex;
+  gap: 7px;
+}
+.tiffin-topbar > nav button {
+  align-items: center;
+  background: transparent;
+  border: 0;
+  border-radius: 10px;
+  color: var(--tm-muted);
+  cursor: pointer;
+  display: flex;
+  font-size: 14px;
+  font-weight: 750;
+  gap: 7px;
+  min-height: 42px;
+  padding: 8px 14px;
+}
+.tiffin-topbar > nav button svg {
+  height: 18px;
+  width: 18px;
+}
+.tiffin-topbar > nav button.is-active {
+  background: #e1f0f3;
+  color: var(--tm-primary);
+}
+.account-launcher-host {
+  min-height: 1px;
+  justify-self: end;
+}
+.tiffin-main {
+  flex: 1;
+  margin: 0 auto;
+  max-width: 1200px;
+  padding: 28px 24px 70px;
+  width: 100%;
+}
+.tiffin-eyebrow {
+  color: var(--tm-teal);
+  font-size: 11px;
+  font-weight: 850;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+.tiffin-welcome-card {
+  align-items: center;
+  background: linear-gradient(135deg, var(--tm-primary-dark), #0b7683);
+  border-radius: 20px;
+  color: #fff;
+  display: flex;
+  gap: 28px;
+  justify-content: space-between;
+  margin-bottom: 25px;
+  overflow: hidden;
+  padding: 28px 30px;
+  position: relative;
+  box-shadow: 0 18px 40px rgba(0, 63, 80, 0.16);
+}
+.tiffin-welcome-card:after {
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 50%;
+  content: "";
+  height: 220px;
+  position: absolute;
+  right: -70px;
+  top: -100px;
+  width: 220px;
+}
+.tiffin-welcome-card .tiffin-eyebrow {
+  color: #91e3dd;
+}
+.tiffin-welcome-card h2 {
+  font-size: 27px;
+  margin: 5px 0;
+}
+.tiffin-welcome-card p {
+  color: #d6ebef;
+  font-size: 14px;
+  line-height: 1.7;
+  margin: 0;
+  max-width: 650px;
+}
+.tiffin-welcome-card button,
+.tiffin-form-actions button {
+  align-items: center;
+  background: #fff;
+  border: 0;
+  border-radius: 11px;
+  color: var(--tm-primary-dark);
+  cursor: pointer;
+  display: flex;
+  flex: none;
+  font-size: 13px;
+  font-weight: 850;
+  gap: 8px;
+  min-height: 48px;
+  padding: 10px 17px;
+  position: relative;
+  z-index: 1;
+}
+.tiffin-welcome-card button svg,
+.tiffin-form-actions button svg {
+  height: 18px;
+  width: 18px;
+}
+.tiffin-section-title {
+  align-items: flex-end;
+  display: flex;
+  justify-content: space-between;
+  margin: 0 0 13px;
+}
+.tiffin-section-title h2 {
+  font-size: 22px;
+  margin: 3px 0 0;
+}
+.tiffin-allocation-section {
+  margin-bottom: 24px;
+}
+.tiffin-allocation-grid {
+  display: grid;
+  gap: 15px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+.tiffin-allocation-card {
+  background: var(--tm-card);
+  border: 1px solid var(--tm-line);
+  border-radius: 16px;
+  box-shadow: 0 8px 25px rgba(24, 66, 78, 0.06);
+  padding: 17px;
+}
+.tiffin-item-head {
+  align-items: center;
+  display: grid;
+  gap: 11px;
+  grid-template-columns: 44px 1fr auto;
+}
+.tiffin-item-head > span {
+  align-items: center;
+  background: #fff0d5;
+  border-radius: 12px;
+  color: #8b5700;
+  display: flex;
+  height: 44px;
+  justify-content: center;
+  width: 44px;
+}
+.tiffin-allocation-card.is-egg .tiffin-item-head > span {
+  background: #dff3f1;
+  color: #08706e;
+}
+.tiffin-allocation-card.is-banana .tiffin-item-head > span {
+  background: #fff5bd;
+  color: #776500;
+}
+.tiffin-item-head img {
+  height: 22px;
+  object-fit: contain;
+  width: 22px;
+}
+.tiffin-item-head h3,
+.tiffin-item-head p {
+  margin: 0;
+}
+.tiffin-item-head h3 {
+  font-size: 17px;
+}
+.tiffin-item-head p {
+  color: var(--tm-muted);
+  font-size: 11px;
+  margin-top: 2px;
+}
+.tiffin-item-head b {
+  background: #e8eff2;
+  border-radius: 999px;
+  color: #526b73;
+  font-size: 9px;
+  padding: 5px 8px;
+  white-space: nowrap;
+}
+.tiffin-allocation-card dl {
+  border-top: 1px solid var(--tm-line);
+  margin: 15px 0 0;
+  padding-top: 9px;
+}
+.tiffin-allocation-card dl > div {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+  padding-top: 6px;
+}
+.tiffin-allocation-card dt {
+  color: var(--tm-muted);
+  font-size: 12px;
+}
+.tiffin-allocation-card dd {
+  color: var(--tm-primary);
+  font-size: 18px;
+  font-weight: 850;
+  margin: 0;
+}
+.tiffin-status-strip,
+.tiffin-no-plan {
+  align-items: center;
+  background: #fff;
+  border: 1px solid var(--tm-line);
+  border-radius: 15px;
+  display: flex;
+  gap: 14px;
+  padding: 17px 19px;
+}
+.tiffin-status-strip > span,
+.tiffin-no-plan > svg {
+  align-items: center;
+  background: #e5f3ee;
+  border-radius: 12px;
+  color: #16765b;
+  display: flex;
+  height: 44px;
+  justify-content: center;
+  width: 44px;
+}
+.tiffin-status-strip > span.is-open {
+  background: #fff0d5;
+  color: #996000;
+}
+.tiffin-status-strip svg,
+.tiffin-no-plan > svg {
+  height: 21px;
+  width: 21px;
+  padding: 0;
+}
+.tiffin-status-strip strong,
+.tiffin-status-strip p,
+.tiffin-no-plan strong,
+.tiffin-no-plan p {
+  display: block;
+  margin: 0;
+}
+.tiffin-status-strip p,
+.tiffin-no-plan p {
+  color: var(--tm-muted);
+  font-size: 12px;
+  margin-top: 3px;
+}
+.tiffin-report-panel {
+  background: #eaf1f6;
+  border: 1px solid #d1e0e8;
+  border-radius: 18px;
+  padding: 22px;
+}
+.tiffin-report-heading {
+  align-items: center;
+  display: flex;
+  gap: 12px;
+  margin-bottom: 19px;
+}
+.tiffin-report-heading > span {
+  align-items: center;
+  background: var(--tm-primary);
+  border-radius: 12px;
+  color: #fff;
+  display: flex;
+  height: 44px;
+  justify-content: center;
+  width: 44px;
+}
+.tiffin-report-heading svg {
+  height: 21px;
+  width: 21px;
+}
+.tiffin-report-heading h2,
+.tiffin-report-heading p {
+  margin: 0;
+}
+.tiffin-report-heading h2 {
+  font-size: 21px;
+}
+.tiffin-report-heading p {
+  color: var(--tm-muted);
+  font-size: 12px;
+  margin-top: 3px;
+}
+.tiffin-input-grid {
+  display: grid;
+  gap: 14px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+.tiffin-input-grid label,
+.tiffin-note {
+  color: var(--tm-text);
+  display: grid;
+  font-size: 13px;
+  font-style: normal;
+  font-weight: 750;
+  gap: 6px;
+}
+.tiffin-input-grid label > div {
+  align-items: center;
+  background: #fff;
+  border: 1px solid var(--tm-line);
+  border-radius: 10px;
+  display: flex;
+  overflow: hidden;
+}
+.tiffin-input-grid input {
+  background: transparent;
+  border: 0;
+  color: var(--tm-text);
+  font-size: 20px;
+  font-weight: 800;
+  min-height: 49px;
+  min-width: 0;
+  padding: 9px 12px;
+  width: 100%;
+}
+.tiffin-input-grid label > div small {
+  color: var(--tm-muted);
+  font-size: 11px;
+  padding-right: 12px;
+}
+.tiffin-input-grid em {
+  font-size: 11px;
+  font-style: normal;
+}
+.tiffin-input-grid em.is-short {
+  color: #af3d34;
+}
+.tiffin-input-grid em.is-excess {
+  color: #8b6200;
+}
+.tiffin-input-grid em.is-exact {
+  color: #137254;
+}
+.tiffin-note {
+  margin-top: 16px;
+}
+.tiffin-note textarea {
+  background: #fff;
+  border: 1px solid var(--tm-line);
+  border-radius: 10px;
+  font-size: 14px;
+  padding: 11px;
+  resize: vertical;
+}
+.tiffin-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 17px;
+}
+.tiffin-form-actions button {
+  background: var(--tm-primary);
+  color: #fff;
+}
+.tiffin-form-actions button:disabled,
+.tiffin-welcome-card button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+.tiffin-cutoff {
+  align-items: center;
+  background: #fff5dc;
+  border: 1px solid #efd89d;
+  border-radius: 10px;
+  color: #77500b;
+  display: flex;
+  font-size: 12px;
+  gap: 8px;
+  margin-top: 14px;
+  padding: 10px 12px;
+}
+.tiffin-cutoff svg {
+  flex: none;
+  height: 17px;
+  width: 17px;
+}
+.tiffin-report-edit-state {
+  align-items: center;
+  border: 1px solid #f0c9c9;
+  border-radius: 9px;
+  display: flex;
+  flex: 0 1 360px;
+  gap: 7px;
+  margin: 0;
+  max-width: 360px;
+  padding: 7px 10px;
+}
+.tiffin-report-edit-state.is-locked { background: #fff5f5; color: #9d2929; }
+.tiffin-report-edit-state.is-reopened { background: #edfaf5; border-color: #addfcd; color: #08745b; }
+.tiffin-report-edit-state > svg { flex: none; height: 15px; width: 15px; }
+.tiffin-report-edit-state strong { display: block; font-size: 11px; line-height: 1.25; }
+.tiffin-report-edit-state p { color: #657a77; font-size: 9px; line-height: 1.3; margin: 1px 0 0; }
+.tiffin-empty {
+  align-items: center;
+  background: #fff;
+  border: 1px dashed #b9cbd4;
+  border-radius: 13px;
+  color: var(--tm-muted);
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  padding: 34px;
+  text-align: center;
+}
+.tiffin-empty svg {
+  height: 30px;
+  width: 30px;
+}
+.tiffin-message {
+  background: #fff1ef;
+  border: 1px solid #f1c9c4;
+  border-radius: 10px;
+  color: #963f35;
+  margin-bottom: 16px;
+  padding: 10px 13px;
+}
+.tiffin-message.is-success {
+  background: #e8f5ee;
+  border-color: #c5e5d4;
+  color: #126b50;
+}
+.tiffin-bottom-nav {
+  display: none;
+}
+.tiffin-school-footer {
+  align-items: center;
+  background: linear-gradient(135deg, #ffffff, #f0f8f6);
+  border: 1px solid var(--tm-line);
+  border-radius: 18px;
+  box-shadow: 0 12px 32px rgba(16, 45, 54, 0.08);
+  display: flex;
+  gap: 14px;
+  margin: 0 auto 24px;
+  max-width: 1152px;
+  overflow: hidden;
+  padding: 10px 16px;
+  position: relative;
+  width: calc(100% - 48px);
+}
+.tiffin-school-footer::after {
+  background: linear-gradient(180deg, var(--tm-primary), var(--tm-teal));
+  content: "";
+  inset: 0 auto 0 0;
+  position: absolute;
+  width: 4px;
+}
+.tiffin-school-footer-icon {
+  align-items: center;
+  background: #e1f0ed;
+  border-radius: 11px;
+  color: var(--tm-primary);
+  display: flex;
+  flex: 0 0 38px;
+  height: 38px;
+  justify-content: center;
+}
+.tiffin-school-footer-icon svg {
+  height: 19px;
+  width: 19px;
+}
+.tiffin-school-footer > div {
+  min-width: 0;
+}
+.tiffin-school-footer strong {
+  display: block;
+}
+.tiffin-school-footer strong {
+  color: var(--tm-text);
+  font-size: 16px;
+  line-height: 1.25;
+}
+.tiffin-school-footer small {
+  align-items: center;
+  color: var(--tm-muted);
+  display: flex;
+  flex-wrap: wrap;
+  font-size: 11px;
+  gap: 5px;
+  margin-top: 1px;
+}
+.tiffin-school-footer small svg {
+  height: 13px;
+  width: 13px;
+}
+.tiffin-school-footer small i {
+  background: #b9cbc6;
+  border-radius: 50%;
+  height: 3px;
+  margin: 0 2px;
+  width: 3px;
+}
+.tiffin-school-footer small b {
+  color: var(--tm-primary);
+  font-weight: 800;
+}
+@media (max-width: 760px) {
+  .tiffin-topbar {
+    display: flex;
+    gap: 12px;
+    justify-content: space-between;
+    min-height: 64px;
+    padding: 0 16px;
+  }
+  .tiffin-topbar > nav {
+    display: none;
+  }
+  .tiffin-brand > span {
+    height: 38px;
+    width: 38px;
+  }
+  .tiffin-brand strong {
+    font-size: 14px;
+  }
+  .tiffin-main {
+    padding: 21px 14px 34px;
+  }
+  .tiffin-welcome-card {
+    align-items: flex-start;
+    display: grid;
+    padding: 22px;
+  }
+  .tiffin-welcome-card h2 {
+    font-size: 23px;
+  }
+  .tiffin-welcome-card button {
+    width: 100%;
+    justify-content: center;
+  }
+  .tiffin-allocation-grid,
+  .tiffin-input-grid {
+    grid-template-columns: 1fr;
+  }
+  .tiffin-report-panel {
+    padding: 17px;
+  }
+  .tiffin-form-actions button {
+    justify-content: center;
+    width: 100%;
+  }
+  .tiffin-bottom-nav {
+    align-items: center;
+    background: rgba(255, 255, 255, 0.97);
+    border-top: 1px solid var(--tm-line);
+    bottom: 0;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    left: 0;
+    padding: 7px 8px calc(7px + env(safe-area-inset-bottom));
+    position: fixed;
+    right: 0;
+    z-index: 25;
+    box-shadow: 0 -10px 30px rgba(16, 45, 54, 0.11);
+  }
+  .tiffin-bottom-nav button {
+    align-items: center;
+    background: transparent;
+    border: 0;
+    border-radius: 12px;
+    color: var(--tm-muted);
+    display: flex;
+    flex-direction: column;
+    font-size: 10px;
+    font-weight: 750;
+    gap: 2px;
+    height: 52px;
+    justify-content: center;
+  }
+  .tiffin-bottom-nav button svg {
+    height: 21px;
+    width: 21px;
+  }
+  .tiffin-bottom-nav button.is-active {
+    background: #e1f0f3;
+    color: var(--tm-primary);
+  }
+  .tiffin-topbar .account-launcher-host {
+    display: none;
+  }
+  .tiffin-mobile-profile-host {
+    align-items: center;
+    display: flex;
+    height: 52px;
+    justify-content: stretch;
+    justify-self: stretch;
+    min-width: 0;
+    width: 100%;
+  }
+  .tiffin-portal .tiffin-mobile-profile-host .account-user-card {
+    background: transparent;
+    border: 0;
+    box-shadow: none;
+    display: block;
+    height: 52px;
+    inset: auto;
+    padding: 0;
+    position: static;
+    width: 100%;
+    z-index: auto;
+  }
+  .tiffin-portal .tiffin-mobile-profile-host .account-profile-launcher {
+    background: transparent;
+    border: 0;
+    border-radius: 12px;
+    box-shadow: none;
+    color: var(--tm-muted);
+    gap: 2px;
+    height: 52px !important;
+    padding: 0;
+    position: static;
+    width: 100%;
+  }
+  .tiffin-portal .tiffin-mobile-profile-host .account-profile-launcher:hover,
+  .tiffin-portal .tiffin-mobile-profile-host .account-profile-launcher[aria-expanded="true"] {
+    background: #e1f0f3;
+    color: var(--tm-primary);
+  }
+  .tiffin-portal .tiffin-mobile-profile-host .account-launcher-avatar {
+    background: transparent;
+    border: 0;
+    border-radius: 50% !important;
+    box-shadow: none;
+    color: currentColor;
+    height: 22px;
+    width: 22px;
+  }
+  .tiffin-portal .tiffin-mobile-profile-host img.account-launcher-avatar {
+    border: 1px solid currentColor;
+    object-fit: cover;
+  }
+  .tiffin-portal .tiffin-mobile-profile-host .account-launcher-avatar svg {
+    height: 21px;
+    width: 21px;
+  }
+  .tiffin-portal .tiffin-mobile-profile-host .mobile-profile-label {
+    display: block;
+    font-size: 9px;
+    font-weight: 750;
+    line-height: 1.2;
+    white-space: nowrap;
+  }
+  .tiffin-school-footer {
+    align-items: flex-start;
+    border-radius: 15px;
+    gap: 11px;
+    margin-bottom: calc(78px + env(safe-area-inset-bottom));
+    padding: 10px 12px;
+    width: calc(100% - 28px);
+  }
+  .tiffin-school-footer-icon {
+    border-radius: 11px;
+    flex-basis: 34px;
+    height: 34px;
+  }
+  .tiffin-school-footer-icon svg {
+    height: 17px;
+    width: 17px;
+  }
+  .tiffin-school-footer strong {
+    font-size: 14px;
+  }
+  .tiffin-school-footer small {
+    font-size: 10px;
+  }
+  .tiffin-section-title h2 {
+    font-size: 20px;
+  }
+}
+
+.tiffin-monthly-page {
+  display: grid;
+  gap: 18px;
+}
+.tiffin-monthly-heading {
+  align-items: end;
+  display: flex;
+  gap: 20px;
+  justify-content: space-between;
+}
+.tiffin-monthly-heading h2,
+.tiffin-monthly-heading p {
+  margin: 0;
+}
+.tiffin-monthly-heading h2 {
+  font-size: 25px;
+  margin-top: 4px;
+}
+.tiffin-monthly-heading p {
+  color: var(--tm-muted);
+  font-size: 12px;
+  margin-top: 4px;
+}
+.tiffin-month-picker {
+  align-items: center;
+  background: #fff;
+  border: 1px solid var(--tm-line);
+  border-radius: 13px;
+  display: grid;
+  grid-template-columns: 38px minmax(155px, auto) 38px;
+  padding: 5px;
+}
+.tiffin-month-picker button {
+  background: #e8f3f4;
+  border: 0;
+  border-radius: 9px;
+  color: var(--tm-primary);
+  display: grid;
+  height: 36px;
+  place-items: center;
+  width: 36px;
+}
+.tiffin-month-picker button svg {
+  height: 19px;
+  width: 19px;
+}
+.tiffin-month-picker strong {
+  text-align: center;
+}
+.tiffin-monthly-controls {
+  align-items: end;
+  display: grid;
+  gap: 9px;
+  justify-items: end;
+}
+.tiffin-month-report-actions {
+  display: flex;
+  gap: 8px;
+}
+.tiffin-month-report-actions button {
+  align-items: center;
+  background: #fff;
+  border: 1px solid #b8d4d1;
+  border-radius: 9px;
+  color: #075e63;
+  cursor: pointer;
+  display: flex;
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 850;
+  gap: 6px;
+  min-height: 36px;
+  padding: 7px 11px;
+}
+.tiffin-month-report-actions button:disabled {
+  cursor: wait;
+  opacity: .55;
+}
+.tiffin-month-report-actions svg {
+  height: 15px;
+  width: 15px;
+}
+
+/* Distribution receipt workspace */
+.tiffin-portal .sr-only {
+  clip: rect(0, 0, 0, 0);
+  clip-path: inset(50%);
+  height: 1px;
+  overflow: hidden;
+  position: absolute;
+  white-space: nowrap;
+  width: 1px;
+}
+.tiffin-distribution-title {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 22px;
+}
+.tiffin-distribution-title h1 {
+  font-size: clamp(26px, 3vw, 36px);
+  line-height: 1.2;
+  margin: 6px 0 0;
+}
+.tiffin-distribution-date {
+  align-items: center;
+  background: rgba(255, 255, 255, 0.82);
+  border: 1px solid var(--tm-line);
+  border-radius: 14px;
+  display: flex;
+  gap: 11px;
+  min-width: 194px;
+  padding: 13px 16px;
+}
+.tiffin-distribution-date > svg {
+  color: var(--tm-primary);
+  height: 26px;
+  width: 26px;
+}
+.tiffin-distribution-date strong,
+.tiffin-distribution-date small {
+  display: block;
+}
+.tiffin-distribution-date strong { font-size: 14px; }
+.tiffin-distribution-date small { color: var(--tm-muted); margin-top: 2px; }
+.tiffin-receipt-overview {
+  display: grid;
+  gap: 18px;
+  grid-template-columns: minmax(0, 1.6fr) minmax(300px, .9fr);
+  margin-bottom: 22px;
+}
+.tiffin-expected-supply,
+.tiffin-all-received {
+  background: rgba(255, 255, 255, 0.75);
+  border: 1px solid var(--tm-line);
+  border-radius: 18px;
+  padding: 20px 22px;
+}
+.tiffin-expected-supply h2 {
+  color: #36535d;
+  font-size: 15px;
+  margin: 0 0 14px;
+}
+.tiffin-expected-supply > div {
+  display: grid;
+  gap: 13px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+.tiffin-expected-supply article {
+  align-items: center;
+  background: #fff;
+  border: 1px solid #edf2f4;
+  border-radius: 14px;
+  display: flex;
+  gap: 12px;
+  min-width: 0;
+  padding: 14px;
+}
+.tiffin-expected-supply article > span,
+.tiffin-receipt-item > span {
+  align-items: center;
+  background: #fff1dc;
+  border-radius: 12px;
+  display: flex;
+  flex: none;
+  height: 46px;
+  justify-content: center;
+  width: 46px;
+}
+.tiffin-expected-supply article.is-egg > span,
+.tiffin-receipt-row.is-egg .tiffin-receipt-item > span { background: #e4f5f3; }
+.tiffin-expected-supply article.is-banana > span { background: #fff8ca; }
+.tiffin-expected-supply img,
+.tiffin-receipt-item img { object-fit: contain; }
+.tiffin-expected-supply strong,
+.tiffin-expected-supply b { display: block; }
+.tiffin-expected-supply strong { font-size: 15px; }
+.tiffin-expected-supply b { color: var(--tm-primary); font-size: 24px; margin-top: 3px; }
+.tiffin-expected-supply b small { color: var(--tm-muted); font-size: 11px; font-weight: 650; }
+.tiffin-all-received {
+  align-items: center;
+  background: linear-gradient(135deg, #f7fffc, #eefaf7);
+  border-color: #b9dfd2;
+  display: grid;
+  gap: 8px 12px;
+  grid-template-columns: 46px 1fr;
+}
+.tiffin-all-received > span,
+.tiffin-receipt-success > span {
+  align-items: center;
+  background: #14936d;
+  border-radius: 50%;
+  color: #fff;
+  display: flex;
+  height: 46px;
+  justify-content: center;
+  width: 46px;
+}
+.tiffin-all-received > span svg { height: 24px; width: 24px; }
+.tiffin-all-received strong { display: block; font-size: 16px; }
+.tiffin-all-received p { color: var(--tm-muted); font-size: 12px; line-height: 1.5; margin: 3px 0 0; }
+.tiffin-all-received button {
+  align-items: center;
+  background: linear-gradient(135deg, #087d69, #006172);
+  border: 0;
+  border-radius: 10px;
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  font-weight: 800;
+  gap: 8px;
+  grid-column: 1 / -1;
+  justify-content: center;
+  min-height: 48px;
+  margin-top: 5px;
+  padding: 10px 14px;
+}
+.tiffin-all-received button:disabled { cursor: not-allowed; opacity: .55; }
+.tiffin-receipt-panel {
+  background: rgba(255, 255, 255, 0.84);
+  border-color: var(--tm-line);
+  padding: 26px;
+}
+.tiffin-receipt-heading {
+  align-items: flex-start;
+  display: flex;
+  gap: 18px;
+  justify-content: space-between;
+}
+.tiffin-receipt-heading h2,
+.tiffin-receipt-heading p { margin: 0; }
+.tiffin-receipt-heading h2 { font-size: 22px; }
+.tiffin-receipt-heading p { color: var(--tm-muted); font-size: 12px; margin-top: 4px; }
+.tiffin-receipt-table {
+  border: 1px solid var(--tm-line);
+  border-radius: 14px;
+  margin-top: 20px;
+  overflow: hidden;
+}
+.tiffin-receipt-table-head,
+.tiffin-receipt-row {
+  display: grid;
+  gap: 14px;
+  grid-template-columns: minmax(145px, 1.35fr) minmax(90px, .7fr) minmax(225px, 1.35fr) minmax(80px, .65fr) minmax(92px, .7fr);
+}
+.tiffin-receipt-table-head {
+  background: #f3f8fa;
+  color: #345460;
+  font-size: 12px;
+  font-weight: 800;
+  padding: 14px 18px;
+}
+.tiffin-receipt-row {
+  align-items: center;
+  background: #fff;
+  border-top: 1px solid var(--tm-line);
+  padding: 18px;
+}
+.tiffin-receipt-item { align-items: center; display: flex; gap: 12px; }
+.tiffin-receipt-item > span { height: 44px; width: 44px; }
+.tiffin-receipt-item strong { font-size: 16px; }
+.tiffin-expected-value b,
+.tiffin-expected-value small,
+.tiffin-difference b,
+.tiffin-difference small { display: block; }
+.tiffin-expected-value b,
+.tiffin-difference b { font-size: 20px; }
+.tiffin-expected-value small,
+.tiffin-difference small { color: var(--tm-muted); font-size: 11px; }
+.tiffin-quantity-stepper { align-items: center; display: grid; gap: 7px; grid-template-columns: 44px minmax(90px, 1fr) 44px; }
+.tiffin-quantity-stepper > button {
+  align-items: center;
+  background: #fff;
+  border: 1px solid #c8d8e0;
+  border-radius: 10px;
+  color: var(--tm-primary-dark);
+  cursor: pointer;
+  display: flex;
+  height: 48px;
+  justify-content: center;
+}
+.tiffin-quantity-stepper > button:disabled { cursor: not-allowed; opacity: .45; }
+.tiffin-quantity-stepper > button svg { height: 19px; width: 19px; }
+.tiffin-quantity-stepper label {
+  align-items: center;
+  background: #fff;
+  border: 1px solid #c8d8e0;
+  border-radius: 10px;
+  display: flex;
+  height: 48px;
+  overflow: hidden;
+}
+.tiffin-quantity-stepper input {
+  -moz-appearance: textfield;
+  background: transparent;
+  border: 0;
+  color: var(--tm-text);
+  font-size: 20px;
+  font-weight: 850;
+  min-width: 0;
+  padding: 9px 10px;
+  text-align: center;
+  width: 100%;
+}
+.tiffin-quantity-stepper input::-webkit-inner-spin-button,
+.tiffin-quantity-stepper input::-webkit-outer-spin-button { appearance: none; margin: 0; }
+.tiffin-quantity-stepper label small { color: var(--tm-muted); font-size: 10px; padding-right: 9px; }
+.tiffin-difference { text-align: center; }
+.tiffin-receipt-row.is-short .tiffin-difference { color: #c24848; }
+.tiffin-receipt-row.is-excess .tiffin-difference { color: #9b6500; }
+.tiffin-receipt-status {
+  align-items: center;
+  border-radius: 999px;
+  display: inline-flex;
+  font-size: 11px;
+  font-weight: 800;
+  gap: 5px;
+  padding: 8px 11px;
+}
+.tiffin-receipt-status svg { height: 16px; width: 16px; }
+.tiffin-receipt-status.is-exact { background: #e7f7f0; color: #0e815f; }
+.tiffin-receipt-status.is-short { background: #fff0ef; color: #b73838; }
+.tiffin-receipt-status.is-excess { background: #fff5dc; color: #8b6000; }
+.tiffin-quick-values {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  grid-column: 1 / -1;
+  margin-top: -2px;
+}
+.tiffin-quick-values > span { color: var(--tm-muted); font-size: 11px; margin-right: 8px; }
+.tiffin-quick-values button,
+.tiffin-quick-reasons button {
+  background: #fff;
+  border: 1px solid #c5d8df;
+  border-radius: 8px;
+  color: #355965;
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: 750;
+  min-height: 36px;
+  padding: 7px 13px;
+}
+.tiffin-quick-values button:nth-of-type(1) { border-color: #8acdb6; color: #087351; }
+.tiffin-quick-values button:nth-of-type(2) { border-color: #efbebe; color: #bc3b3b; }
+.tiffin-quick-values button:disabled,
+.tiffin-quick-reasons button:disabled { cursor: not-allowed; opacity: .5; }
+.tiffin-receipt-note-area {
+  border: 1px solid var(--tm-line);
+  border-radius: 13px;
+  margin-top: -1px;
+  padding: 18px;
+}
+.tiffin-receipt-info {
+  align-items: flex-start;
+  background: #f5f9ff;
+  border: 1px solid #d7e4f5;
+  border-radius: 11px;
+  color: #285796;
+  display: flex;
+  gap: 10px;
+  padding: 12px 14px;
+}
+.tiffin-receipt-info > svg { flex: none; height: 19px; margin-top: 1px; width: 19px; }
+.tiffin-receipt-info strong { font-size: 12px; }
+.tiffin-receipt-info p { color: #6c7e94; font-size: 11px; margin: 3px 0 0; }
+.tiffin-reason-picker {
+  border: 0;
+  margin: 16px 0 0;
+  padding: 0;
+}
+.tiffin-reason-picker legend {
+  color: #173e49;
+  font-size: 12px;
+  font-weight: 850;
+  margin-bottom: 9px;
+}
+.tiffin-reason-picker legend span {
+  background: #fff0ef;
+  border-radius: 999px;
+  color: #b73838;
+  font-size: 9px;
+  margin-left: 6px;
+  padding: 4px 7px;
+}
+.tiffin-reason-picker > div { display: flex; flex-wrap: wrap; gap: 8px; }
+.tiffin-reason-picker button {
+  align-items: center;
+  background: #fff;
+  border: 1px solid #d0dde1;
+  border-radius: 10px;
+  color: #355965;
+  cursor: pointer;
+  display: inline-flex;
+  font-size: 11px;
+  font-weight: 800;
+  gap: 6px;
+  justify-content: center;
+  min-height: 40px;
+  padding: 8px 14px;
+}
+.tiffin-reason-picker button:hover { border-color: #7fb7a9; }
+.tiffin-reason-picker button.is-selected {
+  background: #e9f8f2;
+  border-color: #198f6e;
+  box-shadow: 0 0 0 2px rgba(25, 143, 110, .1);
+  color: #087351;
+}
+.tiffin-reason-picker button svg { height: 15px; width: 15px; }
+.tiffin-reason-picker button:disabled { cursor: not-allowed; opacity: .5; }
+.tiffin-reason-picker.is-excess button.is-selected { background: #fff7df; border-color: #c89416; color: #805b00; }
+.tiffin-receipt-actions { display: grid; gap: 14px; grid-template-columns: 1fr 1.45fr; margin-top: 18px; }
+.tiffin-receipt-actions button {
+  align-items: center;
+  border-radius: 10px;
+  cursor: pointer;
+  display: flex;
+  font-size: 14px;
+  font-weight: 850;
+  gap: 8px;
+  justify-content: center;
+  min-height: 50px;
+}
+.tiffin-receipt-actions button svg { height: 19px; width: 19px; }
+.tiffin-receipt-actions .is-reset { background: #fff; border: 1px solid #9fb9c6; color: #416675; }
+.tiffin-receipt-actions .is-confirm { background: linear-gradient(135deg, #087b78, #005568); border: 0; color: #fff; }
+.tiffin-receipt-actions button:disabled { cursor: not-allowed; opacity: .5; }
+.tiffin-receipt-confirm-layer {
+  align-items: center;
+  background: rgba(4, 34, 40, .5);
+  display: flex;
+  inset: 0;
+  justify-content: center;
+  padding: 20px;
+  position: fixed;
+  z-index: 160;
+}
+.tiffin-receipt-confirm-dialog {
+  background: #fff;
+  border: 1px solid #c9dedf;
+  border-radius: 20px;
+  box-shadow: 0 24px 70px rgba(0, 42, 50, .24);
+  max-height: calc(100dvh - 40px);
+  max-width: 540px;
+  overflow-y: auto;
+  padding: 22px;
+  width: 100%;
+}
+.tiffin-receipt-confirm-dialog > header {
+  align-items: center;
+  display: grid;
+  gap: 12px;
+  grid-template-columns: 46px 1fr 36px;
+}
+.tiffin-receipt-confirm-dialog > header > span {
+  align-items: center;
+  background: #e3f5f0;
+  border-radius: 13px;
+  color: #07836a;
+  display: flex;
+  height: 46px;
+  justify-content: center;
+  width: 46px;
+}
+.tiffin-receipt-confirm-dialog > header > span svg { height: 24px; width: 24px; }
+.tiffin-receipt-confirm-dialog > header small { color: #07836a; display: block; font-size: 10px; font-weight: 850; }
+.tiffin-receipt-confirm-dialog > header h2 { font-size: 21px; margin: 2px 0 0; }
+.tiffin-receipt-confirm-dialog > header > button {
+  align-items: center;
+  background: #f5f8f8;
+  border: 1px solid #d5e2e3;
+  border-radius: 10px;
+  color: #47646b;
+  cursor: pointer;
+  display: flex;
+  height: 36px;
+  justify-content: center;
+  width: 36px;
+}
+.tiffin-receipt-confirm-dialog > header > button svg { height: 17px; width: 17px; }
+.tiffin-receipt-confirm-statement {
+  background: linear-gradient(135deg, #edf9f6, #f7fbfa);
+  border: 1px solid #c9e7de;
+  border-radius: 13px;
+  color: #0a554e;
+  font-size: 16px;
+  font-weight: 800;
+  line-height: 1.55;
+  margin: 18px 0 14px;
+  padding: 14px 16px;
+}
+.tiffin-receipt-confirm-items { display: grid; gap: 8px; }
+.tiffin-receipt-confirm-items article {
+  align-items: center;
+  background: #fff;
+  border: 1px solid #dce7e8;
+  border-radius: 12px;
+  display: grid;
+  gap: 10px;
+  grid-template-columns: 38px minmax(0, 1fr) auto auto;
+  padding: 10px 12px;
+}
+.tiffin-receipt-confirm-items article > span {
+  align-items: center;
+  background: #fff1d7;
+  border-radius: 10px;
+  display: flex;
+  height: 38px;
+  justify-content: center;
+  width: 38px;
+}
+.tiffin-receipt-confirm-items article > span.is-egg { background: #e5f5f3; }
+.tiffin-receipt-confirm-items article > span.is-banana { background: #fff7c9; }
+.tiffin-receipt-confirm-items article strong,
+.tiffin-receipt-confirm-items article div small { display: block; }
+.tiffin-receipt-confirm-items article div small { color: var(--tm-muted); font-size: 9px; margin-top: 2px; }
+.tiffin-receipt-confirm-items article > b { color: #053e4c; font-size: 18px; white-space: nowrap; }
+.tiffin-receipt-confirm-items article > b small { font-size: 10px; }
+.tiffin-receipt-confirm-items article > em {
+  background: #e5f6ef;
+  border-radius: 999px;
+  color: #087358;
+  font-size: 9px;
+  font-style: normal;
+  font-weight: 850;
+  padding: 5px 8px;
+  white-space: nowrap;
+}
+.tiffin-receipt-confirm-items article > em.is-different { background: #fff0e7; color: #a64b1b; }
+.tiffin-receipt-confirm-warning {
+  align-items: flex-start;
+  background: #fff8e8;
+  border: 1px solid #efd49d;
+  border-radius: 11px;
+  color: #85550d;
+  display: flex;
+  font-size: 11px;
+  gap: 8px;
+  line-height: 1.45;
+  margin-top: 12px;
+  padding: 10px 12px;
+}
+.tiffin-receipt-confirm-warning svg { flex: none; height: 17px; width: 17px; }
+.tiffin-receipt-confirm-dialog > footer { display: grid; gap: 10px; grid-template-columns: 1fr 1.35fr; margin-top: 18px; }
+.tiffin-receipt-confirm-dialog > footer button {
+  align-items: center;
+  border-radius: 10px;
+  cursor: pointer;
+  display: flex;
+  font-size: 13px;
+  font-weight: 850;
+  gap: 7px;
+  justify-content: center;
+  min-height: 46px;
+}
+.tiffin-receipt-confirm-dialog > footer .is-back { background: #fff; border: 1px solid #b9ced2; color: #42636c; }
+.tiffin-receipt-confirm-dialog > footer .is-confirm { background: linear-gradient(135deg, #078672, #006273); border: 0; color: #fff; }
+.tiffin-receipt-confirm-dialog > footer svg { height: 18px; width: 18px; }
+.tiffin-receipt-confirm-dialog button:disabled { cursor: not-allowed; opacity: .55; }
+.tiffin-receipt-success {
+  align-items: center;
+  background: linear-gradient(135deg, #f3fffb, #f7fffd);
+  border: 1px solid #b7dfd1;
+  border-radius: 17px;
+  display: grid;
+  gap: 15px;
+  grid-template-columns: 48px minmax(200px, 1fr) minmax(260px, auto) auto;
+  margin-top: 22px;
+  padding: 18px 22px;
+}
+.tiffin-receipt-success > span { height: 48px; width: 48px; }
+.tiffin-receipt-success > div > strong { color: #087054; font-size: 17px; }
+.tiffin-receipt-success > div > p { color: var(--tm-muted); font-size: 11px; margin: 3px 0 0; }
+.tiffin-success-items { display: flex; gap: 9px; }
+.tiffin-success-items > span {
+  align-items: center;
+  background: #fff;
+  border: 1px solid #d4e5df;
+  border-radius: 10px;
+  display: grid;
+  gap: 1px 7px;
+  grid-template-columns: 22px auto;
+  padding: 8px 11px;
+}
+.tiffin-success-items img { grid-row: 1 / 3; }
+.tiffin-success-items small { color: var(--tm-muted); font-size: 9px; }
+.tiffin-success-items b { font-size: 11px; }
+.tiffin-receipt-success > button {
+  align-items: center;
+  background: #fff;
+  border: 1px solid #8ccab6;
+  border-radius: 9px;
+  color: #087054;
+  cursor: pointer;
+  display: flex;
+  font-weight: 800;
+  gap: 7px;
+  min-height: 42px;
+  padding: 9px 13px;
+  white-space: nowrap;
+}
+.tiffin-receipt-success > button svg { height: 17px; width: 17px; }
+
+@media (max-width: 980px) {
+  .tiffin-receipt-overview { grid-template-columns: 1fr; }
+  .tiffin-expected-supply > div { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .tiffin-receipt-table-head { display: none; }
+  .tiffin-receipt-row {
+    gap: 13px;
+    grid-template-columns: 1.3fr .65fr 1.4fr .65fr;
+  }
+  .tiffin-receipt-row > div:nth-of-type(5) { grid-column: auto; }
+  .tiffin-receipt-item { grid-column: auto; }
+  .tiffin-receipt-status { justify-content: center; width: 100%; }
+  .tiffin-receipt-success { grid-template-columns: 48px 1fr auto; }
+  .tiffin-success-items { grid-column: 2 / -1; }
+}
+
+@media (max-width: 760px) {
+  .tiffin-distribution-title { align-items: flex-start; gap: 14px; }
+  .tiffin-distribution-title h1 { font-size: 25px; }
+  .tiffin-distribution-date { min-width: 0; padding: 10px 11px; }
+  .tiffin-distribution-date > svg { height: 21px; width: 21px; }
+  .tiffin-distribution-date strong { font-size: 11px; white-space: nowrap; }
+  .tiffin-distribution-date small { font-size: 9px; }
+  .tiffin-expected-supply,
+  .tiffin-all-received,
+  .tiffin-receipt-panel { padding: 16px; }
+  .tiffin-receipt-heading { flex-wrap: wrap; }
+  .tiffin-receipt-heading .tiffin-report-edit-state { flex-basis: 100%; margin-left: auto; max-width: 100%; }
+  .tiffin-expected-supply > div { grid-template-columns: 1fr 1fr; }
+  .tiffin-expected-supply article { padding: 10px; }
+  .tiffin-expected-supply article > span { height: 40px; width: 40px; }
+  .tiffin-expected-supply strong { font-size: 13px; }
+  .tiffin-expected-supply b { font-size: 20px; }
+  .tiffin-receipt-table { border: 0; overflow: visible; }
+  .tiffin-receipt-row {
+    border: 1px solid var(--tm-line);
+    border-radius: 14px;
+    grid-template-columns: 1fr auto;
+    margin-bottom: 13px;
+    padding: 15px;
+  }
+  .tiffin-receipt-item { grid-column: 1; }
+  .tiffin-expected-value { grid-column: 2; text-align: right; }
+  .tiffin-quantity-stepper { grid-column: 1 / -1; grid-row: 2; }
+  .tiffin-difference { align-items: center; display: flex; gap: 4px; grid-column: 1; grid-row: 3; text-align: left; }
+  .tiffin-difference b,
+  .tiffin-difference small { display: inline; }
+  .tiffin-receipt-row > div:nth-of-type(5) { grid-column: 2; grid-row: 3; }
+  .tiffin-quick-values { grid-row: 4; }
+  .tiffin-quick-values > span { flex-basis: 100%; }
+  .tiffin-quick-values button { flex: 1 1 90px; padding-inline: 7px; }
+  .tiffin-receipt-note-area { padding: 13px; }
+  .tiffin-receipt-actions { grid-template-columns: 1fr; }
+  .tiffin-receipt-actions .is-confirm { grid-row: 1; }
+  .tiffin-receipt-confirm-layer { align-items: flex-end; padding: 0; }
+  .tiffin-receipt-confirm-dialog { border-radius: 22px 22px 0 0; max-height: 86dvh; max-width: none; padding: 20px 16px calc(18px + env(safe-area-inset-bottom)); }
+  .tiffin-receipt-confirm-dialog > header::before { background: #b9cfca; border-radius: 999px; content: ""; height: 4px; left: 50%; position: absolute; top: 7px; transform: translateX(-50%); width: 42px; }
+  .tiffin-receipt-confirm-dialog > header { padding-top: 7px; position: relative; }
+  .tiffin-receipt-confirm-items article { grid-template-columns: 38px minmax(0, 1fr) auto; }
+  .tiffin-receipt-confirm-items article > em { grid-column: 2 / -1; justify-self: start; }
+  .tiffin-receipt-success { grid-template-columns: 44px 1fr; padding: 16px; }
+  .tiffin-receipt-success > span { height: 44px; width: 44px; }
+  .tiffin-success-items { grid-column: 1 / -1; flex-wrap: wrap; }
+  .tiffin-success-items > span { flex: 1 1 130px; }
+  .tiffin-receipt-success > button { grid-column: 1 / -1; justify-content: center; }
+}
+
+@media (max-width: 430px) {
+  .tiffin-distribution-title { display: grid; }
+  .tiffin-distribution-date { justify-self: stretch; }
+  .tiffin-expected-supply > div { grid-template-columns: 1fr; }
+  .tiffin-all-received { grid-template-columns: 40px 1fr; }
+  .tiffin-all-received > span { height: 40px; width: 40px; }
+  .tiffin-receipt-heading h2 { font-size: 19px; }
+  .tiffin-receipt-panel { padding: 13px; }
+  .tiffin-receipt-item strong { font-size: 14px; }
+  .tiffin-quantity-stepper { grid-template-columns: 44px minmax(0, 1fr) 44px; }
+  .tiffin-reason-picker > div { display: grid; grid-template-columns: 1fr 1fr; }
+  .tiffin-receipt-confirm-dialog > footer { grid-template-columns: 1fr; }
+  .tiffin-receipt-confirm-dialog > footer .is-confirm { grid-row: 1; }
+}
+
+/* Distribution workspace — state-aware compact redesign */
+.tiffin-distribution-title {
+  align-items: center;
+  background: #fff;
+  border: 1px solid var(--tm-line);
+  border-left: 5px solid #07836d;
+  border-radius: 17px;
+  box-shadow: 0 10px 30px rgba(25, 66, 69, .06);
+  display: grid;
+  gap: 20px;
+  grid-template-columns: 1fr auto;
+  margin-bottom: 14px;
+  padding: 17px 20px;
+}
+.tiffin-distribution-title > div:first-child > p { align-items: center; color: var(--tm-muted); display: flex; font-size: 10px; gap: 6px; margin: 5px 0 0; }
+.tiffin-distribution-title > div:first-child > p svg { height: 14px; width: 14px; }
+.tiffin-distribution-title h1 { font-size: clamp(22px, 2.3vw, 29px); margin-top: 3px; }
+.tiffin-distribution-state { align-items: center; background: #fff9e9; border: 1px solid #ead7a7; border-radius: 12px; display: flex; gap: 10px; min-width: 220px; padding: 9px 12px; }
+.tiffin-distribution-state > span { align-items: center; background: #fff0c9; border-radius: 10px; color: #a66d00; display: flex; height: 38px; justify-content: center; width: 38px; }
+.tiffin-distribution-state.is-complete { background: #effaf6; border-color: #bfdfd3; }
+.tiffin-distribution-state.is-complete > span { background: #daf2e9; color: #08795e; }
+.tiffin-distribution-state.has-issue { background: #fff5f2; border-color: #edcbc4; }
+.tiffin-distribution-state.has-issue > span { background: #fee6e1; color: #bd3c35; }
+.tiffin-distribution-state svg { height: 20px; width: 20px; }
+.tiffin-distribution-state small,
+.tiffin-distribution-state strong { display: block; }
+.tiffin-distribution-state small { color: var(--tm-muted); font-size: 8px; }
+.tiffin-distribution-state strong { font-size: 12px; margin-top: 1px; }
+.tiffin-receipt-overview { gap: 12px; grid-template-columns: minmax(0, 1fr) minmax(280px, .62fr); margin-bottom: 14px; }
+.tiffin-expected-supply,
+.tiffin-all-received { border-radius: 15px; padding: 15px 17px; }
+.tiffin-expected-supply h2 { font-size: 12px; margin-bottom: 10px; }
+.tiffin-expected-supply > div { gap: 9px; }
+.tiffin-expected-supply article { border-radius: 11px; min-height: 64px; padding: 9px 11px; }
+.tiffin-expected-supply article > span { border-radius: 10px; height: 40px; width: 40px; }
+.tiffin-expected-supply strong { font-size: 12px; }
+.tiffin-expected-supply b { font-size: 19px; margin-top: 1px; }
+.tiffin-all-received { grid-template-columns: 40px 1fr; }
+.tiffin-all-received > span { height: 40px; width: 40px; }
+.tiffin-all-received strong { font-size: 13px; }
+.tiffin-all-received p { font-size: 10px; margin-top: 1px; }
+.tiffin-all-received button { min-height: 40px; padding: 8px 12px; }
+.tiffin-receipt-panel { border-radius: 17px; padding: 20px; }
+.tiffin-receipt-heading h2 { font-size: 18px; }
+.tiffin-receipt-table { margin-top: 14px; }
+.tiffin-receipt-table-head { font-size: 10px; padding: 10px 15px; }
+.tiffin-receipt-row { padding: 13px 15px; }
+.tiffin-receipt-item > span { height: 39px; width: 39px; }
+.tiffin-receipt-item strong { font-size: 13px; }
+.tiffin-expected-value b,
+.tiffin-difference b { font-size: 17px; }
+.tiffin-quantity-stepper { grid-template-columns: 40px minmax(90px, 1fr) 40px; }
+.tiffin-quantity-stepper > button,
+.tiffin-quantity-stepper label { height: 42px; }
+.tiffin-quantity-stepper input { font-size: 17px; padding-block: 7px; }
+.tiffin-receipt-status { font-size: 9px; padding: 6px 9px; }
+.tiffin-quick-values { margin-top: -5px; }
+.tiffin-quick-values button { min-height: 31px; padding: 5px 10px; }
+.tiffin-receipt-note-area { padding: 14px; }
+.tiffin-receipt-actions { margin-top: 13px; }
+.tiffin-receipt-actions button { min-height: 44px; }
+
+.tiffin-submitted-receipt { background: #fff; border: 1px solid var(--tm-line); border-radius: 17px; box-shadow: 0 10px 30px rgba(25, 66, 69, .055); overflow: hidden; }
+.tiffin-submitted-receipt > header { align-items: center; background: linear-gradient(135deg, #f1fbf7, #fff); border-bottom: 1px solid #dcebe6; display: flex; justify-content: space-between; padding: 16px 19px; }
+.tiffin-submitted-receipt > header > div { align-items: center; display: flex; gap: 11px; }
+.tiffin-submitted-receipt > header > div > span { align-items: center; background: #daf2e8; border-radius: 12px; color: #08795e; display: flex; height: 42px; justify-content: center; width: 42px; }
+.tiffin-submitted-receipt > header svg { height: 21px; width: 21px; }
+.tiffin-submitted-receipt > header small { color: #08735b; display: block; font-size: 9px; font-weight: 850; }
+.tiffin-submitted-receipt > header h2 { font-size: 17px; margin: 1px 0 0; }
+.tiffin-submitted-receipt > header p { color: var(--tm-muted); font-size: 9px; margin: 2px 0 0; }
+.tiffin-submitted-receipt > header > em { background: #e1f3ec; border-radius: 999px; color: #087358; font-size: 9px; font-style: normal; font-weight: 850; padding: 6px 10px; }
+.tiffin-submitted-items { display: grid; }
+.tiffin-submitted-items > article { align-items: center; display: grid; gap: 13px; grid-template-columns: 44px minmax(130px, .75fr) minmax(300px, 1.5fr) auto; min-height: 78px; padding: 12px 19px; }
+.tiffin-submitted-items > article + article { border-top: 1px solid #edf1f1; }
+.tiffin-submitted-item-icon { align-items: center; background: #fff1d8; border-radius: 11px; display: flex; height: 42px; justify-content: center; width: 42px; }
+.tiffin-submitted-item-icon.is-egg { background: #e5f5f2; }
+.tiffin-submitted-item-icon.is-banana { background: #fff7cc; }
+.tiffin-submitted-item-name strong,
+.tiffin-submitted-item-name small { display: block; }
+.tiffin-submitted-item-name strong { font-size: 13px; }
+.tiffin-submitted-item-name small { color: #087358; font-size: 9px; margin-top: 2px; }
+.tiffin-submitted-items > article.is-short .tiffin-submitted-item-name small,
+.tiffin-submitted-items > article.is-short dl > div:last-child dd { color: #bc3b3b; }
+.tiffin-submitted-items > article.is-excess .tiffin-submitted-item-name small,
+.tiffin-submitted-items > article.is-excess dl > div:last-child dd { color: #9b6500; }
+.tiffin-submitted-items dl { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); margin: 0; }
+.tiffin-submitted-items dl > div { border-left: 1px solid #e5ecec; padding: 0 14px; }
+.tiffin-submitted-items dt { color: var(--tm-muted); font-size: 8px; }
+.tiffin-submitted-items dd { font-size: 15px; font-weight: 850; margin: 2px 0 0; }
+.tiffin-submitted-items dd small { font-size: 8px; font-weight: 700; }
+.tiffin-submitted-reasons { align-items: flex-start; background: #f5f9ff; border: 1px solid #dbe7f5; border-radius: 11px; color: #285796; display: flex; gap: 9px; margin: 0 19px 14px; padding: 10px 12px; }
+.tiffin-submitted-reasons > svg { flex: none; height: 17px; width: 17px; }
+.tiffin-submitted-reasons strong { display: block; font-size: 10px; }
+.tiffin-submitted-reasons p { color: #55718f; font-size: 9px; margin: 3px 0 0; }
+.tiffin-submitted-reasons p span { color: #294f7a; display: inline-block; font-weight: 850; min-width: 55px; }
+.tiffin-submitted-receipt > footer { align-items: center; background: #fafcfc; border-top: 1px solid #e7eded; display: flex; gap: 14px; justify-content: space-between; padding: 11px 19px; }
+.tiffin-submitted-receipt > footer p { align-items: center; color: var(--tm-muted); display: flex; font-size: 9px; gap: 6px; margin: 0; }
+.tiffin-submitted-receipt > footer p svg { color: #b77a00; flex: none; height: 15px; width: 15px; }
+.tiffin-submitted-receipt > footer button { align-items: center; background: #fff; border: 1px solid #9fcdbf; border-radius: 9px; color: #087259; cursor: pointer; display: flex; font-size: 10px; font-weight: 850; gap: 7px; min-height: 36px; padding: 7px 11px; white-space: nowrap; }
+.tiffin-submitted-receipt > footer button svg { height: 14px; width: 14px; }
+
+@media (max-width: 760px) {
+  .tiffin-distribution-title { gap: 12px; grid-template-columns: 1fr; padding: 15px; }
+  .tiffin-distribution-state { min-width: 0; width: 100%; }
+  .tiffin-receipt-overview { margin-bottom: 11px; }
+  .tiffin-submitted-receipt > header { align-items: flex-start; gap: 10px; }
+  .tiffin-submitted-receipt > header > em { flex: none; }
+  .tiffin-submitted-items > article { grid-template-columns: 42px 1fr auto; padding: 12px 14px; }
+  .tiffin-submitted-items dl { grid-column: 1 / -1; }
+  .tiffin-submitted-items dl > div:first-child { border-left: 0; padding-left: 0; }
+  .tiffin-submitted-items dl > div:last-child { padding-right: 0; }
+  .tiffin-submitted-reasons { margin-inline: 14px; }
+  .tiffin-submitted-receipt > footer { align-items: stretch; flex-direction: column; padding-inline: 14px; }
+  .tiffin-submitted-receipt > footer button { justify-content: center; }
+}
+
+@media (max-width: 430px) {
+  .tiffin-distribution-title h1 { font-size: 21px; }
+  .tiffin-submitted-receipt > header { display: grid; }
+  .tiffin-submitted-receipt > header > em { justify-self: start; }
+  .tiffin-submitted-items > article { grid-template-columns: 38px 1fr; }
+  .tiffin-submitted-item-icon { height: 38px; width: 38px; }
+  .tiffin-submitted-items > article > .tiffin-receipt-status { grid-column: 1 / -1; justify-content: center; }
+}
+
+/* Tiffin manager operational home dashboard */
+.tiffin-home-dashboard { display: grid; gap: 18px; }
+.tiffin-home-hero {
+  background:
+    radial-gradient(circle at 92% 8%, rgba(46, 176, 176, .25), transparent 24rem),
+    linear-gradient(135deg, #005363, #00787d);
+  border-radius: 20px;
+  color: #fff;
+  display: grid;
+  gap: 12px 20px;
+  grid-template-columns: minmax(0, 1fr) auto;
+  overflow: hidden;
+  padding: 22px 24px;
+}
+.tiffin-home-hero.is-warning { background: linear-gradient(135deg, #604b0e, #89731f); }
+.tiffin-home-hero.is-complete { background: linear-gradient(135deg, #075e58, #087f70); }
+.tiffin-home-hero-copy > span { color: #d3f5f1; font-size: 15px; font-weight: 750; }
+.tiffin-home-hero-copy h1 { font-size: clamp(24px, 2.6vw, 31px); line-height: 1.2; margin: 6px 0 4px; }
+.tiffin-home-hero-copy p { color: #d6edef; font-size: 13px; margin: 0; }
+.tiffin-home-date { align-items: center; display: flex; gap: 11px; justify-self: end; }
+.tiffin-home-date > svg { height: 26px; width: 26px; }
+.tiffin-home-date strong,
+.tiffin-home-date small { display: block; }
+.tiffin-home-date strong { font-size: 14px; }
+.tiffin-home-date small { color: #d3eced; margin-top: 2px; }
+.tiffin-home-report-link {
+  align-items: center;
+  background: rgba(0, 50, 60, .18);
+  border: 1px solid rgba(190, 239, 235, .45);
+  border-radius: 11px;
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  font-size: 13px;
+  font-weight: 800;
+  gap: 8px;
+  grid-column: 2;
+  justify-self: end;
+  min-height: 42px;
+  padding: 8px 14px;
+}
+.tiffin-home-report-link svg { height: 18px; width: 18px; }
+.tiffin-reporting-clock {
+  align-items: center;
+  background: rgba(255, 255, 255, .96);
+  border-radius: 13px;
+  color: var(--tm-text);
+  display: grid;
+  gap: 0;
+  grid-column: 1 / -1;
+  grid-template-columns: minmax(0, 1.5fr) minmax(210px, .8fr) minmax(135px, .6fr);
+  padding: 13px 15px;
+}
+.tiffin-home-hero.is-reported .tiffin-reporting-clock { grid-template-columns: 1fr; }
+.tiffin-reporting-clock > div { min-height: 48px; padding: 0 18px; }
+.tiffin-reporting-clock > div + div { border-left: 1px solid var(--tm-line); }
+.tiffin-reporting-clock > div:first-child { align-items: center; display: flex; gap: 13px; padding-left: 0; }
+.tiffin-reporting-clock > div:first-child > span {
+  align-items: center; background: #e1f5f0; border-radius: 50%; color: #087d70; display: flex; flex: none; height: 42px; justify-content: center; width: 42px;
+}
+.tiffin-reporting-clock svg { height: 20px; width: 20px; }
+.tiffin-reporting-clock strong,
+.tiffin-reporting-clock small,
+.tiffin-reporting-clock > div:nth-child(2) > span { display: block; }
+.tiffin-reporting-clock strong { font-size: 15px; }
+.tiffin-reporting-clock small { color: var(--tm-muted); font-size: 11px; margin-top: 3px; }
+.tiffin-reporting-clock > div:nth-child(2) > strong {
+  color: var(--tm-primary-dark);
+  font-family: var(--font-bengali), "Nirmala UI", "Noto Sans Bengali", sans-serif;
+  font-feature-settings: "tnum" 1;
+  font-size: 22px;
+  font-variant-numeric: tabular-nums;
+  font-weight: 850;
+  letter-spacing: .025em;
+  line-height: 1.15;
+  margin: 4px 0;
+}
+.tiffin-reporting-clock > div:nth-child(2) > span { color: #81939a; font-size: 9px; word-spacing: 17px; }
+.tiffin-reporting-clock > div:nth-child(3) > strong { font-size: 20px; margin-top: 6px; }
+.tiffin-home-section > h2,
+.tiffin-home-card > h2 { font-size: 18px; margin: 0 0 14px; }
+.tiffin-home-item-grid { display: grid; gap: 14px; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.tiffin-home-item-card,
+.tiffin-home-card,
+.tiffin-home-no-allocation {
+  background: rgba(255, 255, 255, .9);
+  border: 1px solid var(--tm-line);
+  border-radius: 17px;
+  box-shadow: 0 8px 25px rgba(20, 73, 79, .045);
+}
+.tiffin-home-item-card { overflow: hidden; padding: 16px; }
+.tiffin-home-item-card header { align-items: center; display: grid; gap: 10px; grid-template-columns: 44px 1fr auto; }
+.tiffin-home-item-card header > span {
+  align-items: center; background: #fff1d7; border-radius: 12px; display: flex; height: 44px; justify-content: center; width: 44px;
+}
+.tiffin-home-item-card.is-egg header > span { background: #dff5f4; }
+.tiffin-home-item-card.is-banana header > span { background: #fff7c7; }
+.tiffin-home-item-card header img { object-fit: contain; }
+.tiffin-home-item-card header strong,
+.tiffin-home-item-card header b { display: block; }
+.tiffin-home-item-card header strong { font-size: 16px; }
+.tiffin-home-item-card header b { color: var(--tm-primary); font-size: 20px; margin-top: 1px; }
+.tiffin-home-item-card header b small { color: var(--tm-muted); font-size: 11px; }
+.tiffin-home-item-card header em { border-radius: 999px; font-size: 10px; font-style: normal; font-weight: 800; padding: 7px 10px; }
+.tiffin-home-item-card header em.is-done { background: #e5f6ed; color: #087653; }
+.tiffin-home-item-card header em.is-pending { background: #eef3f5; color: #5c727a; }
+.tiffin-home-item-card header em.is-issue { background: #fff0ef; color: #b53a3a; }
+.tiffin-home-item-card header em.is-extra { background: #fff5dc; color: #8d6200; }
+.tiffin-home-item-card dl { border-top: 1px solid var(--tm-line); display: grid; grid-template-columns: repeat(3, 1fr); margin: 14px -16px 0; padding: 13px 16px 0; }
+.tiffin-home-item-card dl > div { padding: 0 12px; }
+.tiffin-home-item-card dl > div:first-child { padding-left: 0; }
+.tiffin-home-item-card dl > div + div { border-left: 1px solid #e6edef; }
+.tiffin-home-item-card dt { color: var(--tm-muted); font-size: 10px; }
+.tiffin-home-item-card dd { font-size: 13px; font-weight: 800; margin: 4px 0 0; }
+.tiffin-home-item-card dd.is-shortage { color: #bd3f3f; }
+.tiffin-home-item-card dd.is-excess { color: #9a6800; }
+.tiffin-home-progress { align-items: center; display: grid; gap: 10px; grid-template-columns: 1fr auto; margin-top: 16px; }
+.tiffin-home-progress > span { background: #e5eeeb; border-radius: 999px; height: 7px; overflow: hidden; }
+.tiffin-home-progress i { background: linear-gradient(90deg, #0b8c69, #21aa80); border-radius: inherit; display: block; height: 100%; transition: width .25s ease; }
+.tiffin-home-progress b { color: #08715a; font-size: 10px; }
+.tiffin-home-no-allocation,
+.tiffin-home-empty { align-items: center; display: flex; gap: 14px; padding: 22px; }
+.tiffin-home-no-allocation > svg,
+.tiffin-home-empty > svg { background: #e5f3f2; border-radius: 13px; color: var(--tm-primary); height: 48px; padding: 12px; width: 48px; }
+.tiffin-home-no-allocation strong,
+.tiffin-home-no-allocation p,
+.tiffin-home-empty h2,
+.tiffin-home-empty p { margin: 0; }
+.tiffin-home-no-allocation p,
+.tiffin-home-empty p { color: var(--tm-muted); font-size: 12px; margin-top: 3px; }
+.tiffin-home-empty button { background: var(--tm-primary); border: 0; border-radius: 9px; color: #fff; margin-top: 12px; min-height: 40px; padding: 8px 13px; }
+.tiffin-home-operations { display: grid; gap: 14px; grid-template-columns: 1fr 1fr; }
+.tiffin-home-card { padding: 17px; }
+.tiffin-task-card ol,
+.tiffin-activity-card ol { list-style: none; margin: 0; padding: 0; }
+.tiffin-task-card li { align-items: flex-start; display: flex; gap: 11px; min-height: 52px; position: relative; }
+.tiffin-task-card li:not(:last-child)::after { background: #dbe7e5; content: ""; height: 22px; left: 13px; position: absolute; top: 27px; width: 1px; }
+.tiffin-task-card li > span { align-items: center; background: #fff; border: 1px solid #adc0c8; border-radius: 50%; color: #789099; display: flex; flex: none; font-size: 10px; font-weight: 800; height: 27px; justify-content: center; width: 27px; }
+.tiffin-task-card li.is-done > span { background: #07906a; border-color: #07906a; color: #fff; }
+.tiffin-task-card li.is-next > span { border-color: #e89f1d; color: #c57d00; }
+.tiffin-task-card li svg { height: 15px; width: 15px; }
+.tiffin-task-card li strong,
+.tiffin-task-card li small { display: block; }
+.tiffin-task-card li strong { font-size: 13px; }
+.tiffin-task-card li small { color: var(--tm-muted); font-size: 10px; margin-top: 2px; }
+.tiffin-task-complete { align-items: center; display: flex; gap: 12px; min-height: 54px; }
+.tiffin-task-complete > span { align-items: center; background: #e5f6ed; border-radius: 50%; color: #087653; display: flex; flex: none; height: 42px; justify-content: center; width: 42px; }
+.tiffin-task-complete svg { height: 22px; width: 22px; }
+.tiffin-task-complete strong,
+.tiffin-task-complete small { display: block; }
+.tiffin-task-complete strong { font-size: 14px; }
+.tiffin-task-complete small { color: var(--tm-muted); font-size: 10px; margin-top: 3px; }
+.tiffin-task-card > button,
+.tiffin-tomorrow-card > button {
+  align-items: center; border-radius: 9px; cursor: pointer; display: flex; font-weight: 800; gap: 7px; justify-content: center; min-height: 43px;
+}
+.tiffin-task-card > button { background: linear-gradient(135deg, #087c79, #005568); border: 0; color: #fff; margin-top: 8px; width: 100%; }
+.tiffin-task-card > button svg,
+.tiffin-tomorrow-card > button svg { height: 17px; width: 17px; }
+.tiffin-attention-card > div { align-items: center; display: flex; gap: 14px; }
+.tiffin-attention-card > div > span { align-items: center; background: #e6f6ef; border-radius: 50%; color: #087c61; display: flex; flex: none; height: 54px; justify-content: center; width: 54px; }
+.tiffin-attention-card.has-attention > div > span { background: #fff3de; color: #ae6d00; }
+.tiffin-attention-card.is-clear { background: linear-gradient(135deg, #f3fcf8, #f8fffc); border-color: #c9e7da; }
+.tiffin-attention-card svg { height: 26px; width: 26px; }
+.tiffin-attention-card strong { font-size: 14px; }
+.tiffin-attention-card p { color: var(--tm-muted); font-size: 11px; line-height: 1.55; margin: 4px 0 0; }
+.tiffin-home-insights { display: grid; gap: 14px; grid-template-columns: 1fr 1.4fr; }
+.tiffin-seven-day-card > div { display: grid; gap: 10px; grid-template-columns: repeat(3, 1fr); }
+.tiffin-seven-day-card article { align-items: center; display: flex; gap: 9px; min-width: 0; }
+.tiffin-seven-day-card article > svg { background: #edf7f4; border-radius: 9px; color: #087f6b; flex: none; height: 39px; padding: 9px; width: 39px; }
+.tiffin-seven-day-card article.has-shortage > svg { background: #fff0ef; color: #bd3f3f; }
+.tiffin-seven-day-card article span,
+.tiffin-seven-day-card article b { display: block; }
+.tiffin-seven-day-card article span { color: var(--tm-muted); font-size: 9px; }
+.tiffin-seven-day-card article b { color: var(--tm-text); font-size: 14px; margin-top: 2px; }
+.tiffin-activity-card li { align-items: center; border-top: 1px solid #e7edef; display: flex; gap: 10px; min-height: 48px; }
+.tiffin-activity-card li > span { align-items: center; background: #098b69; border-radius: 50%; color: #fff; display: flex; height: 20px; justify-content: center; width: 20px; }
+.tiffin-activity-card li svg { height: 12px; width: 12px; }
+.tiffin-activity-card li > div { align-items: center; display: flex; flex: 1; gap: 12px; justify-content: space-between; min-width: 0; }
+.tiffin-activity-card li strong { font-size: 12px; }
+.tiffin-activity-card li small { color: var(--tm-muted); font-size: 9px; text-align: right; white-space: nowrap; }
+.tiffin-home-empty-copy { color: var(--tm-muted); font-size: 12px; margin: 0; }
+.tiffin-tomorrow-card,
+.tiffin-home-school-card {
+  align-items: center; background: linear-gradient(135deg, #f3fffb, #f8fffd); border: 1px solid #c8e3da; border-radius: 16px; display: grid; gap: 15px; padding: 15px 18px;
+}
+.tiffin-tomorrow-card { grid-template-columns: minmax(230px, 1fr) auto auto; }
+.tiffin-tomorrow-card > div:first-child { align-items: center; display: flex; gap: 13px; }
+.tiffin-tomorrow-card > div:first-child > span,
+.tiffin-home-school-card > span:first-child { align-items: center; background: #e1f4ed; border-radius: 13px; color: #087a65; display: flex; flex: none; height: 48px; justify-content: center; width: 48px; }
+.tiffin-tomorrow-card svg,
+.tiffin-home-school-card > span:first-child svg { height: 24px; width: 24px; }
+.tiffin-tomorrow-card strong,
+.tiffin-tomorrow-card b,
+.tiffin-tomorrow-card small { display: block; }
+.tiffin-tomorrow-card strong { color: #08705b; font-size: 15px; }
+.tiffin-tomorrow-card b { font-size: 12px; margin-top: 3px; }
+.tiffin-tomorrow-card small { color: var(--tm-muted); font-size: 10px; margin-top: 2px; }
+.tiffin-tomorrow-items { display: flex; gap: 10px; }
+.tiffin-tomorrow-items > span { align-items: center; background: #fff; border-radius: 10px; display: grid; gap: 1px 7px; grid-template-columns: 28px auto; padding: 8px 11px; }
+.tiffin-tomorrow-items img { grid-row: 1 / 3; }
+.tiffin-tomorrow-items b { font-size: 11px; }
+.tiffin-tomorrow-card > button { background: #fff; border: 1px solid #acd4c7; color: #08705b; padding: 8px 13px; white-space: nowrap; }
+.tiffin-home-school-card { background: #fff; border-color: var(--tm-line); grid-template-columns: 48px 1fr; }
+.tiffin-home-school-card > div > strong { font-size: 14px; }
+.tiffin-home-school-card > div > small { align-items: center; color: var(--tm-muted); display: flex; flex-wrap: wrap; font-size: 10px; gap: 5px; margin-top: 3px; }
+.tiffin-home-school-card > div > small svg { height: 13px; width: 13px; }
+.tiffin-home-school-card > div > small i { background: #aebfc3; border-radius: 50%; height: 3px; margin: 0 3px; width: 3px; }
+.tiffin-home-skeleton { display: grid; gap: 16px; grid-template-columns: 1fr 1fr; }
+.tiffin-home-skeleton span { animation: tiffin-home-pulse 1.2s ease-in-out infinite alternate; background: linear-gradient(90deg, #e9f0f2, #f7fafb, #e9f0f2); border-radius: 17px; min-height: 190px; }
+.tiffin-home-skeleton span:first-child { grid-column: 1 / -1; min-height: 280px; }
+@keyframes tiffin-home-pulse { to { opacity: .55; } }
+
+@media (max-width: 980px) {
+  .tiffin-reporting-clock { grid-template-columns: 1fr 1fr; }
+  .tiffin-reporting-clock > div:nth-child(3) { border-left: 0; border-top: 1px solid var(--tm-line); grid-column: 1 / -1; margin-top: 14px; min-height: 0; padding: 14px 0 0; }
+  .tiffin-home-insights { grid-template-columns: 1fr; }
+  .tiffin-tomorrow-card { grid-template-columns: 1fr auto; }
+  .tiffin-tomorrow-items { grid-column: 1 / -1; }
+}
+
+@media (max-width: 760px) {
+  .tiffin-home-dashboard { gap: 18px; }
+  .tiffin-home-hero { grid-template-columns: 1fr; padding: 20px; }
+  .tiffin-home-hero-copy h1 { font-size: 25px; }
+  .tiffin-home-date { grid-row: 2; justify-self: start; }
+  .tiffin-home-report-link { grid-column: 1; justify-self: stretch; justify-content: center; }
+  .tiffin-reporting-clock { grid-template-columns: 1fr; padding: 15px; }
+  .tiffin-reporting-clock > div { padding: 13px 0; }
+  .tiffin-reporting-clock > div + div { border-left: 0; border-top: 1px solid var(--tm-line); }
+  .tiffin-reporting-clock > div:first-child { padding-top: 0; }
+  .tiffin-reporting-clock > div:nth-child(3) { grid-column: 1; margin-top: 0; }
+  .tiffin-home-item-grid,
+  .tiffin-home-operations { grid-template-columns: 1fr; }
+  .tiffin-home-section > h2,
+  .tiffin-home-card > h2 { font-size: 16px; }
+  .tiffin-home-item-card dl { gap: 0; grid-template-columns: repeat(3, 1fr); }
+  .tiffin-home-item-card dl > div { border-left: 0 !important; border-top: 1px solid #edf1f2; padding: 10px 8px !important; }
+  .tiffin-home-item-card dl > div { border-top: 0; }
+  .tiffin-home-item-card dl > div + div { border-left: 1px solid #edf1f2 !important; }
+  .tiffin-home-item-card header { grid-template-columns: 46px 1fr; }
+  .tiffin-home-item-card header em { grid-column: 1 / -1; justify-self: start; }
+  .tiffin-seven-day-card > div { grid-template-columns: 1fr; }
+  .tiffin-tomorrow-card { grid-template-columns: 1fr; padding: 16px; }
+  .tiffin-tomorrow-items { grid-column: 1; flex-wrap: wrap; }
+  .tiffin-tomorrow-items > span { flex: 1 1 130px; }
+  .tiffin-tomorrow-card > button { justify-self: stretch; }
+  .tiffin-home-school-card { grid-template-columns: 42px 1fr; padding: 15px; }
+  .tiffin-home-school-card > span:first-child { height: 42px; width: 42px; }
+  .tiffin-home-skeleton { grid-template-columns: 1fr; }
+  .tiffin-home-skeleton span:first-child { grid-column: 1; }
+}
+
+@media (max-width: 430px) {
+  .tiffin-home-hero { border-radius: 16px; padding: 17px; }
+  .tiffin-home-hero-copy h1 { font-size: 22px; }
+  .tiffin-reporting-clock > div:nth-child(2) > strong { font-size: 22px; }
+  .tiffin-home-item-card,
+  .tiffin-home-card { padding: 16px; }
+  .tiffin-activity-card li > div { align-items: flex-start; flex-direction: column; gap: 2px; }
+  .tiffin-activity-card li small { text-align: left; }
+}
+
+/* Daily operations home — compact, action-first information hierarchy */
+.tiffin-daily-dashboard { gap: 14px; }
+.tiffin-daily-header {
+  align-items: center;
+  background: #fff;
+  border: 1px solid var(--tm-line);
+  border-left: 5px solid #07836d;
+  border-radius: 17px;
+  box-shadow: 0 10px 30px rgba(25, 66, 69, .07);
+  display: grid;
+  gap: 20px;
+  grid-template-columns: minmax(250px, 1.15fr) minmax(290px, 1fr) auto;
+  padding: 19px 21px;
+}
+.tiffin-daily-header.is-warning { border-left-color: #d89200; }
+.tiffin-daily-header.is-complete { border-left-color: #09845f; }
+.tiffin-daily-heading > span,
+.tiffin-daily-meals > header span,
+.tiffin-recent-reports > header span,
+.tiffin-weekly-summary > header span { color: #078069; font-size: 10px; font-weight: 850; letter-spacing: .02em; }
+.tiffin-daily-heading h1 { color: var(--tm-text); font-size: clamp(20px, 2vw, 27px); line-height: 1.25; margin: 3px 0 5px; }
+.tiffin-daily-heading p { align-items: center; color: var(--tm-muted); display: flex; font-size: 11px; gap: 6px; margin: 0; }
+.tiffin-daily-heading p svg { height: 14px; width: 14px; }
+.tiffin-daily-status { align-items: center; border-left: 1px solid #e6eeee; display: flex; gap: 11px; min-width: 0; padding-left: 19px; }
+.tiffin-daily-status > span { align-items: center; background: #e7f6f0; border-radius: 12px; color: #087d64; display: flex; flex: none; height: 42px; justify-content: center; width: 42px; }
+.tiffin-daily-header.is-warning .tiffin-daily-status > span { background: #fff4d9; color: #b87500; }
+.tiffin-daily-status svg { height: 21px; width: 21px; }
+.tiffin-daily-status small,
+.tiffin-daily-status strong,
+.tiffin-daily-status p { display: block; }
+.tiffin-daily-status small { color: var(--tm-muted); font-size: 9px; }
+.tiffin-daily-status strong { font-size: 13px; margin-top: 1px; }
+.tiffin-daily-status p { color: var(--tm-muted); font-size: 9px; line-height: 1.35; margin: 2px 0 0; max-width: 330px; }
+.tiffin-daily-primary-action {
+  align-items: center; background: linear-gradient(135deg, #07846b, #006b67); border: 0; border-radius: 11px; box-shadow: 0 8px 18px rgba(0, 109, 93, .16); color: #fff; cursor: pointer; display: flex; font-size: 12px; font-weight: 850; gap: 8px; justify-content: center; min-height: 44px; padding: 10px 15px; white-space: nowrap;
+}
+.tiffin-daily-primary-action svg { height: 16px; width: 16px; }
+.tiffin-daily-primary-action svg:last-child { height: 15px; width: 15px; }
+.tiffin-daily-alert { align-items: center; background: #fff9ea; border: 1px solid #f0d795; border-radius: 13px; color: #7a5200; display: flex; gap: 11px; padding: 10px 15px; }
+.tiffin-daily-alert.has-issue { background: #fff5f3; border-color: #efc6c1; color: #a63333; }
+.tiffin-daily-alert > svg { flex: none; height: 20px; width: 20px; }
+.tiffin-daily-alert strong { display: block; font-size: 12px; }
+.tiffin-daily-alert p { color: inherit; font-size: 10px; margin: 2px 0 0; opacity: .82; }
+.tiffin-daily-main-grid { align-items: stretch; display: grid; gap: 14px; grid-template-columns: minmax(0, 1.55fr) minmax(255px, .65fr); }
+.tiffin-daily-meals,
+.tiffin-next-plan,
+.tiffin-recent-reports,
+.tiffin-weekly-summary { background: #fff; border: 1px solid var(--tm-line); border-radius: 17px; box-shadow: 0 8px 24px rgba(25, 66, 69, .045); }
+.tiffin-daily-meals { overflow: hidden; }
+.tiffin-daily-meals > header,
+.tiffin-recent-reports > header { align-items: center; border-bottom: 1px solid #e9efef; display: flex; justify-content: space-between; padding: 15px 18px 12px; }
+.tiffin-daily-meals h2,
+.tiffin-recent-reports h2,
+.tiffin-weekly-summary h2 { font-size: 16px; margin: 2px 0 0; }
+.tiffin-daily-meals > header > em { background: #edf7f4; border-radius: 999px; color: #08765f; font-size: 9px; font-style: normal; font-weight: 800; padding: 5px 9px; }
+.tiffin-daily-meal-list { display: grid; }
+.tiffin-daily-meal-row { align-items: center; display: grid; gap: 13px; grid-template-columns: 48px minmax(125px, .75fr) minmax(285px, 1.55fr); min-height: 82px; padding: 12px 18px; }
+.tiffin-daily-meal-row + .tiffin-daily-meal-row { border-top: 1px solid #edf1f1; }
+.tiffin-daily-meal-icon { align-items: center; background: #fff1d5; border-radius: 12px; display: flex; height: 45px; justify-content: center; width: 45px; }
+.tiffin-daily-meal-row.is-egg .tiffin-daily-meal-icon { background: #e8f6f3; }
+.tiffin-daily-meal-row.is-banana .tiffin-daily-meal-icon { background: #fff8ce; }
+.tiffin-daily-meal-name strong,
+.tiffin-daily-meal-name small { display: block; }
+.tiffin-daily-meal-name strong { font-size: 14px; }
+.tiffin-daily-meal-name small { color: #9a7200; font-size: 9px; margin-top: 3px; }
+.tiffin-daily-meal-name small.is-done { color: #087757; }
+.tiffin-daily-meal-name small.is-shortage { color: #c34040; }
+.tiffin-daily-meal-name small.is-excess { color: #b16a00; }
+.tiffin-daily-meal-row dl { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); margin: 0; }
+.tiffin-daily-meal-row dl > div { border-left: 1px solid #e7eded; padding: 1px 14px; }
+.tiffin-daily-meal-row dt { color: var(--tm-muted); font-size: 9px; }
+.tiffin-daily-meal-row dd { color: var(--tm-text); font-size: 16px; font-weight: 850; margin: 3px 0 0; }
+.tiffin-daily-meal-row dd small { font-size: 9px; font-weight: 700; }
+.tiffin-daily-meal-row dd.is-shortage { color: #c33a3a; }
+.tiffin-daily-meal-row dd.is-excess { color: #a86400; }
+.tiffin-daily-meals .tiffin-home-no-allocation { border: 0; border-radius: 0; margin: 12px; min-height: 118px; }
+.tiffin-next-plan { background: linear-gradient(155deg, #f5fcfa, #fff); display: flex; flex-direction: column; padding: 17px; }
+.tiffin-next-plan > header { align-items: center; display: flex; gap: 11px; }
+.tiffin-next-plan > header > span { align-items: center; background: #def2eb; border-radius: 12px; color: #087a64; display: flex; height: 44px; justify-content: center; width: 44px; }
+.tiffin-next-plan > header svg { height: 22px; width: 22px; }
+.tiffin-next-plan > header small { color: #08745f; font-size: 9px; font-weight: 800; }
+.tiffin-next-plan h2 { font-size: 15px; margin: 2px 0 0; }
+.tiffin-next-plan > header p { color: var(--tm-muted); font-size: 9px; margin: 1px 0 0; }
+.tiffin-next-plan-items { display: grid; gap: 7px; margin: 14px 0; }
+.tiffin-next-plan-items > div { align-items: center; background: #fff; border: 1px solid #e4eeee; border-radius: 10px; display: grid; gap: 8px; grid-template-columns: 30px 1fr auto; min-height: 46px; padding: 7px 10px; }
+.tiffin-next-plan-items span { font-size: 11px; font-weight: 800; }
+.tiffin-next-plan-items strong { font-size: 11px; }
+.tiffin-next-plan-empty { color: var(--tm-muted); flex: 1; font-size: 10px; line-height: 1.55; margin: 18px 0; }
+.tiffin-next-plan > button { align-items: center; background: transparent; border: 1px solid #acd5c8; border-radius: 9px; color: #08715d; cursor: pointer; display: flex; font-size: 10px; font-weight: 850; gap: 7px; justify-content: center; margin-top: auto; min-height: 39px; width: 100%; }
+.tiffin-next-plan > button svg { height: 15px; width: 15px; }
+.tiffin-daily-metrics { display: grid; gap: 10px; grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.tiffin-daily-metrics article { align-items: center; background: #fff; border: 1px solid var(--tm-line); border-radius: 13px; display: flex; gap: 10px; min-height: 70px; padding: 11px 13px; }
+.tiffin-daily-metrics article > span { align-items: center; background: #e9f6f2; border-radius: 10px; color: #087b65; display: flex; flex: none; height: 38px; justify-content: center; width: 38px; }
+.tiffin-daily-metrics article.has-issue > span { background: #fff0ed; color: #c43c3c; }
+.tiffin-daily-metrics svg { height: 19px; width: 19px; }
+.tiffin-daily-metrics small,
+.tiffin-daily-metrics strong { display: block; }
+.tiffin-daily-metrics small { color: var(--tm-muted); font-size: 9px; }
+.tiffin-daily-metrics strong { font-size: 13px; margin-top: 2px; }
+.tiffin-daily-lower-grid { display: grid; gap: 14px; grid-template-columns: minmax(0, 1.45fr) minmax(250px, .55fr); }
+.tiffin-recent-reports { overflow: hidden; }
+.tiffin-recent-reports > header > small { color: var(--tm-muted); font-size: 9px; }
+.tiffin-recent-reports ol { list-style: none; margin: 0; padding: 0 18px; }
+.tiffin-recent-reports li { align-items: center; display: grid; gap: 10px; grid-template-columns: 25px 1fr auto; min-height: 48px; }
+.tiffin-recent-reports li + li { border-top: 1px solid #edf1f1; }
+.tiffin-recent-reports li > span { align-items: center; background: #e5f5ef; border-radius: 50%; color: #08775d; display: flex; height: 22px; justify-content: center; width: 22px; }
+.tiffin-recent-reports li > span.has-issue { background: #fff0ed; color: #c43d3d; }
+.tiffin-recent-reports li svg { height: 12px; width: 12px; }
+.tiffin-recent-reports li strong,
+.tiffin-recent-reports li small { display: block; }
+.tiffin-recent-reports li strong { font-size: 11px; }
+.tiffin-recent-reports li small,
+.tiffin-recent-reports li > em { color: var(--tm-muted); font-size: 8px; font-style: normal; }
+.tiffin-weekly-summary { padding: 16px 17px; }
+.tiffin-weekly-summary > header { border-bottom: 1px solid #e8eeee; padding-bottom: 11px; }
+.tiffin-weekly-summary dl { margin: 7px 0 0; }
+.tiffin-weekly-summary dl > div { align-items: center; display: flex; justify-content: space-between; min-height: 38px; }
+.tiffin-weekly-summary dl > div + div { border-top: 1px solid #edf1f1; }
+.tiffin-weekly-summary dt { color: var(--tm-muted); font-size: 10px; }
+.tiffin-weekly-summary dd { font-size: 12px; font-weight: 850; margin: 0; }
+.tiffin-weekly-summary .has-issue dd { color: #c23d3d; }
+.tiffin-daily-dashboard .tiffin-home-school-card { border-radius: 13px; box-shadow: none; min-height: 62px; padding: 10px 15px; }
+
+@media (max-width: 980px) {
+  .tiffin-daily-header { grid-template-columns: minmax(220px, 1fr) minmax(260px, 1fr); }
+  .tiffin-daily-primary-action { grid-column: 1 / -1; }
+  .tiffin-daily-main-grid,
+  .tiffin-daily-lower-grid { grid-template-columns: 1fr; }
+  .tiffin-next-plan { display: grid; gap: 12px; grid-template-columns: minmax(210px, 1fr) minmax(260px, 1.2fr) auto; }
+  .tiffin-next-plan-items { margin: 0; }
+  .tiffin-next-plan > button { align-self: center; padding: 0 13px; width: auto; }
+}
+
+@media (max-width: 760px) {
+  .tiffin-daily-dashboard { gap: 11px; }
+  .tiffin-daily-header { align-items: stretch; border-left-width: 4px; grid-template-columns: 1fr; padding: 16px; }
+  .tiffin-daily-status { border-left: 0; border-top: 1px solid #e6eeee; padding: 12px 0 0; }
+  .tiffin-daily-primary-action { grid-column: 1; }
+  .tiffin-daily-alert { align-items: flex-start; }
+  .tiffin-daily-main-grid,
+  .tiffin-daily-lower-grid { display: contents; }
+  .tiffin-daily-meals { order: 1; }
+  .tiffin-daily-alert { order: 2; }
+  .tiffin-next-plan { display: flex; order: 3; }
+  .tiffin-daily-metrics { grid-template-columns: 1fr 1fr; order: 4; }
+  .tiffin-recent-reports { order: 5; }
+  .tiffin-weekly-summary { order: 6; }
+  .tiffin-daily-dashboard .tiffin-home-school-card { order: 7; }
+  .tiffin-daily-meal-row { gap: 10px; grid-template-columns: 43px 1fr; padding: 12px 14px; }
+  .tiffin-daily-meal-icon { height: 41px; width: 41px; }
+  .tiffin-daily-meal-row dl { grid-column: 1 / -1; }
+  .tiffin-daily-meal-row dl > div:first-child { border-left: 0; padding-left: 0; }
+  .tiffin-daily-meal-row dl > div:last-child { padding-right: 0; }
+  .tiffin-next-plan > button { width: 100%; }
+}
+
+@media (max-width: 430px) {
+  .tiffin-daily-heading h1 { font-size: 20px; }
+  .tiffin-daily-status > span { height: 38px; width: 38px; }
+  .tiffin-daily-meals > header,
+  .tiffin-recent-reports > header { padding: 13px 14px 10px; }
+  .tiffin-daily-meals h2,
+  .tiffin-recent-reports h2,
+  .tiffin-weekly-summary h2 { font-size: 14px; }
+  .tiffin-daily-metrics article { min-height: 66px; padding: 9px; }
+  .tiffin-daily-metrics article > span { height: 34px; width: 34px; }
+  .tiffin-daily-metrics strong { font-size: 11px; }
+  .tiffin-recent-reports li { grid-template-columns: 24px 1fr; }
+  .tiffin-recent-reports li > em { display: none; }
+}
+.tiffin-month-summary {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+.tiffin-month-summary article {
+  align-items: center;
+  background: #fff;
+  border: 1px solid var(--tm-line);
+  border-radius: 14px;
+  display: flex;
+  gap: 11px;
+  padding: 13px 14px;
+}
+.tiffin-month-summary article > span {
+  align-items: center;
+  background: #fff0d5;
+  border-radius: 11px;
+  color: #8b5700;
+  display: flex;
+  height: 40px;
+  justify-content: center;
+  width: 40px;
+}
+.tiffin-month-summary article.is-egg > span {
+  background: #dff3f1;
+  color: #08706e;
+}
+.tiffin-month-summary article.is-banana > span {
+  background: #fff5bd;
+  color: #776500;
+}
+.tiffin-month-summary img {
+  height: 20px;
+  object-fit: contain;
+  width: 20px;
+}
+.tiffin-month-summary strong,
+.tiffin-month-summary small {
+  display: block;
+}
+.tiffin-month-summary small {
+  color: var(--tm-muted);
+  font-size: 11px;
+  margin-top: 2px;
+}
+.tiffin-month-workspace {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: minmax(0, 1fr);
+}
+.tiffin-month-workspace.has-day-report {
+  grid-template-columns: minmax(0, 1fr) 330px;
+}
+.tiffin-month-calendar {
+  background: #fff;
+  border: 1px solid var(--tm-line);
+  border-radius: 18px;
+  box-shadow: 0 9px 28px rgba(24, 66, 78, 0.06);
+  overflow: hidden;
+  position: relative;
+}
+.tiffin-month-weekdays,
+.tiffin-month-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+}
+.tiffin-month-weekdays {
+  background: #eaf3f5;
+  border-bottom: 1px solid var(--tm-line);
+  color: #4f6d75;
+  font-size: 11px;
+  font-weight: 850;
+  text-align: center;
+}
+.tiffin-month-weekdays span {
+  padding: 10px 4px;
+}
+.tiffin-month-grid {
+  gap: 1px;
+  background: var(--tm-line);
+}
+.tiffin-month-grid > button,
+.tiffin-month-blank {
+  background: #fff;
+  min-height: 116px;
+  padding: 10px;
+}
+.tiffin-month-grid > button {
+  border: 0;
+  color: inherit;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  font: inherit;
+  gap: 7px;
+  text-align: left;
+  transition: background 160ms ease, box-shadow 160ms ease;
+}
+.tiffin-month-grid > button:hover,
+.tiffin-month-grid > button:focus-visible {
+  background: #f0f8f7;
+  box-shadow: inset 0 0 0 2px rgba(0, 111, 110, 0.38);
+  outline: none;
+}
+.tiffin-month-grid > button.is-closed {
+  background: #fafcfc;
+}
+.tiffin-month-grid > button.is-today {
+  box-shadow: inset 0 0 0 2px var(--tm-teal);
+}
+.tiffin-month-grid > button.is-report-selected {
+  background: #edf8f5;
+  box-shadow: inset 0 0 0 3px var(--tm-primary);
+}
+.tiffin-month-grid button > header {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+}
+.tiffin-month-grid button > header > span {
+  background: var(--tm-primary);
+  border-radius: 999px;
+  color: #fff;
+  font-size: 8px;
+  padding: 3px 6px;
+}
+.tiffin-month-grid button > div {
+  display: grid;
+  gap: 4px;
+}
+.tiffin-month-grid button > div > span {
+  align-items: center;
+  background: #fff4df;
+  border-radius: 6px;
+  color: #79500a;
+  display: flex;
+  font-size: 9px;
+  font-weight: 800;
+  gap: 4px;
+  padding: 4px 5px;
+}
+.tiffin-month-grid button > div > span.is-egg {
+  background: #e6f5f2;
+  color: #08645f;
+}
+.tiffin-month-grid button > div > span.is-banana {
+  background: #fff8cf;
+  color: #756500;
+}
+.tiffin-month-grid button > div img {
+  height: 11px;
+  object-fit: contain;
+  width: 11px;
+}
+.tiffin-month-grid button > small {
+  color: #91a09c;
+  font-size: 9px;
+  margin-top: auto;
+}
+.tiffin-month-calendar.is-loading {
+  min-height: 420px;
+}
+.tiffin-month-loading {
+  align-items: center;
+  background: rgba(255, 255, 255, 0.8);
+  display: flex;
+  font-weight: 800;
+  inset: 0;
+  justify-content: center;
+  position: absolute;
+}
+.tiffin-day-report-backdrop {
+  display: none;
+}
+.tiffin-day-report-panel {
+  align-self: start;
+  background: #fff;
+  border: 1px solid var(--tm-line);
+  border-radius: 18px;
+  box-shadow: 0 12px 34px rgba(17, 67, 75, 0.1);
+  min-width: 0;
+  overflow: hidden;
+  position: sticky;
+  top: 84px;
+}
+.tiffin-day-report-panel > header {
+  align-items: flex-start;
+  background: linear-gradient(135deg, #eaf8f5, #f7fbfa);
+  border-bottom: 1px solid #d8e8e5;
+  display: flex;
+  justify-content: space-between;
+  padding: 18px;
+}
+.tiffin-day-report-panel > header span,
+.tiffin-day-report-panel > header small {
+  color: var(--tm-muted);
+  display: block;
+  font-size: 11px;
+  font-weight: 750;
+}
+.tiffin-day-report-panel > header h3 {
+  font-size: 19px;
+  margin: 4px 0 2px;
+}
+.tiffin-day-report-panel > header button {
+  align-items: center;
+  background: #fff;
+  border: 1px solid var(--tm-line);
+  border-radius: 10px;
+  color: var(--tm-text);
+  cursor: pointer;
+  display: flex;
+  height: 34px;
+  justify-content: center;
+  width: 34px;
+}
+.tiffin-day-report-panel > header button svg {
+  height: 17px;
+  width: 17px;
+}
+.tiffin-day-report-state {
+  align-items: center;
+  color: var(--tm-muted);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 220px;
+  padding: 26px;
+  text-align: center;
+}
+.tiffin-day-report-state svg {
+  color: var(--tm-primary);
+  height: 30px;
+  margin-bottom: 10px;
+  width: 30px;
+}
+.tiffin-day-report-state strong {
+  color: var(--tm-text);
+  font-size: 16px;
+}
+.tiffin-day-report-state p {
+  font-size: 12px;
+  line-height: 1.55;
+  margin: 6px 0 0;
+}
+.tiffin-day-report-state.is-error {
+  color: #a33f39;
+}
+.tiffin-day-report-items {
+  display: grid;
+  gap: 10px;
+  padding: 14px;
+}
+.tiffin-day-report-items article {
+  background: #f8fbfb;
+  border: 1px solid var(--tm-line);
+  border-radius: 13px;
+  padding: 12px;
+}
+.tiffin-day-report-items article > div {
+  align-items: center;
+  display: grid;
+  gap: 8px;
+  grid-template-columns: 34px 1fr auto;
+}
+.tiffin-day-report-items article > div > span {
+  align-items: center;
+  background: #fff;
+  border-radius: 9px;
+  display: flex;
+  height: 34px;
+  justify-content: center;
+}
+.tiffin-day-report-items article em {
+  background: #e5f5ef;
+  border-radius: 999px;
+  color: #087358;
+  font-size: 10px;
+  font-style: normal;
+  font-weight: 850;
+  padding: 4px 7px;
+}
+.tiffin-day-report-items article.is-short em {
+  background: #fff0ed;
+  color: #b43f35;
+}
+.tiffin-day-report-items article.is-excess em {
+  background: #fff4dc;
+  color: #94600b;
+}
+.tiffin-day-report-items dl {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  margin: 11px 0 0;
+}
+.tiffin-day-report-items dl > div {
+  border-left: 1px solid var(--tm-line);
+  padding: 0 7px;
+}
+.tiffin-day-report-items dl > div:first-child {
+  border-left: 0;
+  padding-left: 0;
+}
+.tiffin-day-report-items dt {
+  color: var(--tm-muted);
+  font-size: 9px;
+}
+.tiffin-day-report-items dd {
+  font-size: 12px;
+  font-weight: 850;
+  margin: 3px 0 0;
+}
+.tiffin-day-item-adjustment {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin: 10px 0 0;
+}
+.tiffin-day-item-adjustment span {
+  background: #e9f7f2;
+  border-radius: 999px;
+  color: #087358;
+  font-size: 9px;
+  font-weight: 800;
+  padding: 4px 7px;
+}
+.tiffin-day-audit-trail {
+  background: #f7fbfa;
+  border: 1px solid #cfe8df;
+  border-radius: 12px;
+  color: #315f54;
+  margin: 0 14px 14px;
+  overflow: hidden;
+}
+.tiffin-day-audit-trail > header {
+  background: #e8f7f2;
+  border-bottom: 1px solid #cfe8df;
+  padding: 10px 12px;
+}
+.tiffin-day-audit-trail > header strong,
+.tiffin-day-audit-trail > header small {
+  display: block;
+}
+.tiffin-day-audit-trail > header strong {
+  color: #096b55;
+  font-size: 12px;
+}
+.tiffin-day-audit-trail > header small {
+  color: #5d7972;
+  font-size: 9px;
+  line-height: 1.35;
+  margin-top: 2px;
+}
+.tiffin-day-audit-summary {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  margin: 0;
+}
+.tiffin-day-audit-summary > div {
+  border-bottom: 1px solid #deebe7;
+  padding: 8px 10px;
+}
+.tiffin-day-audit-summary > div:nth-child(odd) {
+  border-right: 1px solid #deebe7;
+}
+.tiffin-day-audit-summary dt {
+  color: #6b817c;
+  font-size: 8px;
+}
+.tiffin-day-audit-summary dd {
+  color: #173f38;
+  font-size: 11px;
+  font-weight: 800;
+  line-height: 1.35;
+  margin: 2px 0 0;
+}
+.tiffin-day-audit-group,
+.tiffin-day-audit-decision {
+  border-bottom: 1px solid #deebe7;
+  padding: 9px 10px;
+}
+.tiffin-day-audit-group > strong,
+.tiffin-day-audit-decision > strong {
+  color: #096b55;
+  display: block;
+  font-size: 10px;
+  margin-bottom: 6px;
+}
+.tiffin-day-audit-group article {
+  background: #fff;
+  border: 1px solid #dbeae6;
+  border-radius: 8px;
+  margin-top: 6px;
+  padding: 7px 8px;
+}
+.tiffin-day-audit-group article span {
+  color: #173f38;
+  display: block;
+  font-size: 10px;
+  font-weight: 850;
+}
+.tiffin-day-audit-group article p,
+.tiffin-day-audit-decision p {
+  font-size: 9px;
+  line-height: 1.4;
+  margin: 3px 0 0;
+}
+.tiffin-day-audit-group article small,
+.tiffin-day-audit-decision small {
+  color: #6b817c;
+  display: block;
+  font-size: 8px;
+  margin-top: 3px;
+}
+.tiffin-day-audit-group article em {
+  color: #315f54;
+  display: block;
+  font-size: 9px;
+  font-style: normal;
+  line-height: 1.4;
+  margin-top: 4px;
+}
+.tiffin-day-audit-decision {
+  border-bottom: 0;
+}
+.tiffin-day-audit-decision p {
+  color: #173f38;
+  display: grid;
+  gap: 7px;
+  grid-template-columns: 58px 1fr;
+}
+.tiffin-day-audit-decision p span {
+  color: #6b817c;
+  font-size: 8px;
+}
+.tiffin-day-report-panel > footer {
+  align-items: center;
+  background: #eaf8f3;
+  border-top: 1px solid #d2e9e0;
+  color: #08745a;
+  display: flex;
+  gap: 10px;
+  padding: 14px 16px;
+}
+.tiffin-day-report-panel > footer svg {
+  height: 24px;
+  width: 24px;
+}
+.tiffin-day-report-panel > footer strong,
+.tiffin-day-report-panel > footer small {
+  display: block;
+}
+.tiffin-day-report-panel > footer small {
+  color: #52736c;
+  font-size: 10px;
+  margin-top: 2px;
+}
+.tiffin-month-legend {
+  align-items: center;
+  display: flex;
+  gap: 16px;
+  justify-content: space-between;
+}
+.tiffin-month-legend > div {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px;
+}
+.tiffin-month-legend span,
+.tiffin-month-topsheet-download {
+  align-items: center;
+  color: var(--tm-muted);
+  display: flex;
+  font-size: 11px;
+  gap: 6px;
+}
+.tiffin-month-legend i {
+  background: #eef8f4;
+  border: 1px solid #bfdfd5;
+  border-radius: 4px;
+  height: 11px;
+  width: 11px;
+}
+.tiffin-month-legend i.is-closed {
+  background: #fafcfc;
+  border-color: #dce6e3;
+}
+.tiffin-month-topsheet-download {
+  background: #f7fbfa;
+  border: 1px solid #c7ddd8;
+  border-radius: 8px;
+  cursor: pointer;
+  flex: none;
+  font-family: inherit;
+  font-weight: 800;
+  min-height: 34px;
+  padding: 7px 11px;
+}
+.tiffin-month-topsheet-download:hover {
+  background: #eef8f4;
+  border-color: #9dcac0;
+  color: var(--tm-primary);
+}
+.tiffin-month-topsheet-download:disabled {
+  cursor: wait;
+  opacity: .55;
+}
+.tiffin-month-topsheet-download svg {
+  height: 14px;
+  width: 14px;
+}
+
+/* Monthly government food-receipt form: one A4 sheet, matching the supplied Word reference. */
+.tiffin-monthly-print-report {
+  background: #fff;
+  break-after: avoid-page;
+  break-inside: avoid-page;
+  box-sizing: border-box;
+  color: #000;
+  display: none;
+  font-family: var(--font-bengali), "Kalpurush", "Nirmala UI", sans-serif;
+  height: 297mm;
+  max-height: 297mm;
+  overflow: hidden;
+  padding: 10mm 12mm 8mm;
+  page-break-after: avoid;
+  page-break-inside: avoid;
+  position: relative;
+  width: 210mm;
+}
+.tiffin-monthly-print-report.is-pdf-capture {
+  display: block;
+  left: -10000px;
+  position: fixed;
+  top: 0;
+  z-index: -1;
+}
+.tiffin-report-form-code {
+  border: .35mm solid #000;
+  font-size: 12pt;
+  line-height: 1;
+  padding: 3mm 4mm;
+  position: absolute;
+  right: 12mm;
+  top: 9mm;
+}
+.tiffin-report-title {
+  margin: 6mm 0 3mm;
+  text-align: center;
+}
+.tiffin-report-title h1,
+.tiffin-report-title h2,
+.tiffin-report-title p {
+  color: #000;
+  line-height: 1.2;
+  margin: 0;
+}
+.tiffin-report-title h1 { font-size: 15pt; font-weight: 800; }
+.tiffin-report-title h2 { font-size: 10pt; font-weight: 500; margin-top: 1.2mm; }
+.tiffin-report-title p { font-size: 9pt; margin-top: 1.2mm; }
+.tiffin-report-school-meta,
+.tiffin-report-food-table {
+  border-collapse: collapse;
+  table-layout: fixed;
+  width: 100%;
+}
+.tiffin-report-school-meta td {
+  border: .28mm solid #000;
+  font-size: 8pt;
+  height: 5.1mm;
+  line-height: 1.1;
+  padding: .7mm 1.2mm;
+  text-align: left;
+  vertical-align: middle;
+  width: 50%;
+}
+.tiffin-report-food-table th,
+.tiffin-report-food-table td {
+  border: .28mm solid #000;
+  line-height: 1.05;
+  padding: .35mm .25mm;
+  text-align: center;
+  vertical-align: middle;
+}
+.tiffin-report-food-table th { background: #d9d9d9; font-size: 7.2pt; font-weight: 500; }
+.tiffin-report-food-table thead tr:first-child th { height: 12mm; }
+.tiffin-report-food-table thead tr:nth-child(2) th { height: 8mm; }
+.tiffin-report-food-table thead tr.tiffin-report-column-numbers th {
+  background: #efa67f;
+  font-size: 8pt;
+  height: 5.2mm;
+}
+.tiffin-report-food-table tbody td {
+  font-family: var(--font-bengali), "Kalpurush", "Nirmala UI", sans-serif;
+  font-size: 7.2pt;
+  height: 4.65mm;
+  white-space: nowrap;
+}
+.tiffin-report-status {
+  display: block;
+  font-size: 5.8pt;
+  line-height: 1.05;
+  max-height: 3.7mm;
+  overflow: hidden;
+  white-space: normal;
+}
+.tiffin-report-food-table tfoot th {
+  background: #bfbfbf;
+  font-size: 7.5pt;
+  height: 5.2mm;
+  text-align: left;
+  padding-left: 1.2mm;
+}
+.tiffin-report-food-table tfoot th:nth-child(n+4) { text-align: center; padding-left: .25mm; }
+.tiffin-report-food-table col.is-serial { width: 4.5%; }
+.tiffin-report-food-table col.is-date { width: 10.4%; }
+.tiffin-report-food-table col.is-challan { width: 10.5%; }
+.tiffin-report-food-table col.is-food { width: 8%; }
+.tiffin-report-food-table col.is-food-wide { width: 9.2%; }
+.tiffin-report-food-table col.is-sign { width: 9.7%; }
+.tiffin-report-food-table col.is-comment { width: 11.5%; }
+.tiffin-report-signatures {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  margin-top: 3mm;
+}
+.tiffin-report-signatures > div {
+  border: .28mm solid #000;
+  display: grid;
+  font-size: 7.5pt;
+  gap: 1.6mm;
+  min-height: 13mm;
+  padding: 1.4mm;
+}
+.tiffin-report-signatures > div:nth-child(even) { border-left: 0; }
+.tiffin-report-signatures > div:nth-child(n+3) { border-top: 0; }
+
+@media print {
+  html,
+  body.desktop-print-layout.printing-monthly-food-report {
+    height: 297mm !important;
+    margin: 0 !important;
+    max-height: 297mm !important;
+    max-width: 210mm !important;
+    min-height: 297mm !important;
+    min-width: 210mm !important;
+    overflow: hidden !important;
+    padding: 0 !important;
+    width: 210mm !important;
+  }
+  body.printing-monthly-food-report .tiffin-portal,
+  body.printing-monthly-food-report .tiffin-main,
+  body.printing-monthly-food-report .tiffin-monthly-page {
+    height: 297mm !important;
+    margin: 0 !important;
+    max-height: 297mm !important;
+    min-height: 0 !important;
+    overflow: hidden !important;
+    padding: 0 !important;
+    width: 210mm !important;
+  }
+  body.printing-monthly-food-report * {
+    visibility: hidden !important;
+  }
+  body.printing-monthly-food-report .tiffin-monthly-print-report,
+  body.printing-monthly-food-report .tiffin-monthly-print-report * {
+    visibility: visible !important;
+  }
+  body.desktop-print-layout.printing-monthly-food-report .tiffin-monthly-print-report {
+    display: block !important;
+    left: 50%;
+    max-width: 210mm !important;
+    min-width: 210mm !important;
+    overflow: hidden !important;
+    position: absolute !important;
+    top: 0;
+    transform: translateX(-50%);
+    width: 210mm !important;
+  }
+}
+
+@media (max-width: 760px) {
+  .tiffin-bottom-nav {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+  .tiffin-monthly-heading {
+    align-items: stretch;
+    display: grid;
+  }
+  .tiffin-month-picker {
+    grid-template-columns: 38px 1fr 38px;
+  }
+  .tiffin-monthly-controls {
+    justify-items: stretch;
+  }
+  .tiffin-month-report-actions {
+    display: flex;
+  }
+  .tiffin-month-report-actions button {
+    justify-content: center;
+    width: 100%;
+  }
+  .tiffin-month-summary {
+    grid-template-columns: 1fr;
+  }
+  .tiffin-month-summary article {
+    padding: 10px 12px;
+  }
+  .tiffin-month-calendar {
+    border-radius: 14px;
+  }
+  .tiffin-month-workspace,
+  .tiffin-month-workspace.has-day-report {
+    display: block;
+  }
+  .tiffin-month-grid > button,
+  .tiffin-month-blank {
+    min-height: 82px;
+    padding: 5px;
+  }
+  .tiffin-month-grid > button {
+    gap: 4px;
+  }
+  .tiffin-month-grid button > header strong {
+    font-size: 12px;
+  }
+  .tiffin-month-grid button > header > span {
+    font-size: 0;
+    height: 6px;
+    padding: 0;
+    width: 6px;
+  }
+  .tiffin-month-grid button > div {
+    gap: 3px;
+  }
+  .tiffin-month-grid button > div > span {
+    font-size: 0;
+    justify-content: center;
+    padding: 4px;
+  }
+  .tiffin-month-grid button > div img {
+    height: 13px;
+    object-fit: contain;
+    width: 13px;
+  }
+  .tiffin-month-grid button > small {
+    font-size: 7px;
+    line-height: 1.2;
+  }
+  .tiffin-day-report-backdrop {
+    background: rgba(4, 35, 40, 0.46);
+    border: 0;
+    display: block;
+    inset: 0;
+    position: fixed;
+    z-index: 120;
+  }
+  .tiffin-day-report-panel {
+    border-radius: 22px 22px 0 0;
+    bottom: 0;
+    left: 0;
+    max-height: min(78dvh, 680px);
+    overflow-y: auto;
+    position: fixed;
+    right: 0;
+    top: auto;
+    z-index: 121;
+  }
+  .tiffin-day-report-panel > header {
+    padding: 17px 18px;
+    position: sticky;
+    top: 0;
+    z-index: 1;
+  }
+  .tiffin-day-report-panel > header::before {
+    background: #b6cbc6;
+    border-radius: 999px;
+    content: "";
+    height: 4px;
+    left: 50%;
+    position: absolute;
+    top: 7px;
+    transform: translateX(-50%);
+    width: 44px;
+  }
+  .tiffin-day-report-items {
+    padding: 14px 16px;
+  }
+  .tiffin-month-legend {
+    align-items: stretch;
+    display: grid;
+    gap: 12px;
+  }
+  .tiffin-month-legend > div {
+    gap: 10px 16px;
+  }
+  .tiffin-month-topsheet-download {
+    justify-content: center;
+    width: 100%;
+  }
+  .tiffin-bottom-nav button {
+    font-size: 9px;
+  }
+  .tiffin-bottom-nav button span {
+    white-space: nowrap;
+  }
+}

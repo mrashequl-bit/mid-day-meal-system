@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { type CSSProperties, useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { Settings as SettingsIcon, UserRound } from "lucide-react";
 import { USER_ROLE_LABELS } from "../lib/user-roles";
@@ -29,6 +29,8 @@ export function AccountProfileCard({ fallbackName, fallbackEmail, showSettings =
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState(false);
   const [launcherTarget, setLauncherTarget] = useState<Element | null>(null);
+  const [profileAnchor, setProfileAnchor] = useState<CSSProperties | null>(null);
+  const launcherButtonRef = useRef<HTMLButtonElement>(null);
   const [saving, setSaving] = useState(false);
   const [loggingOut, setLoggingOut] = useState(false);
   const [message, setMessage] = useState("");
@@ -48,13 +50,62 @@ export function AccountProfileCard({ fallbackName, fallbackEmail, showSettings =
 
   useEffect(() => {
     const locateSidebar = () => {
-      setLauncherTarget(document.querySelector(".sidebar"));
+      const mobilePortalHost = window.matchMedia("(max-width: 760px)").matches
+        ? document.querySelector(".tiffin-bottom-nav .account-launcher-host")
+        : null;
+      setLauncherTarget(mobilePortalHost ?? document.querySelector(".tiffin-topbar .account-launcher-host, .account-launcher-host, .sidebar"));
     };
     locateSidebar();
     const observer = new MutationObserver(locateSidebar);
     observer.observe(document.body, { childList: true, subtree: true });
-    return () => observer.disconnect();
+    window.addEventListener("resize", locateSidebar);
+    return () => {
+      observer.disconnect();
+      window.removeEventListener("resize", locateSidebar);
+    };
   }, []);
+
+  useEffect(() => {
+    if (!open || window.matchMedia("(max-width: 800px)").matches) {
+      setProfileAnchor(null);
+      return;
+    }
+
+    const positionProfileCard = () => {
+      const launcherButton = launcherButtonRef.current;
+      if (!launcherButton) return;
+      const rect = launcherButton.getBoundingClientRect();
+      const gap = 8;
+      const pagePadding = 12;
+      const cardWidth = 282;
+      const left = Math.min(
+        Math.max(pagePadding, rect.left),
+        Math.max(pagePadding, window.innerWidth - cardWidth - pagePadding),
+      );
+
+      if (rect.top > window.innerHeight / 2) {
+        setProfileAnchor({
+          bottom: window.innerHeight - rect.top + gap,
+          left,
+          maxHeight: Math.max(180, rect.top - gap - pagePadding),
+        });
+      } else {
+        setProfileAnchor({
+          left,
+          maxHeight: Math.max(180, window.innerHeight - rect.bottom - gap - pagePadding),
+          top: rect.bottom + gap,
+        });
+      }
+    };
+
+    positionProfileCard();
+    window.addEventListener("resize", positionProfileCard);
+    window.addEventListener("scroll", positionProfileCard, true);
+    return () => {
+      window.removeEventListener("resize", positionProfileCard);
+      window.removeEventListener("scroll", positionProfileCard, true);
+    };
+  }, [open, launcherTarget]);
 
   const display = profile ?? { id: 0, username: fallbackName, name: fallbackName, role: "super_admin", email: fallbackEmail };
   const roleLabel = USER_ROLE_LABELS[display.role as keyof typeof USER_ROLE_LABELS] || display.role;
@@ -103,7 +154,7 @@ export function AccountProfileCard({ fallbackName, fallbackEmail, showSettings =
     try {
       const response = await fetch("/api/auth/logout", { method: "POST" });
       if (!response.ok) throw new Error("লগআউট করা যায়নি। আবার চেষ্টা করুন।");
-      window.location.href = "/login";
+      window.location.replace("/login");
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "লগআউট করা যায়নি।");
       setLoggingOut(false);
@@ -118,6 +169,7 @@ export function AccountProfileCard({ fallbackName, fallbackEmail, showSettings =
   const launcher = (
     <div className="account-user-card">
       <button
+        ref={launcherButtonRef}
         type="button"
         className="account-profile-launcher"
         aria-haspopup="dialog"
@@ -135,8 +187,8 @@ export function AccountProfileCard({ fallbackName, fallbackEmail, showSettings =
     <>
       {launcherTarget && createPortal(launcher, launcherTarget)}
       {open && (
-        <div className="account-profile-layer" role="presentation" onClick={() => setOpen(false)}>
-          <section className="account-profile-card" role="dialog" aria-modal="true" aria-label="ইউজার প্রোফাইল" onClick={(event) => event.stopPropagation()}>
+        <div className={`account-profile-layer${profileAnchor ? " is-launcher-anchored" : ""}`} role="presentation" onClick={() => setOpen(false)}>
+          <section className="account-profile-card" style={profileAnchor ?? undefined} role="dialog" aria-modal="true" aria-label="ইউজার প্রোফাইল" onClick={(event) => event.stopPropagation()}>
             <button className="account-close-button" type="button" aria-label="প্রোফাইল বন্ধ করুন" onClick={() => setOpen(false)}>×</button>
       <div className="account-cover" />
       <div className="account-card-body">
@@ -174,6 +226,7 @@ export function AccountProfileCard({ fallbackName, fallbackEmail, showSettings =
         {editing && <form className="account-edit-form" onSubmit={saveProfile}><div className="account-form-grid">
           <label className="account-photo-field">প্রোফাইল ছবি<input type="file" accept="image/jpeg,image/png,image/webp" onChange={selectPhoto} /><small>JPG, PNG বা WebP · সর্বোচ্চ ১ MB</small></label><label>নাম<input value={form.name} onChange={(event) => field("name", event.target.value)} required /></label><label>ডিজিগনেশন<input value={form.designation} onChange={(event) => field("designation", event.target.value)} /></label><label>মোবাইল<input value={form.phone} onChange={(event) => field("phone", event.target.value)} inputMode="numeric" /></label><label>ইমেইল<input value={form.email} onChange={(event) => field("email", event.target.value)} type="email" /></label><label>ঠিকানা<input value={form.address} onChange={(event) => field("address", event.target.value)} /></label><label>নতুন পাসওয়ার্ড<input value={form.new_password} onChange={(event) => field("new_password", event.target.value)} type="password" placeholder="পরিবর্তন করতে চাইলে লিখুন" /></label><label className="account-form-wide">নিজের সম্পর্কে<textarea value={form.bio} onChange={(event) => field("bio", event.target.value)} rows={3} /></label>
         </div><div className="account-form-actions"><button type="submit" className="button-primary" disabled={saving}>{saving ? "সংরক্ষণ হচ্ছে…" : "পরিবর্তন সংরক্ষণ"}</button><button type="button" className="button-secondary" onClick={() => setEditing(false)}>বাতিল</button></div></form>}
+        {display.role === "tiffin_manager" && <details className="account-icon-credit"><summary>খাবারের আইকন ক্রেডিট</summary><p><a href="https://icons8.com" target="_blank" rel="noreferrer">Icons8</a> · <a href="https://icons8.com/icon/vpQbzeGCwsQ1/bread" target="_blank" rel="noreferrer">Bread</a> · <a href="https://icons8.com/icon/97689/banana" target="_blank" rel="noreferrer">Banana</a> · <a href="https://icons8.com/icon/Ybx2AvxzyUfH/egg" target="_blank" rel="noreferrer">Egg</a></p></details>}
         <div className="account-card-footer">
           <span>এই ডিভাইসে আপনার সেশন সক্রিয় আছে</span>
           <button type="button" className="account-logout-button" onClick={logout} disabled={loggingOut}>

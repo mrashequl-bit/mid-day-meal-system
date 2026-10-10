@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { ensureDatabase } from "../../../db/bootstrap";
 import { getAuthUser } from "../../lib/auth";
+import { getMealUnitPrices } from "../../lib/meal-prices";
 
 const isoDate = /^\d{4}-\d{2}-\d{2}$/;
 const isoMonth = /^\d{4}-\d{2}$/;
@@ -20,14 +21,15 @@ export async function GET(request: Request) {
     const period = await db.prepare(`SELECT id,name,start_date,end_date FROM meal_plan_periods
       WHERE status='active' AND start_date<=? AND end_date>=?
       ORDER BY updated_at DESC,id DESC LIMIT 1`).bind(endDate, startDate).first<{id:number;name:string;start_date:string;end_date:string}>();
-    if (!period) return NextResponse.json({ month, source: "fallback", days: [] });
+    const unitPrices = await getMealUnitPrices(db);
+    if (!period) return NextResponse.json({ month, source: "fallback", days: [], unitPrices });
     const rows = await db.prepare(`SELECT plan_date,items_json FROM meal_plan_days
       WHERE period_id=? AND plan_date>=? AND plan_date<=? ORDER BY plan_date`).bind(period.id, startDate, endDate).all<{plan_date:string;items_json:string}>();
     const days = rows.results.map((row) => {
       try { const parsed = JSON.parse(row.items_json || "[]"); return { date:row.plan_date, items:Array.isArray(parsed) ? parsed.map(String) : [] }; }
       catch { return { date:row.plan_date, items:[] }; }
     });
-    return NextResponse.json({ month, source:"configured", periodId:period.id, periodName:period.name, startDate:period.start_date, endDate:period.end_date, days });
+    return NextResponse.json({ month, source:"configured", periodId:period.id, periodName:period.name, startDate:period.start_date, endDate:period.end_date, days, unitPrices });
   }
   const date = searchParams.get("date") || "";
   if (!isoDate.test(date)) return NextResponse.json({ error: "সঠিক তারিখ দিন।" }, { status: 400 });

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { ensureDatabase } from "../../../db/bootstrap";
 import { requirePermission } from "../../lib/auth";
+import { internalApiError } from "../../lib/api-errors";
 
 export async function GET() {
   if (!(await requirePermission("areas"))) {
@@ -14,13 +15,6 @@ export async function GET() {
 
     return NextResponse.json({ areas: results.results || results });
   } catch (error) {
-    console.error('Failed to fetch areas:', error);
-    return NextResponse.json(
-      {
-        error:
-          error instanceof Error ? error.message : "Failed to fetch areas",
-      },
-      { status: 500 },
-    );
+    return internalApiError("areas.list", error, "অঞ্চলের তালিকা পাওয়া যায়নি।");
   }
 }

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { ensureDatabase } from "../../../db/bootstrap";
 import { getAuthUser } from "../../lib/auth";
 import { getDhakaClock } from "../../lib/distribution-reporting-window";
+import { internalApiError } from "../../lib/api-errors";
 
 export async function GET(request: Request) {
   try {
@@ -21,17 +22,26 @@ export async function GET(request: Request) {
     if (authUser.role === 'super_admin' && !searchParams.has("area_code")) {
       const includeSummary = searchParams.get("summary") === "true";
       if (includeSummary) {
-        // Return list of area managers with their balances for super admin overview
-        const expenses = await db.prepare("SELECT area_code, SUM(amount_poisha) as exp FROM area_expenses GROUP BY area_code").all();
-        const payments = await db.prepare("SELECT area_code, SUM(amount_poisha) as pay FROM area_payments GROUP BY area_code").all();
-        const areas = await db.prepare("SELECT code, name_bn as name, manager_name FROM areas WHERE is_active = 1").all();
-        
-        const summary = (areas.results as any[]).map(area => {
-          const exp = (expenses.results as any[]).find(e => e.area_code === area.code)?.exp || 0;
-          const pay = (payments.results as any[]).find(p => p.area_code === area.code)?.pay || 0;
-          return { ...area, totalExpense: exp, totalPayment: pay, due: exp - pay };
-        });
-        return NextResponse.json({ summary });
+        const summary = await db.prepare(
+          `WITH expense_totals AS (
+             SELECT area_code, SUM(amount_poisha) AS total_expense
+             FROM area_expenses
+             GROUP BY area_code
+           ), payment_totals AS (
+             SELECT area_code, SUM(amount_poisha) AS total_payment
+             FROM area_payments
+             GROUP BY area_code
+           )
+           SELECT a.code, a.name_bn AS name, a.manager_name,
+             COALESCE(e.total_expense, 0) AS totalExpense,
+             COALESCE(p.total_payment, 0) AS totalPayment,
+             COALESCE(e.total_expense, 0) - COALESCE(p.total_payment, 0) AS due
+           FROM areas a
+           LEFT JOIN expense_totals e ON e.area_code = a.code
+           LEFT JOIN payment_totals p ON p.area_code = a.code
+           WHERE a.is_active = 1`,
+        ).all();
+        return NextResponse.json({ summary: summary.results });
       }
     }
 
@@ -87,8 +97,8 @@ export async function GET(request: Request) {
     const due = totalExpense - totalPayment; 
 
     return NextResponse.json({ ledger, totalExpense, totalPayment, due });
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  } catch (error) {
+    return internalApiError("my-account.get", error, "হিসাবের তথ্য পাওয়া যায়নি।");
   }
 }
 
@@ -136,8 +146,8 @@ export async function POST(request: Request) {
     }
 
     return NextResponse.json({ success: true });
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  } catch (error) {
+    return internalApiError("my-account.create", error, "হিসাব সংরক্ষণ করা যায়নি।");
   }
 }
 
@@ -175,8 +185,8 @@ export async function PUT(request: Request) {
     ).run();
 
     return NextResponse.json({ success: true });
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  } catch (error) {
+    return internalApiError("my-account.update", error, "হিসাব আপডেট করা যায়নি।");
   }
 }
 
@@ -196,7 +206,7 @@ export async function DELETE(request: Request) {
     await db.prepare("DELETE FROM area_payments WHERE id = ?").bind(id).run();
 
     return NextResponse.json({ success: true });
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  } catch (error) {
+    return internalApiError("my-account.delete", error, "হিসাব মুছে ফেলা যায়নি।");
   }
 }

@@ -7,13 +7,7 @@ import { getAreaManagerReportingWindow, getDhakaClock } from "../lib/distributio
 import { formatDateDMY } from "../lib/date-format";
 import { printDesktopLayout } from "../lib/desktop-print";
 
-const AlertIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-alert-circle">
-    <circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/>
-  </svg>
-);
-
-export function SchoolDistributionAdjustment({ accountRole, userAreaCode, onDateChange }: { accountRole: string, userAreaCode?: string, onDateChange?: (date: string) => void }) {
+export function SchoolDistributionAdjustment({ accountRole, userAreaCode, userSchoolEmis, onDateChange }: { accountRole: string, userAreaCode?: string, userSchoolEmis?: string, onDateChange?: (date: string) => void }) {
   const problemTypeMapping = {
     less_item: 'কম আইটেম পাওয়া গেছে',
     more_item: 'বেশি আইটেম পাওয়া গেছে',
@@ -21,6 +15,20 @@ export function SchoolDistributionAdjustment({ accountRole, userAreaCode, onDate
     wrong_item: 'ভুল আইটেম পাওয়া গেছে',
     school_closed: 'স্কুল বন্ধ ছিল',
     other: 'অন্যান্য'
+  };
+  const adjustmentReasons = [
+    'পরবর্তী বিতরণে সমন্বয়',
+    'পুনরায় সরবরাহ',
+    'ঘাটতি পূরণ',
+    'নষ্ট পণ্য পরিবর্তন',
+    'রিপোর্ট গ্রহণ করে সমাপ্ত',
+    'রিপোর্ট ভুল / বাতিল',
+    'অন্যান্য',
+  ];
+  const quantityResolutionDirections: Record<string, 'shortage'> = {
+    'পুনরায় সরবরাহ': 'shortage',
+    'ঘাটতি পূরণ': 'shortage',
+    'নষ্ট পণ্য পরিবর্তন': 'shortage',
   };
 
   const [schools, setSchools] = useState<any[]>([]);
@@ -46,11 +54,18 @@ export function SchoolDistributionAdjustment({ accountRole, userAreaCode, onDate
   const [receivedBanana, setReceivedBanana] = useState<number>(0);
   const [problemType, setProblemType] = useState('less_item');
   const [reason, setReason] = useState('');
+  const [resolutionReason, setResolutionReason] = useState('');
   const [comments, setComments] = useState('');
+  const [resolutionItems, setResolutionItems] = useState({ bun: 0, egg: 0, banana: 0 });
+  const [selectedResolutionItem, setSelectedResolutionItem] = useState<'bun' | 'egg' | 'banana' | ''>('');
+  const [isSavingResolution, setIsSavingResolution] = useState(false);
 
   const [filterDate, setFilterDate] = useState(() => getDhakaClock().date);
   const [filterArea, setFilterArea] = useState('');
   const [filterStatus, setFilterStatus] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+  const [printingAllRows, setPrintingAllRows] = useState(false);
   const [focusedSchoolEmis, setFocusedSchoolEmis] = useState('');
   const [configuredMealItems, setConfiguredMealItems] = useState<string[] | null>(null);
 
@@ -59,23 +74,28 @@ export function SchoolDistributionAdjustment({ accountRole, userAreaCode, onDate
   }, [filterDate, onDateChange]);
 
   const printDistributionReport = useCallback(() => {
-    printDesktopLayout('printing-distribution-report');
+    setPrintingAllRows(true);
+    window.requestAnimationFrame(() => {
+      window.requestAnimationFrame(() => {
+        printDesktopLayout('printing-distribution-report', () => setPrintingAllRows(false));
+      });
+    });
   }, []);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const params = new URLSearchParams(window.location.search);
-      if (params.get('date')) setFilterDate(params.get('date') as string);
+      if (accountRole !== 'tiffin_manager' && params.get('date')) setFilterDate(params.get('date') as string);
       if (params.get('area')) setFilterArea(params.get('area') as string);
       if (params.get('status')) setFilterStatus(params.get('status') as string);
       if (params.get('school')) setFocusedSchoolEmis(params.get('school') as string);
     }
-  }, []);
+  }, [accountRole]);
 
   useEffect(() => {
     const openReport = (event: Event) => {
       const detail = (event as CustomEvent<{ areaCode?: string; date?: string; status?: string; schoolEmis?: string }>).detail || {};
-      if (detail.date) setFilterDate(detail.date);
+      if (accountRole !== 'tiffin_manager' && detail.date) setFilterDate(detail.date);
       if (accountRole === 'super_admin' && detail.areaCode) setFilterArea(detail.areaCode);
       if (detail.status) setFilterStatus(detail.status);
       setFocusedSchoolEmis(detail.schoolEmis || '');
@@ -126,7 +146,7 @@ export function SchoolDistributionAdjustment({ accountRole, userAreaCode, onDate
   const hasScheduledItems = showBread || showEgg || showBanana;
 
   const reportingWindow = getAreaManagerReportingWindow(filterDate, currentTime);
-  const isLockedForManager = accountRole !== 'super_admin' && !reportingWindow.canReport;
+  const isLockedForManager = accountRole !== 'super_admin' && (!reportingWindow.canReport || !hasScheduledItems);
   
   const [areas, setAreas] = useState<any[]>([]);
 
@@ -146,7 +166,9 @@ export function SchoolDistributionAdjustment({ accountRole, userAreaCode, onDate
       const schoolData = await schoolRes.json() as any;
       
       let filteredSchools = schoolData.schools || [];
-      if (accountRole === 'area_manager' && userAreaCode) {
+      if (accountRole === 'tiffin_manager') {
+        filteredSchools = filteredSchools.filter((s: any) => s.emis_code === userSchoolEmis);
+      } else if (accountRole === 'area_manager' && userAreaCode) {
         filteredSchools = filteredSchools.filter((s: any) => s.area_code === userAreaCode);
       } else if (filterArea) {
         filteredSchools = filteredSchools.filter((s: any) => s.area_code === filterArea);
@@ -163,11 +185,15 @@ export function SchoolDistributionAdjustment({ accountRole, userAreaCode, onDate
       console.error("Failed to fetch distribution data", e);
     }
     setLoading(false);
-  }, [accountRole, filterArea, filterDate, userAreaCode]);
+  }, [accountRole, filterArea, filterDate, userAreaCode, userSchoolEmis]);
 
   useEffect(() => {
     fetchData();
   }, [fetchData]);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [filterArea, filterDate, filterStatus, pageSize]);
 
   function handleReportClick(school: any) {
     setSelectedSchool(school);
@@ -179,14 +205,20 @@ export function SchoolDistributionAdjustment({ accountRole, userAreaCode, onDate
       setReceivedBanana(existing.received_banana || 0);
       setProblemType(existing.problem_type === 'none' ? 'less_item' : (existing.problem_type || 'less_item'));
       setReason(existing.reason || '');
-      setComments(existing.comments === 'অটো-রিসিভড (২ টার পর)' ? '' : (existing.comments || ''));
+      setResolutionReason(existing.resolution_action || existing.resolution_reason || '');
+      setComments(existing.resolution_note || (existing.comments === 'অটো-রিসিভড (২ টার পর)' ? '' : (existing.comments || '')));
+      setResolutionItems({ bun: 0, egg: 0, banana: 0 });
+      setSelectedResolutionItem('');
     } else {
       setReceivedBread(school.current_daily_demand || 0);
       setReceivedEgg(school.current_daily_demand || 0);
       setReceivedBanana(school.current_daily_demand || 0);
       setProblemType('less_item');
       setReason('');
+      setResolutionReason('');
       setComments('');
+      setResolutionItems({ bun: 0, egg: 0, banana: 0 });
+      setSelectedResolutionItem('');
     }
     
     setIsModalOpen(true);
@@ -203,6 +235,25 @@ export function SchoolDistributionAdjustment({ accountRole, userAreaCode, onDate
     const eEgg = Math.max(0, receivedEgg - planned);
     const sBanana = Math.max(0, planned - receivedBanana);
     const eBanana = Math.max(0, receivedBanana - planned);
+    const existing = reports.find(r => r.school_emis_code === selectedSchool.emis_code);
+
+    if (accountRole === 'super_admin' && !adjustmentReasons.includes(resolutionReason)) {
+      alert('সমন্বয়ের কারণ নির্বাচন করুন।');
+      return;
+    }
+    if (accountRole === 'super_admin' && ['অন্যান্য', 'রিপোর্ট ভুল / বাতিল'].includes(resolutionReason) && !comments.trim()) {
+      alert('এই ব্যবস্থার জন্য মন্তব্য লিখুন।');
+      return;
+    }
+    const quantityDirection = quantityResolutionDirections[resolutionReason];
+    if (accountRole === 'super_admin' && quantityDirection && !selectedResolutionItem) {
+      alert('পার্থক্য ও বর্তমান বকেয়া থেকে একটি আইটেম নির্বাচন করুন।');
+      return;
+    }
+    if (accountRole === 'super_admin' && quantityDirection && selectedResolutionItem && resolutionItems[selectedResolutionItem] <= 0) {
+      alert('সমন্বয় করা আইটেমের সংখ্যা লিখুন।');
+      return;
+    }
 
     const payload = {
       date: filterDate,
@@ -220,14 +271,21 @@ export function SchoolDistributionAdjustment({ accountRole, userAreaCode, onDate
       excessBread: eBread,
       excessEgg: eEgg,
       excessBanana: eBanana,
-      problemType,
-      reason,
+      problemType: existing?.problem_type || (accountRole === 'super_admin' ? 'none' : problemType),
+      reason: existing?.reason || (accountRole === 'super_admin' ? 'অ্যাডমিন কর্তৃক সরাসরি সমন্বয়' : reason),
+      resolutionReason: accountRole === 'super_admin' ? resolutionReason : undefined,
+      resolutionAction: accountRole === 'super_admin' ? resolutionReason : undefined,
+      resolutionNote: accountRole === 'super_admin' ? comments : undefined,
+      resolutionItems: accountRole === 'super_admin' ? resolutionItems : undefined,
+      resolutionItemCode: accountRole === 'super_admin' ? selectedResolutionItem : undefined,
       comments,
-      status: accountRole === 'super_admin' ? 'resolved' : undefined
+      status: accountRole === 'super_admin'
+        ? resolutionReason === 'পরবর্তী বিতরণে সমন্বয়' ? 'under_review' : 'resolved'
+        : undefined
     };
 
     try {
-      const existing = reports.find(r => r.school_emis_code === selectedSchool.emis_code);
+      setIsSavingResolution(true);
       const url = existing ? `/api/distribution-reports/${existing.id}` : `/api/distribution-reports`;
       const method = existing ? 'PATCH' : 'POST';
 
@@ -243,10 +301,13 @@ export function SchoolDistributionAdjustment({ accountRole, userAreaCode, onDate
       }
 
       setIsModalOpen(false);
-      fetchData(); 
+      fetchData();
+      window.dispatchEvent(new Event('notifications-updated'));
     } catch (err: any) {
       console.error(err);
       alert(err.message || "Error saving report.");
+    } finally {
+      setIsSavingResolution(false);
     }
   }
 
@@ -270,7 +331,7 @@ export function SchoolDistributionAdjustment({ accountRole, userAreaCode, onDate
         totalBread += planned;
       } else if (report) {
         totalBread += Number(report.received_bread) || 0;
-        const diff = (Number(report.shortage_bread) || 0) - (Number(report.excess_bread) || 0);
+        const diff = Number(report.outstanding_shortage_bun ?? report.shortage_bread ?? 0) - Number(report.outstanding_excess_bun ?? report.excess_bread ?? 0);
         if (diff > 0) totalShortageBread += diff;
         else if (diff < 0) totalExcessBread += Math.abs(diff);
       }
@@ -280,7 +341,7 @@ export function SchoolDistributionAdjustment({ accountRole, userAreaCode, onDate
         totalEgg += planned;
       } else if (report) {
         totalEgg += Number(report.received_egg) || 0;
-        const diff = (Number(report.shortage_egg) || 0) - (Number(report.excess_egg) || 0);
+        const diff = Number(report.outstanding_shortage_egg ?? report.shortage_egg ?? 0) - Number(report.outstanding_excess_egg ?? report.excess_egg ?? 0);
         if (diff > 0) totalShortageEgg += diff;
         else if (diff < 0) totalExcessEgg += Math.abs(diff);
       }
@@ -290,7 +351,7 @@ export function SchoolDistributionAdjustment({ accountRole, userAreaCode, onDate
         totalBanana += planned;
       } else if (report) {
         totalBanana += Number(report.received_banana) || 0;
-        const diff = (Number(report.shortage_banana) || 0) - (Number(report.excess_banana) || 0);
+        const diff = Number(report.outstanding_shortage_banana ?? report.shortage_banana ?? 0) - Number(report.outstanding_excess_banana ?? report.excess_banana ?? 0);
         if (diff > 0) totalShortageBanana += diff;
         else if (diff < 0) totalExcessBanana += Math.abs(diff);
       }
@@ -317,28 +378,58 @@ export function SchoolDistributionAdjustment({ accountRole, userAreaCode, onDate
     showBanana && totalExcessBanana > 0 && `${engToBnNumber(totalExcessBanana)} টি কলা`
   ].filter(Boolean).join(', ');
 
+  const headerDate = mounted ? formatDateDMY(currentTime) : 'তারিখ লোড হচ্ছে...';
+  const headerTime = mounted
+    ? currentTime.toLocaleTimeString('bn-BD', {
+        timeZone: 'Asia/Dhaka',
+        timeStyle: 'medium'
+      })
+    : 'সময় লোড হচ্ছে...';
+
+  const reportBySchool = new Map(reports.map((report) => [report.school_emis_code, report]));
+  const isIssueReport = (report: any) => ['new', 'under_review', 'partially_resolved'].includes(report?.status);
+  const isAutomaticReport = (report: any) => report?.confirmation_source === 'system' || report?.comments === 'অটো-রিসিভড (২ টার পর)';
+  const sortedFilteredSchools = [...schools]
+    .filter((school) => {
+      const report = reportBySchool.get(school.emis_code);
+      if (!filterStatus) return true;
+      if (filterStatus === 'new' || filterStatus === 'issue') return isIssueReport(report);
+      if (filterStatus === 'resolved') return report?.status === 'resolved' && !isAutomaticReport(report);
+      if (filterStatus === 'auto') return isAutomaticReport(report);
+      if (filterStatus === 'pending') return !report;
+      return true;
+    })
+    .sort((a, b) => ((serialMapping as any)[a.emis_code] || 9999) - ((serialMapping as any)[b.emis_code] || 9999));
+  const totalPages = Math.max(1, Math.ceil(sortedFilteredSchools.length / pageSize));
+  const safeCurrentPage = Math.min(currentPage, totalPages);
+  const paginatedSchools = printingAllRows
+    ? sortedFilteredSchools
+    : sortedFilteredSchools.slice((safeCurrentPage - 1) * pageSize, safeCurrentPage * pageSize);
+  const issueCount = schools.filter((school) => isIssueReport(reportBySchool.get(school.emis_code))).length;
+  const automaticCount = schools.filter((school) => isAutomaticReport(reportBySchool.get(school.emis_code))).length;
+  const pendingCount = schools.filter((school) => !reportBySchool.get(school.emis_code)).length;
+  const selectedReport = selectedSchool ? reportBySchool.get(selectedSchool.emis_code) : null;
+  const drawerItems = [
+    { code: 'bun', label: 'বনরুটি', plannedField: 'planned_bread', receivedField: 'received_bread', shortageField: 'shortage_bread', excessField: 'excess_bread', visible: showBread },
+    { code: 'egg', label: 'সিদ্ধ ডিম', plannedField: 'planned_egg', receivedField: 'received_egg', shortageField: 'shortage_egg', excessField: 'excess_egg', visible: showEgg },
+    { code: 'banana', label: 'কলা', plannedField: 'planned_banana', receivedField: 'received_banana', shortageField: 'shortage_banana', excessField: 'excess_banana', visible: showBanana },
+  ].filter((item) => item.visible);
+  const selectedQuantityDirection = quantityResolutionDirections[resolutionReason];
+  const canResolveSelectedReport = accountRole === 'super_admin' && isIssueReport(selectedReport);
+
   return (
     <section id="distribution-exceptions" className="panel distribution-exceptions" style={{ gridColumn: "1 / -1", marginBottom: '24px' }}>
-      <div className="panel-head distribution-panel-head distribution-exceptions-head no-print" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <span className="distribution-section-icon distribution-section-icon-alert" aria-hidden="true">
-            <AlertIcon />
-          </span>
-          <div>
-            <h2 style={{ marginBottom: '4px' }}>স্কুলভিত্তিক বিতরণ সমন্বয়</h2>
-              <p style={{ fontSize: '14px', fontWeight: 600, color: 'var(--ink-dark)', marginTop: '4px', marginBottom: 0 }}>
-                {mounted ? currentTime.toLocaleString('bn-BD', {
-                  timeZone: 'Asia/Dhaka',
-                  dateStyle: 'full',
-                  timeStyle: 'medium'
-                }) : 'সময় লোড হচ্ছে...'}
-              </p>
+      <div className="panel-head distribution-panel-head distribution-exceptions-head no-print">
+        <div className="distribution-exceptions-title">
+          <h2>{accountRole === 'tiffin_manager' ? 'আমার বিদ্যালয়ের বিতরণ রিপোর্ট' : 'স্কুলভিত্তিক বিতরণ সমন্বয়'}</h2>
+          <div className="distribution-header-meta">
+            <span>{headerDate}</span>
+            <span>সময় {headerTime}</span>
           </div>
         </div>
         <button 
-          className="button-primary no-print" 
+          className="button-primary distribution-print-button no-print"
           onClick={printDistributionReport}
-          style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
         >
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
           প্রিন্ট করুন
@@ -360,9 +451,31 @@ export function SchoolDistributionAdjustment({ accountRole, userAreaCode, onDate
             )}
           </p>
         </div>
+        {accountRole === 'super_admin' && (
+          <div className="distribution-summary-grid no-print" aria-label="বিতরণ রিপোর্টের সারসংক্ষেপ">
+            <article className="distribution-summary-card is-total">
+              <span className="distribution-summary-icon">▦</span>
+              <div><small>মোট স্কুল</small><strong>{engToBnNumber(schools.length)}</strong><span>টি স্কুল</span></div>
+            </article>
+            <article className="distribution-summary-card is-issue">
+              <span className="distribution-summary-icon">!</span>
+              <div><small>সমস্যা আছে</small><strong>{engToBnNumber(issueCount)}</strong><span>টি স্কুল</span></div>
+            </article>
+            <article className="distribution-summary-card is-pending">
+              <span className="distribution-summary-icon">◷</span>
+              <div>
+                <small>{reportingWindow.shouldAutoReceive ? 'স্বয়ংক্রিয়ভাবে নিশ্চিত' : 'অটো কনফার্ম বাকি'}</small>
+                <strong>{engToBnNumber(reportingWindow.shouldAutoReceive ? automaticCount : pendingCount)}</strong>
+                <span>টি স্কুল{!reportingWindow.shouldAutoReceive && ' · দুপুর ২টার পর'}</span>
+              </div>
+            </article>
+          </div>
+        )}
         {isLockedForManager && (
           <div style={{ marginBottom: '16px', padding: '12px', background: '#fff3cd', border: '1px solid #ffe69c', borderRadius: '8px', color: '#664d03', fontSize: '13px' }}>
-            <strong>সতর্কতা:</strong> এরিয়া ম্যানেজার শুধু বিতরণের দিন দুপুর ২টার আগে রিপোর্ট করতে পারবেন। সময় শেষ হওয়ায় বরাদ্দকৃত আইটেম স্কুলে সঠিকভাবে বিতরণ হয়েছে বলে ধরা হয়েছে।
+            <strong>সতর্কতা:</strong> {!hasScheduledItems
+              ? 'এই তারিখে কোনো আইটেম বিতরণ নির্ধারিত নেই।'
+              : <>{accountRole === 'tiffin_manager' ? 'টিফিন ম্যানেজার শুধু নিজের বিদ্যালয়ের বিতরণের দিন দুপুর ২টার আগে রিপোর্ট করতে পারবেন।' : 'এরিয়া ম্যানেজার শুধু বিতরণের দিন দুপুর ২টার আগে রিপোর্ট করতে পারবেন।'} সময় শেষ হওয়ায় বরাদ্দকৃত আইটেম স্কুলে সঠিকভাবে বিতরণ হয়েছে বলে ধরা হয়েছে।</>}
           </div>
         )}
 
@@ -374,6 +487,8 @@ export function SchoolDistributionAdjustment({ accountRole, userAreaCode, onDate
               lang="en-GB"
               value={filterDate} 
               onChange={e => setFilterDate(e.target.value)} 
+              disabled={accountRole === 'tiffin_manager'}
+              title={accountRole === 'tiffin_manager' ? 'টিফিন ম্যানেজার শুধু আজকের বিতরণ রিপোর্ট করতে পারবেন' : undefined}
               style={{ padding: '8px', borderRadius: '6px', border: '1px solid var(--line)' }}
             />
           </label>
@@ -390,16 +505,20 @@ export function SchoolDistributionAdjustment({ accountRole, userAreaCode, onDate
               <label style={{ display: 'flex', flexDirection: 'column', gap: '4px', fontSize: '13px' }}>
                 স্ট্যাটাস:
                 <select value={filterStatus} onChange={e => setFilterStatus(e.target.value)} style={{ padding: '8px', borderRadius: '6px', border: '1px solid var(--line)' }}>
-                  <option value="">সকল</option>
-                  <option value="new">রিপোর্ট করা সমস্যা</option>
+                  <option value="">সব স্ট্যাটাস</option>
+                  <option value="issue">সমাধান প্রয়োজন</option>
+                  <option value="pending">রিপোর্টের অপেক্ষায়</option>
+                  <option value="auto">স্বয়ংক্রিয়ভাবে নিশ্চিত</option>
                   <option value="resolved">সমন্বয় সম্পন্ন</option>
                 </select>
               </label>
             </>
           )}
 
-          <div style={{ alignSelf: 'flex-end', paddingBottom: '8px' }}>
-            {loading && <span style={{ color: 'var(--ink-light)', fontSize: '13px' }}>Loading...</span>}
+          <div className="distribution-filter-refresh">
+            <button type="button" className="button-secondary" onClick={() => void fetchData()} disabled={loading}>
+              ↻ {loading ? 'লোড হচ্ছে…' : 'রিফ্রেশ করুন'}
+            </button>
           </div>
         </div>
 
@@ -427,21 +546,6 @@ export function SchoolDistributionAdjustment({ accountRole, userAreaCode, onDate
                   </thead>
             <tbody>
               {(() => {
-                const filteredSchools = [...schools].filter(school => {
-                  if (!filterStatus) return true;
-                  const storedReport = reports.find(r => r.school_emis_code === school.emis_code);
-                  const report = !hasScheduledItems && storedReport?.comments === 'অটো-রিসিভড (২ টার পর)' ? undefined : storedReport;
-                  if (filterStatus === 'new') return report && report.status === 'new';
-                  if (filterStatus === 'resolved') return report && report.status === 'resolved';
-                  return true;
-                });
-
-                const sortedSchools = filteredSchools.sort((a, b) => {
-                   const serialA = (serialMapping as any)[a.emis_code] || 999;
-                   const serialB = (serialMapping as any)[b.emis_code] || 999;
-                   return serialA - serialB;
-                });
-
                 const formatItems = (items: { amount: number; unit: string }[]) => {
                   if (items.length === 0) return '-';
                   return items.map((item, index) => (
@@ -452,7 +556,7 @@ export function SchoolDistributionAdjustment({ accountRole, userAreaCode, onDate
                   ));
                 };
 
-                return sortedSchools.map((school) => {
+                return paginatedSchools.map((school) => {
                   const report = reports.find(r => r.school_emis_code === school.emis_code);
                   const planned = school.current_daily_demand || 0;
                   const serialNum = (serialMapping as any)[school.emis_code] || '-';
@@ -468,7 +572,7 @@ export function SchoolDistributionAdjustment({ accountRole, userAreaCode, onDate
                   let isShortage = false;
                   let hasExcess = false;
 
-                  const isAutoReceived = hasScheduledItems && (report?.comments === 'অটো-রিসিভড (২ টার পর)' || (!report && reportingWindow.shouldAutoReceive));
+                  const isAutoReceived = hasScheduledItems && (isAutomaticReport(report) || (!report && reportingWindow.shouldAutoReceive));
                   
                   if (!isAutoReceived && report) {
                     const receivedItems = [];
@@ -481,17 +585,17 @@ export function SchoolDistributionAdjustment({ accountRole, userAreaCode, onDate
                     const shortageItems = [];
                     let hasShortage = false;
                     if (showBread) { 
-                      const diff = report.shortage_bread - report.excess_bread;
+                      const diff = Number(report.outstanding_shortage_bun ?? report.shortage_bread) - Number(report.outstanding_excess_bun ?? report.excess_bread);
                       if (diff > 0) { shortageItems.push({ amount: diff, unit: 'রুটি (ঘাটতি)' }); hasShortage = true; }
                       else if (diff < 0) { shortageItems.push({ amount: Math.abs(diff), unit: 'রুটি (অতিরিক্ত)' }); hasExcess = true; }
                     }
                     if (showEgg) { 
-                      const diff = report.shortage_egg - report.excess_egg;
+                      const diff = Number(report.outstanding_shortage_egg ?? report.shortage_egg) - Number(report.outstanding_excess_egg ?? report.excess_egg);
                       if (diff > 0) { shortageItems.push({ amount: diff, unit: 'ডিম (ঘাটতি)' }); hasShortage = true; }
                       else if (diff < 0) { shortageItems.push({ amount: Math.abs(diff), unit: 'ডিম (অতিরিক্ত)' }); hasExcess = true; }
                     }
                     if (showBanana) { 
-                      const diff = report.shortage_banana - report.excess_banana;
+                      const diff = Number(report.outstanding_shortage_banana ?? report.shortage_banana) - Number(report.outstanding_excess_banana ?? report.excess_banana);
                       if (diff > 0) { shortageItems.push({ amount: diff, unit: 'কলা (ঘাটতি)' }); hasShortage = true; }
                       else if (diff < 0) { shortageItems.push({ amount: Math.abs(diff), unit: 'কলা (অতিরিক্ত)' }); hasExcess = true; }
                     }
@@ -534,24 +638,28 @@ export function SchoolDistributionAdjustment({ accountRole, userAreaCode, onDate
                                 padding: '4px 8px', borderRadius: '4px', fontSize: '12px',
                                 background: '#d1e7dd', color: '#0f5132'
                               }}>
-                                সঠিক আইটেম পাওয়া গেছে
+                                স্বয়ংক্রিয়ভাবে নিশ্চিত
                               </span>
                             ) : (
                               <>
                                 <span style={{ 
                                   padding: '4px 8px', borderRadius: '4px', fontSize: '12px',
-                                  background: report.status === 'new' ? '#fff3cd' : 
+                                  background: isIssueReport(report) ? '#fff3cd' :
                                               report.status === 'resolved' ? '#d1e7dd' : '#e2e3e5'
                                 }}>
-                                  {report.status === 'new'
-                                    ? ((problemTypeMapping as any)[report.problem_type] || report.problem_type)
-                                    : report.status === 'resolved' ? 'সম্পন্ন' : report.status}
+                                  {report.status === 'new' ? 'সমাধান প্রয়োজন'
+                                    : report.status === 'under_review' ? 'সমন্বয়ের অপেক্ষায়'
+                                    : report.status === 'partially_resolved' ? 'আংশিক সমন্বিত'
+                                    : report.status === 'resolved' ? (report.problem_type === 'none' ? 'সম্পূর্ণ প্রাপ্ত' : 'সমন্বয় সম্পন্ন')
+                                    : report.status}
                                 </span>
-                                {accountRole === 'super_admin' && report.status !== 'new' && report.problem_type && report.problem_type !== 'none' && (
-                                  <div className="no-print" style={{ fontSize: '11px', color: 'var(--muted)', marginTop: '4px' }}>
-                                    নোট: {(problemTypeMapping as any)[report.problem_type] || report.problem_type}
-                                  </div>
-                                )}
+                                <div className="distribution-status-reason">
+                                  {isIssueReport(report)
+                                    ? `কারণ: ${report.reason || (problemTypeMapping as any)[report.problem_type] || 'উল্লেখ নেই'}`
+                                    : report.status === 'resolved' && report.resolution_reason
+                                      ? `সমন্বয়ের কারণ: ${report.resolution_reason}`
+                                      : ''}
+                                </div>
                               </>
                             )}
                           </td>
@@ -565,14 +673,16 @@ export function SchoolDistributionAdjustment({ accountRole, userAreaCode, onDate
                       )}
                       
                       <td className="no-print" style={{ textAlign: 'center', padding: '12px' }}>
-                        <button 
-                          className="button-secondary" 
-                          onClick={() => handleReportClick(school)}
-                          disabled={isLockedForManager}
-                          style={{ opacity: isLockedForManager ? 0.5 : 1, cursor: isLockedForManager ? 'not-allowed' : 'pointer' }}
-                        >
-                          {accountRole === 'super_admin' ? 'সমন্বয় করুন' : 'রিপোর্ট করুন'}
-                        </button>
+                        {accountRole === 'super_admin' && (!report || isAutoReceived) ? <span className="distribution-empty-action">—</span> : (
+                          <button
+                            className="button-secondary"
+                            onClick={() => handleReportClick(school)}
+                            disabled={isLockedForManager}
+                            style={{ opacity: isLockedForManager ? 0.5 : 1, cursor: isLockedForManager ? 'not-allowed' : 'pointer' }}
+                          >
+                            {accountRole === 'super_admin' ? 'দেখুন' : 'রিপোর্ট করুন'}
+                          </button>
+                        )}
                       </td>
                     </tr>
                   );
@@ -590,75 +700,192 @@ export function SchoolDistributionAdjustment({ accountRole, userAreaCode, onDate
           </div>
           );
         })()}
+        <div className="distribution-pagination no-print">
+          <span>মোট {engToBnNumber(sortedFilteredSchools.length)}টি স্কুল</span>
+          <div className="distribution-pagination-controls">
+            <button type="button" onClick={() => setCurrentPage((page) => Math.max(1, page - 1))} disabled={safeCurrentPage === 1}>‹</button>
+            <strong>{engToBnNumber(safeCurrentPage)}</strong>
+            <span>/ {engToBnNumber(totalPages)}</span>
+            <button type="button" onClick={() => setCurrentPage((page) => Math.min(totalPages, page + 1))} disabled={safeCurrentPage === totalPages}>›</button>
+          </div>
+          <label>প্রতি পেইজে
+            <select value={pageSize} onChange={(event) => setPageSize(Number(event.target.value))}>
+              <option value={10}>১০</option>
+              <option value={20}>২০</option>
+              <option value={50}>৫০</option>
+              <option value={100}>১০০</option>
+              <option value={200}>২০০</option>
+            </select>
+          </label>
+        </div>
       </div>
       </div>
 
       {isModalOpen && selectedSchool && (
-        <div style={{
-          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, 
-          background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000
+        <div className="distribution-drawer-layer" onMouseDown={(event) => {
+          if (event.target === event.currentTarget) setIsModalOpen(false);
         }}>
-          <div style={{ background: '#fff', padding: '24px', borderRadius: '12px', width: '100%', maxWidth: '600px', maxHeight: '90vh', overflowY: 'auto' }}>
-            <h3 style={{ marginBottom: '16px', fontSize: '1.2rem', fontWeight: 600 }}>
-              {accountRole === 'super_admin' ? 'বিতরণ সমন্বয়' : 'বিতরণ সমস্যা অভিযোগ'} - {selectedSchool.name_bn}
-            </h3>
-            
-            <form onSubmit={handleFormSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-              <div style={{ display: 'flex', gap: '16px', background: '#f8fbf9', padding: '12px', borderRadius: '8px' }}>
-                <div style={{ flex: 1 }}>
-                  <label style={{ display: 'block', fontSize: '13px', color: 'var(--ink-light)', marginBottom: '4px' }}>তারিখ</label>
-                  <strong>{formatDateDMY(filterDate)}</strong>
-                </div>
-                <div style={{ flex: 1 }}>
-                  <label style={{ display: 'block', fontSize: '13px', color: 'var(--ink-light)', marginBottom: '4px' }}>বরাদ্দ</label>
-                  <strong>{selectedSchool.current_daily_demand || 0} পিস (প্রতিটি আইটেম)</strong>
-                </div>
-              </div>
-
+          <aside className="distribution-resolution-drawer" role="dialog" aria-modal="true" aria-label="বিদ্যালয়ের বিতরণ সমন্বয়">
+            <header className="distribution-drawer-header">
               <div>
-                <h4 style={{ fontSize: '14px', marginBottom: '8px', color: 'var(--ink-light)' }}>প্রাপ্ত সংখ্যা প্রদান করুন:</h4>
-                <div style={{ display: 'flex', gap: '12px' }}>
-                  {showBread && (
-                    <label style={{ display: 'flex', flexDirection: 'column', gap: '4px', flex: 1 }}>
-                      <span style={{ fontSize: '14px' }}>রুটি</span>
-                      <input type="number" min="0" required value={receivedBread} onChange={e => setReceivedBread(Number(e.target.value))} style={{ padding: '8px', border: '1px solid var(--line)', borderRadius: '6px' }} />
-                    </label>
-                  )}
-                  {showEgg && (
-                    <label style={{ display: 'flex', flexDirection: 'column', gap: '4px', flex: 1 }}>
-                      <span style={{ fontSize: '14px' }}>ডিম</span>
-                      <input type="number" min="0" required value={receivedEgg} onChange={e => setReceivedEgg(Number(e.target.value))} style={{ padding: '8px', border: '1px solid var(--line)', borderRadius: '6px' }} />
-                    </label>
-                  )}
-                  {showBanana && (
-                    <label style={{ display: 'flex', flexDirection: 'column', gap: '4px', flex: 1 }}>
-                      <span style={{ fontSize: '14px' }}>কলা</span>
-                      <input type="number" min="0" required value={receivedBanana} onChange={e => setReceivedBanana(Number(e.target.value))} style={{ padding: '8px', border: '1px solid var(--line)', borderRadius: '6px' }} />
-                    </label>
-                  )}
-                </div>
+                <span>{accountRole === 'super_admin' ? 'বিদ্যালয়ের বিতরণ বিস্তারিত' : 'বিতরণ সমস্যা অভিযোগ'}</span>
+                <h3>{selectedSchool.name_bn}</h3>
+                <small>{formatDateDMY(filterDate)} · EMIS {selectedSchool.emis_code}</small>
               </div>
+              <button type="button" onClick={() => setIsModalOpen(false)} aria-label="বন্ধ করুন">×</button>
+            </header>
 
-              <label style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                <span style={{ fontSize: '14px' }}>সমস্যার ধরন</span>
-                <select value={problemType} onChange={e => setProblemType(e.target.value)} style={{ padding: '8px', border: '1px solid var(--line)', borderRadius: '6px' }}>
-                  <option value="less_item">কম আইটেম পাওয়া গেছে</option>
-                  <option value="more_item">বেশি আইটেম পাওয়া গেছে</option>
-                  <option value="no_item">কোনো আইটেম পাওয়া যায়নি</option>
-                  <option value="wrong_item">ভুল আইটেম পাওয়া গেছে</option>
-                  <option value="school_closed">স্কুল বন্ধ ছিল</option>
-                  <option value="other">অন্যান্য</option>
-                </select>
-              </label>
+            <form onSubmit={handleFormSubmit} className="distribution-drawer-form">
+              <section className="distribution-drawer-section">
+                <h4>বরাদ্দ</h4>
+                <div className="distribution-drawer-items">
+                  {drawerItems.map((item) => (
+                    <article key={`planned-${item.code}`}>
+                      <span>{item.label}</span>
+                      <strong>{engToBnNumber(Number(selectedReport?.[item.plannedField] ?? selectedSchool.current_daily_demand ?? 0))}টি</strong>
+                    </article>
+                  ))}
+                </div>
+              </section>
 
+              <section className="distribution-drawer-section">
+                <h4>প্রাপ্ত পরিমাণ</h4>
+                {accountRole === 'super_admin' ? (
+                  <div className="distribution-drawer-items">
+                    {drawerItems.map((item) => (
+                      <article key={`received-${item.code}`}>
+                        <span>{item.label}</span>
+                        <strong>{engToBnNumber(Number(selectedReport?.[item.receivedField] ?? 0))}টি</strong>
+                      </article>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="distribution-drawer-inputs">
+                    {showBread && <label>বনরুটি<input type="number" min="0" required value={receivedBread} onChange={e => setReceivedBread(Number(e.target.value))} /></label>}
+                    {showEgg && <label>সিদ্ধ ডিম<input type="number" min="0" required value={receivedEgg} onChange={e => setReceivedEgg(Number(e.target.value))} /></label>}
+                    {showBanana && <label>কলা<input type="number" min="0" required value={receivedBanana} onChange={e => setReceivedBanana(Number(e.target.value))} /></label>}
+                  </div>
+                )}
+              </section>
 
-              
-              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', marginTop: '8px' }}>
-                <button type="button" className="button-secondary" onClick={() => setIsModalOpen(false)}>বাতিল</button>
-                <button type="submit" className="button-primary">সংরক্ষণ করুন</button>
+              {selectedReport && (
+                <section className="distribution-drawer-section">
+                  <h4>পার্থক্য ও বর্তমান বকেয়া</h4>
+                  <div className="distribution-difference-grid">
+                    {drawerItems.map((item) => {
+                      const shortage = Number(selectedReport[`outstanding_shortage_${item.code}`] ?? selectedReport[item.shortageField] ?? 0);
+                      const excess = Number(selectedReport[`outstanding_excess_${item.code}`] ?? selectedReport[item.excessField] ?? 0);
+                      const difference = excess - shortage;
+                      const isSelected = selectedResolutionItem === item.code;
+                      return <button
+                        type="button"
+                        key={`difference-${item.code}`}
+                        className={`${difference < 0 ? 'is-shortage' : difference > 0 ? 'is-excess' : 'is-exact'}${isSelected ? ' is-selected' : ''}`}
+                        aria-pressed={isSelected}
+                        disabled={difference >= 0 || !canResolveSelectedReport}
+                        title={difference > 0 ? 'অতিরিক্ত অংশ আগের ঘাটতিতে সমন্বয়ের পর প্রিন্ট হিসাব থেকে বাদ যাবে' : undefined}
+                        onClick={() => {
+                          setSelectedResolutionItem(item.code as 'bun' | 'egg' | 'banana');
+                          setResolutionItems({ bun: 0, egg: 0, banana: 0 });
+                        }}
+                      >
+                        <span>{item.label}</span>
+                        <strong>{difference > 0 ? `+${engToBnNumber(difference)}টি · প্রিন্টে বাদ` : `${engToBnNumber(difference)}টি`}</strong>
+                      </button>;
+                    })}
+                  </div>
+                  {canResolveSelectedReport && <p className="distribution-item-select-hint">আলাদাভাবে সমন্বয় করতে বকেয়া আইটেমে ক্লিক করুন।</p>}
+                  <p className="distribution-manager-reason"><strong>রিপোর্টের কারণ:</strong> {selectedReport.reason || 'উল্লেখ নেই'}</p>
+                </section>
+              )}
+
+              {Array.isArray(selectedReport?.adjustments) && selectedReport.adjustments.length > 0 && (
+                <section className="distribution-drawer-section distribution-adjustment-history">
+                  <h4>মাসিক সমন্বয় ইতিহাস</h4>
+                  {selectedReport.adjustments.map((adjustment: any) => (
+                    <p key={adjustment.id}>
+                      <strong>{engToBnNumber(adjustment.quantity)}টি</strong> {adjustment.item_code === 'bun' ? 'বনরুটি' : adjustment.item_code === 'egg' ? 'সিদ্ধ ডিম' : 'কলা'} · {formatDateDMY(adjustment.shortage_date)} → {formatDateDMY(adjustment.excess_date)}
+                    </p>
+                  ))}
+                </section>
+              )}
+
+              {Array.isArray(selectedReport?.resolution_items) && selectedReport.resolution_items.length > 0 && (
+                <section className="distribution-drawer-section distribution-adjustment-history">
+                  <h4>প্রশাসনিক সমন্বয় ইতিহাস</h4>
+                  {selectedReport.resolution_items.map((item: any) => (
+                    <p key={`resolution-${item.id}`}>
+                      <strong>{engToBnNumber(item.quantity)}টি</strong> {item.item_code === 'bun' ? 'বনরুটি' : item.item_code === 'egg' ? 'সিদ্ধ ডিম' : 'কলা'} · {item.action}
+                    </p>
+                  ))}
+                </section>
+              )}
+
+              {accountRole === 'super_admin' ? (
+                <section className="distribution-drawer-section">
+                  <h4>কী ব্যবস্থা নেওয়া হবে?</h4>
+                  <div className="distribution-resolution-options">
+                    {adjustmentReasons.map((item) => (
+                      <label key={item}>
+                        <input type="radio" name="resolution-action" value={item} checked={resolutionReason === item} onChange={(event) => { setResolutionReason(event.target.value); setResolutionItems({ bun: 0, egg: 0, banana: 0 }); }} disabled={!canResolveSelectedReport} />
+                        <span>{item}</span>
+                      </label>
+                    ))}
+                  </div>
+                  {selectedQuantityDirection && (
+                    <div className="distribution-resolution-quantity">
+                      <h5>সরবরাহ/পূরণ করা পরিমাণ</h5>
+                      <div className="distribution-resolution-quantity-grid">
+                        {drawerItems.map((item) => {
+                          if (item.code !== selectedResolutionItem) return null;
+                          const outstanding = Number(selectedReport?.[`outstanding_${selectedQuantityDirection}_${item.code}`] || 0);
+                          if (outstanding <= 0) return <p className="distribution-resolution-unavailable" key={`resolution-input-${item.code}`}>নির্বাচিত ব্যবস্থাটি {item.label}-এর বর্তমান বকেয়ার সঙ্গে প্রযোজ্য নয়।</p>;
+                          return (
+                            <label key={`resolution-input-${item.code}`}>
+                              <span>{item.label}<small>বকেয়া {engToBnNumber(outstanding)}টি</small></span>
+                              <input
+                                type="number"
+                                min="0"
+                                max={outstanding}
+                                value={resolutionItems[item.code as keyof typeof resolutionItems]}
+                                onChange={(event) => setResolutionItems((current) => ({ ...current, [item.code]: Math.max(0, Math.floor(Number(event.target.value) || 0)) }))}
+                                disabled={!canResolveSelectedReport}
+                              />
+                            </label>
+                          );
+                        })}
+                        {!selectedResolutionItem && <p className="distribution-resolution-unavailable">পরিমাণ লিখতে উপরের বকেয়া থেকে একটি আইটেম নির্বাচন করুন।</p>}
+                      </div>
+                    </div>
+                  )}
+                  {['অন্যান্য', 'রিপোর্ট ভুল / বাতিল'].includes(resolutionReason) && <label className="distribution-resolution-note">
+                    মন্তব্য (আবশ্যিক)
+                    <textarea rows={3} value={comments} onChange={(event) => setComments(event.target.value)} placeholder="সমন্বয়ের বিস্তারিত লিখুন…" disabled={!canResolveSelectedReport} />
+                  </label>}
+                </section>
+              ) : (
+                <section className="distribution-drawer-section">
+                  <label className="distribution-resolution-note">সমস্যার ধরন
+                    <select value={problemType} onChange={e => setProblemType(e.target.value)}>
+                      <option value="less_item">কম আইটেম পাওয়া গেছে</option>
+                      <option value="more_item">বেশি আইটেম পাওয়া গেছে</option>
+                      <option value="no_item">কোনো আইটেম পাওয়া যায়নি</option>
+                      <option value="wrong_item">ভুল আইটেম পাওয়া গেছে</option>
+                      <option value="school_closed">স্কুল বন্ধ ছিল</option>
+                      <option value="other">অন্যান্য</option>
+                    </select>
+                  </label>
+                </section>
+              )}
+
+              <div className="distribution-drawer-actions">
+                <button type="button" className="button-secondary" onClick={() => setIsModalOpen(false)}>বন্ধ করুন</button>
+                {(accountRole !== 'super_admin' || canResolveSelectedReport) && (
+                  <button type="submit" className="button-primary" disabled={isSavingResolution}>{isSavingResolution ? 'সংরক্ষণ হচ্ছে…' : accountRole === 'super_admin' ? 'সমাধান করুন' : 'রিপোর্ট সংরক্ষণ করুন'}</button>
+                )}
               </div>
             </form>
-          </div>
+          </aside>
         </div>
       )}
     </section>
